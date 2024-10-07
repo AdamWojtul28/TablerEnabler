@@ -1,26 +1,58 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import morgan from "morgan";
+import generalRoutes from "./routes/general.js";
 
-dotenv.config(); // Load environment variables
 
+
+// // data imports
+// import User from "./models/User.js";
+// import Product from "./models/Product.js";
+// import ProductStat from "./models/ProductStat.js";
+// import Transaction from "./models/Transaction.js";
+// import OverallStat from "./models/OverallStat.js";
+// import AffiliateStat from "./models/AffiliateStat.js";
+// import {
+//   dataUser,
+//   dataProduct,
+//   dataProductStat,
+//   dataTransaction,
+//   dataOverallStat,
+//   dataAffiliateStat,
+// } from "./data/index.js";
+
+
+
+/* CONFIGURATION */
+dotenv.config();
 const app = express();
-
-
-
-// Middleware
-const corsOptions = {
-    origin: "http://localhost:3000" // frontend URI (ReactJS)
-};
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+app.use(morgan("common"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
 
-// Routes
-//Unknown for now
+/* ROUTES */
+app.use("/general", generalRoutes);
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`App is Listening on PORT ${PORT}`));
+/* MONGOOSE SETUP */
+const PORT = process.env.PORT || 9000;
+mongoose.connect(process.env.MONGODB_URI, {
+  }).then(() => {
+    app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
 
-app.get('/test', (req, res) => {
-    res.json({ message: 'Server is working' });
-});
+    /* ONLY ADD DATA ONE TIME */
+    // AffiliateStat.insertMany(dataAffiliateStat);
+    // OverallStat.insertMany(dataOverallStat);
+    // Product.insertMany(dataProduct);
+    // ProductStat.insertMany(dataProductStat);
+    // Transaction.insertMany(dataTransaction);
+    // User.insertMany(dataUser);
+  })
+  .catch((error) => console.log(`${error} did not connect`));
