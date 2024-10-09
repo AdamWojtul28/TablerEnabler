@@ -9,21 +9,8 @@ import generalRoutes from "./routes/general.js";
 
 
 
-// // data imports
-// import User from "./models/User.js";
-// import Product from "./models/Product.js";
-// import ProductStat from "./models/ProductStat.js";
-// import Transaction from "./models/Transaction.js";
-// import OverallStat from "./models/OverallStat.js";
-// import AffiliateStat from "./models/AffiliateStat.js";
-// import {
-//   dataUser,
-//   dataProduct,
-//   dataProductStat,
-//   dataTransaction,
-//   dataOverallStat,
-//   dataAffiliateStat,
-// } from "./data/index.js";
+// data imports from models for user schema and tabling schema
+// data imports from data folder if we will populate tabling events manually
 
 
 
@@ -47,12 +34,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   }).then(() => {
     app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
 
-    /* ONLY ADD DATA ONE TIME */
-    // AffiliateStat.insertMany(dataAffiliateStat);
-    // OverallStat.insertMany(dataOverallStat);
-    // Product.insertMany(dataProduct);
-    // ProductStat.insertMany(dataProductStat);
-    // Transaction.insertMany(dataTransaction);
-    // User.insertMany(dataUser);
+    /* ADD DATA HERE BUT ONLY ONE TIME */
   })
   .catch((error) => console.log(`${error} did not connect`));
