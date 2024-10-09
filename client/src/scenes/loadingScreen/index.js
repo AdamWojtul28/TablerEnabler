@@ -16,7 +16,7 @@ const LoadingScreen = () => {
     }, [navigate]);
 
     return (
-        <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
+            <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
             <img 
                 src="https://media.giphy.com/media/EURa8GpC4Kyx0jGWGB/giphy.gif?cid=ecf05e47rbbd8aodgespv2wb98k6kybfqr32fv9t2d4ytdr0&ep=v1_gifs_search&rid=giphy.gif&ct=g"
                 alt="Loading"
