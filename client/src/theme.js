@@ -3,7 +3,6 @@
 // #ff7300 orange ish
 
 
-
 // color design tokens export
 export const tokensDark = {
   grey: {
@@ -22,17 +21,29 @@ export const tokensDark = {
     1000: "#000000", // manually adjusted
   },
   primary: {
-    // blue
-    100: "#d3d4de",
-    200: "#a6a9be",
-    300: "#7a7f9d",
-    400: "#4d547d",
-    500: "#21295c",
-    600: "#191F45", // manually adjusted
-    700: "#141937",
-    800: "#0d1025",
-    900: "#070812",
-  },
+    //black
+    100: "#d1d1d2",
+    200: "#a4a4a4",
+    300: "#767677",
+    400: "#494949",
+    500: "#1b1b1c",
+    600: "#161616",
+    700: "#101011",
+    800: "#0b0b0b",
+    900: "#050506"
+},
+  // primary: {  
+  //   // blue
+  //   100: "#d3d4de",
+  //   200: "#a6a9be",
+  //   300: "#7a7f9d",
+  //   400: "#4d547d",
+  //   500: "#21295c",
+  //   600: "#191F45", // manually adjusted
+  //   700: "#141937",
+  //   800: "#0d1025",
+  //   900: "#070812",
+  // },
   secondary: {
     // yellow
     50: "#f0f0f0", // manually adjusted
