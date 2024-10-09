@@ -37,3 +37,15 @@
 7) cd client
 
 8) npm i react-redux @reduxjs/toolkit react-datepicker react-router-dom@6 @mui/material @emotion/react @emotion/styled @mui/icons-material @mui/x-data-grid @nivo/geo
+
+
+
+
+
+
+Missaleneous:
+- redux used to save variables for global aaccess in "store". Primarily used for dark/light mode
+    -all the react redux hooks
+        - https://react-redux.js.org/api/hooks
+        
+- rafce to create react arrow function export component AKA react template for an arrow function (kindda similar to html body-header-footer template)
