@@ -45,7 +45,10 @@
 
 Missaleneous:
 - redux used to save variables for global aaccess in "store". Primarily used for dark/light mode
-    -all the react redux hooks
+    - all the react redux hooks
         - https://react-redux.js.org/api/hooks
         
 - rafce to create react arrow function export component AKA react template for an arrow function (kindda similar to html body-header-footer template)
+
+- added spline dependencies
+    - npm i @splinetool/react-spline

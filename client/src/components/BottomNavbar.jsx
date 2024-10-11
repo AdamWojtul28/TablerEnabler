@@ -7,16 +7,20 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { useTheme } from '@emotion/react';
 import FlexBetween from 'components/FlexBetween';
 import { useLocation, useNavigate } from 'react-router-dom';
-import calendar from "scenes/calendarList"
 
-const BottomNavbar = () => {
+const BottomNavbar = ({ isNonMobile }) => {
     const [value, setValue] = useState(0);
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const theme = useTheme();
   return (
     <BottomNavigation 
-        sx={{width: '100%', position: 'fixed', bottom: 0}}
+        sx={{
+            width: '100%', 
+            position: 'fixed', 
+            bottom: 0, 
+            display: isNonMobile ? "none" : "flex"
+        }}
         value={value}
         onChange={(event, newValue) => {
             setValue(newValue)
@@ -31,7 +35,7 @@ const BottomNavbar = () => {
         />
         <BottomNavigationAction label='Calendar' icon={ <CalendarMonthIcon />}
             onClick={() => {
-                navigate('/calendar');
+                navigate('/calendarlist');
             }}
         />
         <BottomNavigationAction label='Search' icon={ <SearchIcon />}

@@ -14,22 +14,27 @@ import { AppBar, Box, Button, IconButton, InputBase, Toolbar, useTheme } from '@
 
 
 
-const Navbar = () => {
+const Navbar = ({ 
+    isNonMobile,
+    isSidebarOpen,
+    setIsSidebarOpen,
+}) => {
     const dispatch = useDispatch();
     const theme = useTheme();
-
+    
   return (
     <AppBar
     sx={{
         position: "static",
         background: "none",
         backShadow: "none",
+        display: isNonMobile ? "flex" : "none",
     }}
     >
         <Toolbar sx={{ justifyContent: "space-between"}}>
             {/*LEFT SIDE menu icon + search bar */}
             <FlexBetween>
-                <IconButton onClick={() => console.log('open/close sidebar')}>
+                <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen) && (isSidebarOpen ? 'console.log("sidebar open")' : 'console.log("sidebar closed")')}>
                     <MenuIcon />
                 </IconButton>
 

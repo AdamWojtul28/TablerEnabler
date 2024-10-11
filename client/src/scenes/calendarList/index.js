@@ -2,7 +2,7 @@ import React from 'react'
 
 const CalendarList = () => {
   return (
-    <div>CalendarList page here</div>
+    <div style={{fontWeight: 'bold', fontSize: '32px'}}>CalendarList page here</div>
   )
 }
 

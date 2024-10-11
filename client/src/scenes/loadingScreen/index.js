@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom';
+import Spline from '@splinetool/react-spline';
 
 
 const LoadingScreen = () => {
@@ -8,16 +9,21 @@ const LoadingScreen = () => {
     useEffect(() => {
         // Wait for the GIF to finish one cycle, then navigate
         const timer = setTimeout(() => {
-            navigate('/map');
-        }, 6050);
+            navigate('/loadingscreen1');
+        }, 8000);
 
         // Clean up the timer if the component unmounts
         return () => clearTimeout(timer);
     }, [navigate]);
 
     return (
-            <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-            <img 
+        <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'white'}}>
+            <div>
+                <Spline scene="https://prod.spline.design/gnbg63Ho2LapXN2e/scene.splinecode" />
+                {/*<Spline scene="https://prod.spline.design/GnqUAnzgA796BxBW/scene.splinecode" />*/}
+            </div>
+            {/* //OPTION ORIGINAL SIRCULAR TOP VIEW UF
+                <img 
                 src="https://media.giphy.com/media/EURa8GpC4Kyx0jGWGB/giphy.gif?cid=ecf05e47rbbd8aodgespv2wb98k6kybfqr32fv9t2d4ytdr0&ep=v1_gifs_search&rid=giphy.gif&ct=g"
                 alt="Loading"
                 style={{
@@ -25,7 +31,7 @@ const LoadingScreen = () => {
                     height: '100%',
                     objectFit: 'cover'
                 }}
-            />
+            /> */}
             
             {/* OPTION 2 FOOTBALL FIELD ANIMATED
                 <img 

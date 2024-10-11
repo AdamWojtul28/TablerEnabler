@@ -10,6 +10,11 @@ import CalendarList from "scenes/calendarList";
 import Favorites from "scenes/favorites";
 import Search from "scenes/search";
 import LoadingScreen from "scenes/loadingScreen";
+import LoadingScreen1 from "scenes/loadingScreen1";
+import LoadingScreen2 from "scenes/loadingScreen2";
+import LoadingScreen3 from "scenes/loadingScreen3";
+import LoadingScreen4 from "scenes/loadingScreen4";
+import LoadingScreen5 from "scenes/loadingScreen5";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -26,9 +31,18 @@ function App() {
               <Route path="/" element={<Navigate to="/loadingScreen" replace />} /> {/*if we sign in successfully we will be redirected to main(map view) page*/}
               <Route path="/loadingScreen" element={<LoadingScreen />} />
               <Route path="/map" element={<Map />} />
-              <Route path="/calendar" element={<CalendarList />} />
+              <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
               <Route path="/favorites" element={<Favorites />} />
+
+
+
+              {/*LOADING SCRENS' SAMPLES NEED HELP WITH CHOOSING ONE */}
+              <Route path="/loadingScreen1" element={<LoadingScreen1 />} />
+              <Route path="/loadingScreen2" element={<LoadingScreen2 />} />
+              <Route path="/loadingScreen3" element={<LoadingScreen3 />} />
+              <Route path="/loadingScreen4" element={<LoadingScreen4 />} />
+              <Route path="/loadingScreen5" element={<LoadingScreen5 />} />
             </Route>
           </Routes>
         </ThemeProvider>
