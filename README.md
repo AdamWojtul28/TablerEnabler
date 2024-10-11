@@ -52,3 +52,7 @@ Missaleneous:
 
 - added spline dependencies
     - npm i @splinetool/react-spline
+
+
+    **** 
+    npm install leaflet esri-leaflet esri-leaflet-vector
