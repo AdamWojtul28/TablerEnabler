@@ -55,4 +55,5 @@ Missaleneous:
 
 
     **** 
-    npm install leaflet esri-leaflet esri-leaflet-vector
+    npm install leaflet esri-leaflet esri-leaflet-vector react-leaflet-cluster
+    npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction

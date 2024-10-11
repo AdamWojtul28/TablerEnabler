@@ -7,11 +7,6 @@ import './CalendarList.css';
 
 const CalendarComponent = () => {
   return (
-<<<<<<< HEAD
-    <div style={{fontWeight: 'bold', fontSize: '32px'}}>CalendarList page here</div>
-  )
-}
-=======
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
       initialView="timeGridWeek" // Use timeGrid view to show the now indicator
@@ -26,6 +21,5 @@ const CalendarComponent = () => {
     />
   );
 };
->>>>>>> 5ae21d4ed2a164b38db65c1a0a122995717c10b0
 
 export default CalendarComponent;

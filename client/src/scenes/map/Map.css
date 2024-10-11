@@ -1,0 +1,38 @@
+.Map {
+    font-family: sans-serif;
+    text-align: center;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    height: 100vh;
+  }
+  
+  
+  /* sizing of map container */
+  .leaflet-container {
+    height: calc(100vh - 64px); /* Adjust map to fill the remaining space */
+  }
+  
+  
+  
+  .cluster-icon {
+    background-color: #FA4616;
+    height: 2em;
+    width: 2em;
+    color: #0021A5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    box-shadow: 0 0 0px 5px #0021A5;
+  }
+  
+  
+  

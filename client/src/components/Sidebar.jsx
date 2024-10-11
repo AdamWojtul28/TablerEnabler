@@ -173,7 +173,7 @@ const Sidebar = ({
                   fontSize="0.8rem"
                   sx={{ color: theme.palette.secondary[200] }}
                 >
-                  {"MFking ADMIN"} {/*USER STATUS ATTRIBUTE SHOULD GO HERE ONCE WE HAVE OUR SCHEMAS like student, admin, or club officer*/}
+                  {"Very nice and polite ADMIN"} {/*USER STATUS ATTRIBUTE SHOULD GO HERE ONCE WE HAVE OUR SCHEMAS like student, admin, or club officer*/}
                 </Typography>
               </Box>
               <SettingsOutlined
