@@ -3,9 +3,14 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import { Icon, divIcon, point, LatLngBounds } from "leaflet";
 import MarkerClusterGroup from 'react-leaflet-cluster';
+import { useState, useEffect } from 'react';
 
 
 export default function Map() {
+  const [userLocation, setUserLocation] = useState(null);
+  const [error, setError] = useState(null);
+  const defaultLocation = [29.64929896217566, -82.34410532210882]; // Default location to centure tower/turlington
+
   // constant markers
   const markers = [
     {
@@ -32,6 +37,12 @@ const customIcon = new Icon({
 });
 
 
+const userIcon = new Icon({
+  iconUrl: "/icons/user.png",
+  iconSize: [35, 35] // size of the icon
+});
+
+
 // custom cluster icon
 const createClusterCustomIcon = function (cluster) {
   return new divIcon({
@@ -49,8 +60,37 @@ const createClusterCustomIcon = function (cluster) {
   );
 
 
+  
+
+    // Fetch user location when component mounts
+    useEffect(() => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            });
+          },
+          (error) => {
+            setError(error.message);
+          }
+        );
+      } else {
+        setError('Geolocation is not supported by this browser.');
+      }
+    }, []);
+
+
+    // Determine the center of the map based on user location or fallback to default location
+  const mapCenter = userLocation
+  ? [userLocation.latitude, userLocation.longitude]  // User's location
+  : defaultLocation;  // Fallback to default location if no user location
+
+
   return (
-    <MapContainer center={[29.64929896217566, -82.34410532210882]} 
+    <MapContainer 
+      center={mapCenter} 
       zoom={17}
       minZoom={2.5}  // Minimum zoom level to prevent excessive zooming out
       maxZoom={18} // Maximum zoom level to restrict excessive zooming in
@@ -75,6 +115,15 @@ const createClusterCustomIcon = function (cluster) {
 
     }
     </MarkerClusterGroup>
+
+     {/* Show user location marker if location is available */}
+     {userLocation && (
+        <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
+          <Popup>You are here</Popup>
+        </Marker>
+      )}
+
+
     </MapContainer>
   );
 }
