@@ -1,7 +1,7 @@
 import './Map.css';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
-import { Icon, divIcon, point } from "leaflet";
+import { Icon, divIcon, point, LatLngBounds } from "leaflet";
 import MarkerClusterGroup from 'react-leaflet-cluster';
 
 
@@ -42,9 +42,21 @@ const createClusterCustomIcon = function (cluster) {
 };
 
 
+  // Set the map bounds to prevent seeing duplicated Earths
+  const bounds = new LatLngBounds(
+    [-90, -180], // Southwest corner of the world
+    [90, 180]    // Northeast corner of the world
+  );
+
 
   return (
-    <MapContainer center={[29.64929896217566, -82.34410532210882]} zoom={21}> 
+    <MapContainer center={[29.64929896217566, -82.34410532210882]} 
+      zoom={17}
+      minZoom={2.5}  // Minimum zoom level to prevent excessive zooming out
+      maxZoom={18} // Maximum zoom level to restrict excessive zooming in
+      maxBounds={bounds} // Restrict panning beyond the world map
+      maxBoundsViscosity={1.0} // Makes sure the map sticks to bounds
+      > 
     <TileLayer
       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
