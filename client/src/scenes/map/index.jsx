@@ -51,8 +51,8 @@ const createClusterCustomIcon = function (cluster) {
     
     />
     <MarkerClusterGroup 
-    chunkedLoading
-    iconCreateFunction={createClusterCustomIcon}
+      chunkedLoading
+      iconCreateFunction={createClusterCustomIcon}
     >
       
     {markers.map(marker => (

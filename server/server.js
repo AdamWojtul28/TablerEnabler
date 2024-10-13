@@ -34,6 +34,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   }).then(() => {
     app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
 
-    /* ADD DATA HERE BUT ONLY ONE TIME */
+    /* ADD DATA HERE BUT ONLY ONE TIME So after we add data shema to mongodb we will comment out these lines*/
   })
   .catch((error) => console.log(`${error} did not connect`));
