@@ -1,10 +1,24 @@
 import './Map.css';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
 import { Icon, divIcon, point, LatLngBounds } from "leaflet";
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import { useState, useEffect } from 'react';
 
+
+// Custom component to handle map centering
+function SetMapCenter({ userLocation }) {
+  const map = useMap();
+
+  // If userLocation is available, update the center of the map
+  useEffect(() => {
+    if (userLocation) {
+      map.setView([userLocation.latitude, userLocation.longitude], 17);
+    }
+  }, [userLocation, map]);
+
+  return null;
+}
 
 export default function Map() {
   const [userLocation, setUserLocation] = useState(null);
@@ -82,15 +96,10 @@ const createClusterCustomIcon = function (cluster) {
     }, []);
 
 
-    // Determine the center of the map based on user location or fallback to default location
-  const mapCenter = userLocation
-  ? [userLocation.latitude, userLocation.longitude]  // User's location
-  : defaultLocation;  // Fallback to default location if no user location
-
 
   return (
     <MapContainer 
-      center={mapCenter} 
+      center={defaultLocation} 
       zoom={17}
       minZoom={2.5}  // Minimum zoom level to prevent excessive zooming out
       maxZoom={18} // Maximum zoom level to restrict excessive zooming in
@@ -122,6 +131,7 @@ const createClusterCustomIcon = function (cluster) {
           <Popup>You are here</Popup>
         </Marker>
       )}
+      <SetMapCenter userLocation={userLocation} />
 
 
     </MapContainer>
