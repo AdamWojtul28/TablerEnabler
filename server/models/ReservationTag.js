@@ -6,5 +6,7 @@ const reservationTagSchema = new mongoose.Schema({
   tag_description: { type: String, required: true }
 });
 
+reservationTagSchema.index({ tag_id: 1, reservation_id: 1 }, { unique: true });
+
 const ReservationTag = mongoose.model("ReservationTag", reservationTagSchema);
 export default ReservationTag;

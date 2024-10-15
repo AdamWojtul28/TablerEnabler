@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const tablingReservationSchema = new mongoose.Schema({
-  reservation_id: { type: Number, required: true },
+  _id: { type: Number, required: true },
   student_org_id: { type: Number, required: true },
   start_time: { type: Date, required: true },
   end_time: { type: Date, required: true },

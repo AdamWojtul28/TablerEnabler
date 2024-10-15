@@ -6,5 +6,7 @@ const organizationSocialsSchema = new mongoose.Schema({
   application_link: { type: String, required: true }
 });
 
-const OrgSocials = mongoose.model("OrgSocials", organizationSocialsSchema);
-export default OrgSocials;
+organizationSocialsSchema.index({ org_social_id: 1, application_name: 1 }, { unique: true });
+
+const OrgSocial = mongoose.model("OrgSocials", organizationSocialsSchema);
+export default OrgSocial;

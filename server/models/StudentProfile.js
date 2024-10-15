@@ -9,5 +9,7 @@ const studentProfileSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+studentProfileSchema.index({ gator_id: 1, ufl_email: 1 }, { unique: true });
+
 const StudentProfile = mongoose.model("StudentProfile", studentProfileSchema);
 export default StudentProfile;
