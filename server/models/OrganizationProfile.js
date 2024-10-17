@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const organizationProfileSchema = new mongoose.Schema({
-    org_profile_id: { type: Number, required: true },
+    _id: { type: Number, required: true },
     description: { type: String, required: true },
     profile_image: { type: Array, required: true },
     createdAt: { type: Date, default: Date.now }
