@@ -45,6 +45,35 @@ router.get("/organization-profiles", async (req, res) => {
   }
 });
 
+// extract all of the profile informations for organizations that a student (gator_id passed in as query parameter) has marked as favorite
+router.get("/favorite-organization-profiles", async (req, res) => {
+  const { gator_id } = req.query; // Extract from request
+  try {
+    const relevantOrgs = await FavoriteOrg.find(
+      {
+        // This assumes that `date` is stored as a full Date object in the schema.
+        gator_id: {
+          $eq: gator_id,
+        },
+      },
+      "org_name"
+    );
+    // extracts all of the org_names that the student with passed in gator_id has marked as favorite
+
+    const relevantOrgNames = relevantOrgs.map((org) => org.org_name);
+    // extract only the names of the organizations and store them in a string array so they can be used in the next query
+
+    const studentFavoriteOrgs = await OrganizationProfile.find({
+      name: { $in: relevantOrgNames },
+    });
+    // extract the profile information of the clubs that the student has marked as favorite
+
+    res.status(200).json(studentFavoriteOrgs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post("/organization-profile", async (req, res) => {
   try {
     // console.log("Raw Body:", req.body); - can use this line to see if request goes through
@@ -121,6 +150,22 @@ router.get("/student-profiles", async (req, res) => {
   try {
     const allStudentProfiles = await StudentProfile.find();
     res.status(200).json(allStudentProfiles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get specific student based on the gator_id passed in the request query parameter
+router.get("/student-profile", async (req, res) => {
+  const { gator_id } = req.query; // Extract from request
+  try {
+    const specificStudent = await StudentProfile.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      gator_id: {
+        $eq: gator_id,
+      },
+    });
+    res.status(200).json(specificStudent);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
