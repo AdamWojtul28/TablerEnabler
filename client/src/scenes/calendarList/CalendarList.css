@@ -11,8 +11,8 @@
 .fc-timegrid-now-indicator-line,
 .fc-now-indicator,
 .fc-timegrid-now-indicator-arrow{
-  background-color: #8fd3fe !important; /* Change color of all now indicator elements */
-  border-color: #8fd3fe !important; /* For some indicators, borders are used */
+  background-color: #f50000 !important; /* Change color of all now indicator elements */
+  border-color: #f50000 !important; /* For some indicators, borders are used */
   height: 2px !important; /* Thickness of the horizontal line */
 }
 

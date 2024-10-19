@@ -21,43 +21,51 @@ export const tokensDark = {
     1000: "#000000", // manually adjusted
   },
   primary: {
-    //black
-    100: "#d1d1d2",
-    200: "#a4a4a4",
-    300: "#767677",
-    400: "#494949",
-    500: "#1b1b1c",
-    600: "#161616",
-    700: "#101011",
-    800: "#0b0b0b",
-    900: "#050506"
+    100: "#ccd4df",
+    200: "#99a9bf",
+    300: "#667e9e",
+    400: "#33537e",
+    500: "#00285e",
+    600: "#00204b",
+    700: "#001838",
+    800: "#001026",
+    900: "#000813"
 },
-  // primary: {
-  //     // uf blue
-  //     100: "#cce5ff",
-  //     200: "#99caff",
-  //     300: "#66b0ff",
-  //     400: "#3395ff",
-  //     500: "#007bff",
-  //     600: "#0062cc",
-  //     700: "#004a99",
-  //     800: "#003166",
-  //     900: "#001933"
-  // },
+  // secondary: {
+  //   orange: {
+  //     100: "#ffe5cc",
+  //     500: "#ff7b00",
+  //     900: "#993e00",
+  //   },
+  //   teal: {
+  //     100: "#cceff4",
+  //     500: "#00b5cc",
+  //     900: "#003f4d",
+  //   },
+  //   gray: {
+  //     100: "#f5f5f5",
+  //     500: "#888888",
+  //     900: "#333333",
+  //   },
+  // }
   secondary: {
-    // yellow
-    50: "#f0f0f0", // manually adjusted
-    100: "#fff6e0",
-    200: "#ffedc2",
-    300: "#ffe3a3",
-    400: "#ffda85",
-    500: "#ffd166",
-    600: "#cca752",
-    700: "#997d3d",
-    800: "#665429",
-    900: "#332a14",
+    // orange
+    50:  "#fff4e5",  // very light orange
+    100: "#ffe6cc",  // light orange
+    200: "#ffcc99",  // soft orange
+    300: "#ffb366",  // medium orange
+    400: "#ff9933",  // strong orange
+    500: "#ff8000",  // vibrant orange (primary)
+    600: "#cc6600",  // deeper orange
+    700: "#994d00",  // dark orange
+    800: "#663300",  // deep burnt orange
+    900: "#331a00",  // very dark orange, almost brown
   },
+  
+  
 };
+
+// };
 
 // function that reverses the color palette
 function reverseTokens(tokensDark) {
