@@ -230,4 +230,29 @@ router.post("/tabling-reservation", async (req, res) => {
   }
 });
 
+
+// Fetch live tabling reservations (live events)
+router.get("/live-tabling-events", async (req, res) => {
+  try {
+    const now = new Date();
+    
+    // Find all events where the start_time is before now and end_time is after now
+    const liveEvents = await TablingReservation.find({
+      start_time: { $lte: now },  // Events that have started
+      end_time: { $gte: now }     // Events that haven't ended yet
+    });
+
+    // If no live events are found, return a message
+    if (liveEvents.length === 0) {
+      return res.status(200).json({ message: "No live events happening right now", events: [] });
+    }
+
+    // Return live events
+    res.status(200).json({ events: liveEvents });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch live tabling events" });
+  }
+});
+
+
 export default router;

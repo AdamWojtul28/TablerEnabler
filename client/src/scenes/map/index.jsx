@@ -22,44 +22,31 @@ function SetMapCenter({ userLocation }) {
 
 export default function Map() {
   const [userLocation, setUserLocation] = useState(null);
+  const [events, setEvents] = useState([]);  // Store live events
   const [error, setError] = useState(null);
+  const [noEventsMessage, setNoEventsMessage] = useState(''); // Message if no events
   const defaultLocation = [29.64929896217566, -82.34410532210882]; // Default location to centure tower/turlington
 
 
-  // const campusBounds = [
-  //   [29.627133117112223, -82.3726255534409],
-  //   [29.65207112438173, -82.37241437639003],
-  //   [29.652187508431723, -82.33946962691431],
-  //   [29.641246819512386, -82.33953658778722],
+ 
+  // // constant markers
+  // const markers = [
+  //   {
+  //   geocode: [29.648996, -82.343920],
+  //   popUp: "This is table 1"
+  //   },
+
+  //   {
+  //     geocode: [29.648694813957594, -82.34553381746278],
+  //     popUp: "This is table 2"
+  //     }
+  //   ,
+
+  //   {
+  //     geocode: [29.65031186514168, -82.34272315054949],
+  //     popUp: "This is table 3"
+  //     }
   // ];
-
-  
-  // constant markers
-  const markers = [
-    {
-    geocode: [29.648996, -82.343920],
-    popUp: "This is table 1"
-    },
-
-    {
-      geocode: [29.648694813957594, -82.34553381746278],
-      popUp: "This is table 2"
-      }
-    ,
-
-    {
-      geocode: [29.65031186514168, -82.34272315054949],
-      popUp: "This is table 3"
-      }
-  ];
-
-
-    // Create floating icons for the cluster when the user is outside the campus
-    const floatingIcons = [
-      { geocode: [29.638, -82.350], popUp: "Floating icon 1" },
-      { geocode: [29.640, -82.348], popUp: "Floating icon 2" },
-      { geocode: [29.644, -82.342], popUp: "Floating icon 3" },
-    ];
 
 
   // create custom icon
@@ -114,44 +101,119 @@ const createClusterCustomIcon = function (cluster) {
     }, []);
 
 
+  // Fetch live tabling events from the backend
+  useEffect(() => {
+    const fetchLiveEvents = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/general/live-tabling-events');  // Corrected backend URL
+        const data = await response.json();
+  
+        if (response.ok) {
+          if (data.events.length === 0) {
+            setNoEventsMessage('No live events happening right now');
+          } else {
+            setEvents(data.events);
+          }
+        } else {
+          setError(data.error || 'Failed to fetch live events');
+        }
+      } catch (err) {
+        setError('Failed to fetch live events');
+      }
+    };
+  
+    fetchLiveEvents();
+  }, []);
+
+
 
   return (
-    <MapContainer 
-      center={defaultLocation} 
+    <MapContainer
+      center={defaultLocation}
       zoom={17}
-      minZoom={2.5}  // Minimum zoom level to prevent excessive zooming out
-      maxZoom={18} // Maximum zoom level to restrict excessive zooming in
-      maxBounds={bounds} // Restrict panning beyond the world map
-      maxBoundsViscosity={1.0} // Makes sure the map sticks to bounds
-      > 
-    <TileLayer
-      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    
-    />
-    <MarkerClusterGroup 
-      chunkedLoading
-      iconCreateFunction={createClusterCustomIcon}
+      minZoom={2.5}
+      maxZoom={18}
+      maxBounds={bounds}
+      maxBoundsViscosity={1.0}
     >
-      
-    {markers.map(marker => (
-      <Marker position={marker.geocode} icon={customIcon}>
-        <Popup>{marker.popUp}</Popup>
-      </Marker>
-    ))
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <MarkerClusterGroup chunkedLoading>
+        {events.map((event) => {
+          const [lat, lng] = event.location.split(',').map(Number);  // Parse location string into lat/lng
+          return (
+            <Marker position={[lat, lng]} icon={customIcon} key={event._id}>
+              <Popup>
+                <strong>{event.org_name}</strong><br />
+                {event.description || 'No description'}<br />
+                {new Date(event.start_time).toLocaleTimeString()} - {new Date(event.end_time).toLocaleTimeString()}
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MarkerClusterGroup>
 
-    }
-    </MarkerClusterGroup>
-
-     {/* Show user location marker if location is available */}
-     {userLocation && (
+      {/* Show user location marker if location is available */}
+      {userLocation && (
         <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
           <Popup>You are here</Popup>
         </Marker>
       )}
+
       <SetMapCenter userLocation={userLocation} />
 
+      {/* Show message if there are no live events */}
+      {noEventsMessage && (
+        <div className="no-events-message">
+          {noEventsMessage}
+        </div>
+      )}
+
+      {/* Show error message */}
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
     </MapContainer>
+    // <MapContainer 
+    //   center={defaultLocation} 
+    //   zoom={17}
+    //   minZoom={2.5}  // Minimum zoom level to prevent excessive zooming out
+    //   maxZoom={18} // Maximum zoom level to restrict excessive zooming in
+    //   maxBounds={bounds} // Restrict panning beyond the world map
+    //   maxBoundsViscosity={1.0} // Makes sure the map sticks to bounds
+    //   > 
+    // <TileLayer
+    //   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    //   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    
+    // />
+    // <MarkerClusterGroup 
+    //   chunkedLoading
+    //   iconCreateFunction={createClusterCustomIcon}
+    // >
+      
+    // {markers.map(marker => (
+    //   <Marker position={marker.geocode} icon={customIcon}>
+    //     <Popup>{marker.popUp}</Popup>
+    //   </Marker>
+    // ))
+
+    // }
+    // </MarkerClusterGroup>
+
+    //  {/* Show user location marker if location is available */}
+    //  {userLocation && (
+    //     <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
+    //       <Popup>You are here</Popup>
+    //     </Marker>
+    //   )}
+    //   <SetMapCenter userLocation={userLocation} />
+
+    // </MapContainer>
   );
 }
 

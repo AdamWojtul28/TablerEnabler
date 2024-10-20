@@ -33,6 +33,32 @@
     font-size: 1.2rem;
     box-shadow: 0 0 0px 5px #0021A5;
   }
+
+
+  .no-events-message {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
+  .error-message {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
   
   
   
