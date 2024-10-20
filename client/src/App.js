@@ -15,6 +15,8 @@ import LoadingScreen2 from "scenes/loadingScreen2";
 import LoadingScreen3 from "scenes/loadingScreen3";
 import LoadingScreen4 from "scenes/loadingScreen4";
 import LoadingScreen5 from "scenes/loadingScreen5";
+import Login from "scenes/login";
+import Register from "scenes/register";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -34,6 +36,8 @@ function App() {
               <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
 
 

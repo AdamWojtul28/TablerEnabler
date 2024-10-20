@@ -31,23 +31,6 @@ export const tokensDark = {
     800: "#001026",
     900: "#000813"
 },
-  // secondary: {
-  //   orange: {
-  //     100: "#ffe5cc",
-  //     500: "#ff7b00",
-  //     900: "#993e00",
-  //   },
-  //   teal: {
-  //     100: "#cceff4",
-  //     500: "#00b5cc",
-  //     900: "#003f4d",
-  //   },
-  //   gray: {
-  //     100: "#f5f5f5",
-  //     500: "#888888",
-  //     900: "#333333",
-  //   },
-  // }
   secondary: {
     // orange
     50:  "#fff4e5",  // very light orange
