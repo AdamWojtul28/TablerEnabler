@@ -38,11 +38,11 @@ const CalendarComponent = () => {
   return (
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]}
-      initialView="timeGridWeek" // Start with the week view
+      initialView="timeGridWeek"
       headerToolbar={{
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay', // Include the day view
+        right: 'dayGridMonth,timeGridWeek,timeGridDay', 
       }}
       nowIndicator={true}
       editable={true}
