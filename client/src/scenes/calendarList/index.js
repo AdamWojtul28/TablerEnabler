@@ -37,21 +37,26 @@ const CalendarComponent = () => {
 
   return (
     <FullCalendar
-      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]}
-      initialView="timeGridWeek"
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]} 
+      initialView="timeGridWeek"  // Use standard timeGridWeek to avoid showing tables in the weekly view
       headerToolbar={{
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay', 
+        right: 'dayGridMonth,timeGridWeek,resourceTimeGridDay',  // Use resourceTimeGridDay for daily view
       }}
       nowIndicator={true}
       editable={true}
       selectable={true}
-      resources={[
-        { id: '1', title: 'Table 1' },
-        { id: '2', title: 'Table 2' },
-        { id: '3', title: 'Table 3' },
-      ]}
+      // Define resources only for the daily view
+      views={{
+        resourceTimeGridDay: {
+          resources: [
+            { id: '1', title: 'Table 1' },
+            { id: '2', title: 'Table 2' },
+            { id: '3', title: 'Table 3' },
+          ]
+        }
+      }}
       events={events}
       resourceAreaHeaderContent="Tables"
       eventClick={(info) => {
