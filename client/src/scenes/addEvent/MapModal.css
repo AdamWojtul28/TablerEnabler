@@ -1,0 +1,81 @@
+/* Modal backdrop */
+.map-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Modal content */
+  .map-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
+    position: relative;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Close button */
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    z-index: 1002;
+  }
+  
+  /* Confirm section */
+  .confirm-section {
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  /* Text for selected coordinates in black */
+  .selected-coordinates {
+    color: black;
+    margin-bottom: 10px;
+  }
+  
+  /* Default text if no coordinates are selected */
+  .no-coordinates {
+    color: gray;
+    margin-bottom: 10px;
+  }
+  
+  /* Confirm button */
+  .confirm-button {
+    background-color: #ff8000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    opacity: 1; /* Default opacity when enabled */
+  }
+  
+  .confirm-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.5; /* Dim the button when disabled */
+  }
+  
+  .confirm-button:hover:enabled {
+    background-color: #ffb366;
+  }
+  

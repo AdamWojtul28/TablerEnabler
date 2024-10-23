@@ -1,0 +1,115 @@
+/* Global style resets */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Add Event container */
+.add-event-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #023372;
+}
+
+.add-event-form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px; 
+}
+
+.add-event-form h1 {
+    text-align: center;
+    color: #000; /* Change title color to black */
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.add-event-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Form groups styling */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    resize: none; /* Prevent textarea resizing */
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+/* Button styling */
+.add-event-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #ff8000;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-event-button:hover {
+    background-color: #ffb366;
+}
+
+.select-map-button {
+    width: 30%; 
+    float: right; 
+    padding: 0.2em;
+    background-color: #ff8000; 
+    color: #fff; 
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; 
+  }
+
+.select-map-button:hover {
+background-color: #ffb366; 
+transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* Success and error messages */
+.success-message {
+    color: green;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 1rem;
+    text-align: center;
+}

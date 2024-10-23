@@ -29,26 +29,6 @@ export default function Map() {
 
 
  
-  // // constant markers
-  // const markers = [
-  //   {
-  //   geocode: [29.648996, -82.343920],
-  //   popUp: "This is table 1"
-  //   },
-
-  //   {
-  //     geocode: [29.648694813957594, -82.34553381746278],
-  //     popUp: "This is table 2"
-  //     }
-  //   ,
-
-  //   {
-  //     geocode: [29.65031186514168, -82.34272315054949],
-  //     popUp: "This is table 3"
-  //     }
-  // ];
-
-
   // create custom icon
   const customIcon = new Icon({
     iconUrl: "/icons/side-table.png",
@@ -178,42 +158,6 @@ const createClusterCustomIcon = function (cluster) {
         </div>
       )}
     </MapContainer>
-    // <MapContainer 
-    //   center={defaultLocation} 
-    //   zoom={17}
-    //   minZoom={2.5}  // Minimum zoom level to prevent excessive zooming out
-    //   maxZoom={18} // Maximum zoom level to restrict excessive zooming in
-    //   maxBounds={bounds} // Restrict panning beyond the world map
-    //   maxBoundsViscosity={1.0} // Makes sure the map sticks to bounds
-    //   > 
-    // <TileLayer
-    //   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    //   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    
-    // />
-    // <MarkerClusterGroup 
-    //   chunkedLoading
-    //   iconCreateFunction={createClusterCustomIcon}
-    // >
-      
-    // {markers.map(marker => (
-    //   <Marker position={marker.geocode} icon={customIcon}>
-    //     <Popup>{marker.popUp}</Popup>
-    //   </Marker>
-    // ))
-
-    // }
-    // </MarkerClusterGroup>
-
-    //  {/* Show user location marker if location is available */}
-    //  {userLocation && (
-    //     <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
-    //       <Popup>You are here</Popup>
-    //     </Marker>
-    //   )}
-    //   <SetMapCenter userLocation={userLocation} />
-
-    // </MapContainer>
   );
 }
 

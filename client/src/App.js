@@ -17,6 +17,7 @@ import LoadingScreen4 from "scenes/loadingScreen4";
 import LoadingScreen5 from "scenes/loadingScreen5";
 import Login from "scenes/login";
 import Register from "scenes/register";
+import AddEvent from "scenes/addEvent";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -38,6 +39,7 @@ function App() {
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/addEvent" element={<AddEvent />} />
 
 
 
