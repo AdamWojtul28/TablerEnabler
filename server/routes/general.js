@@ -6,6 +6,7 @@ import FavoriteOrg from "../models/FavoriteOrg.js";
 import OrganizationProfile from "../models/OrganizationProfile.js";
 import OrgSocial from "../models/OrgSocial.js";
 import FixedTablingLocs from "../models/FixedTablingLocations.js";
+import TablingReservationRequest from "../models/TablingReservation.js";
 
 const router = express.Router();
 
@@ -336,6 +337,176 @@ router.get("/tabling-reservations-day", async (req, res) => {
       },
     });
     res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all places and times a reservation cannot be made
+router.get("/unavailable-tabling-options", async (req, res) => {
+  try {
+    const { start_time, end_time } = req.query;
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set time to the start of the day (00:00:00)
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day (23:59:59)
+
+    const liveEvents = await TablingReservation.find({
+      // events that occur on the same day
+      start_time: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+      // that occur either before (end_time less than or equal to start time of this reservation)
+      // or after (start_time greater than or equal the end time of this reservation)
+      // equal to condition provided for both for when an existing reservation ends at 2:00PM and this one starts at 2:00PM for example
+      $or: [
+        { start_time: { $le: end_time } },
+        { end_time: { $ge: start_time } },
+      ],
+    });
+    res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ********************************** TABLING RESERVATION REQUESTS ROUTES **********************************
+// Create a new tabling reservation request based on the existing formatting from EMS
+router.post("/tabling-reservation-request", async (req, res) => {
+  try {
+    const {
+      event_name,
+      groups,
+      first_contact,
+      first_contact_fax,
+      first_contact_phone_number,
+      first_contact_email_address,
+      event_description,
+      event_advertisement,
+      event_advertisement_info,
+      gatorconnect_permit,
+      collaborating_bool,
+      collaborating_orgs,
+      tables_needed,
+      org_name,
+      payment_method,
+      location,
+      start_time,
+      end_time,
+    } = req.body;
+    const newReservationRequest = new TablingReservationRequest({
+      event_name,
+      event_type: "Tabling",
+      groups,
+      first_contact,
+      first_contact_fax,
+      first_contact_phone_number,
+      first_contact_email_address,
+      event_description,
+      event_advertisement,
+      event_advertisement_info,
+      gatorconnect_permit,
+      collaborating_bool,
+      collaborating_orgs,
+      tables_needed,
+      org_name,
+      payment_method,
+      location,
+      start_time,
+      end_time,
+      createdAt: createdAt || undefined,
+      status: "Pending",
+    });
+    await newReservationRequest.save();
+    res.status(201).json(newReservationRequest);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Route to get the most recent event by createdAt that matches criteria
+router.get("/latest-tabling-reservation-request", async (req, res) => {
+  try {
+    const { organization } = req.query;
+
+    // Query to find the most recent event with matching organization and eventName
+    const mostRecentRequest = await TablingReservationRequest.findOne({
+      organization: organization,
+    }).sort({ createdAt: -1 });
+
+    // Send the result as a JSON response
+    if (mostRecentRequest) {
+      res.status(200).json(mostRecentEvent);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No request found matching the criteria" });
+    }
+  } catch (error) {
+    console.error("Error fetching the most recent event with criteria:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Fetch all tabling reservation requests made by a specific student org
+router.get("/latest-tabling-reservation-request", async (req, res) => {
+  try {
+    const latestRequests = await TablingReservationRequest.find({
+      organization: organization,
+    }).sort({ createdAt: -1 });
+    // Send the result as a JSON response
+    if (latestRequests.length > 0) {
+      res.status(200).json(latestRequests);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No events found matching the criteria" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all tabling reservation requests (displayed in descending order)
+router.get("/tabling-reservation-requests", async (req, res) => {
+  try {
+    const latestRequests = await TablingReservationRequest.find().sort({
+      createdAt: -1,
+    });
+    // Send the result as a JSON response
+    if (latestRequests.length > 0) {
+      res.status(200).json(latestRequests);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No requests found matching the criteria" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all pending tabling reservation requests that need to be approved (displayed in descending order)
+// For the purposes of this project, we will let student government to approve this so we may not have to implement this
+// For non-EMS tabling reservations, as long as the location and time doesn't interfere with others, we will allow
+// student orgs to table at any location
+router.get("/pending-tabling-reservation-requests", async (req, res) => {
+  try {
+    const latestRequests = await TablingReservationRequest.find({
+      status: "Pending",
+    }).sort({
+      createdAt: 1,
+    });
+    // Send the result as a JSON response
+    if (latestRequests.length > 0) {
+      res.status(200).json(latestRequests);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No requests found matching the criteria" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

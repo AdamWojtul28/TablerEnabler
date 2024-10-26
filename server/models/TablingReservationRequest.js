@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const tablingReservationSchema = new mongoose.Schema({
+const tablingReservationRequestSchema = new mongoose.Schema({
   event_name: { type: String, required: true },
   event_type: { type: String, required: true },
   groups: { type: String, required: true },
@@ -24,11 +24,21 @@ const tablingReservationSchema = new mongoose.Schema({
   payment_method: { type: String, required: true },
   // location name is official since it is done through EMS
   location_name: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
+  // time of tabling event
+  start_time: { type: Date, required: true },
+  end_time: { type: Date, required: true },
+  created_at: { type: Date, default: Date.now },
+  status: { type: String, default: "Pending" },
 });
 
-const TablingReservation = mongoose.model(
-  "TablingReservation",
-  tablingReservationSchema
+tablingReservationRequestSchema.index(
+  { event_name: 1, org_name: 1 },
+  { unique: true }
 );
-export default TablingReservation;
+
+const TablingReservationRequest = mongoose.model(
+  "TablingReservationRequest",
+  tablingReservationRequestSchema
+);
+
+export default TablingReservationRequest;
