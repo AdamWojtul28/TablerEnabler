@@ -5,6 +5,7 @@ import TablingReservation from "../models/TablingReservation.js";
 import FavoriteOrg from "../models/FavoriteOrg.js";
 import OrganizationProfile from "../models/OrganizationProfile.js";
 import OrgSocial from "../models/OrgSocial.js";
+import FixedTablingLocs from "../models/FixedTablingLocations.js";
 
 const router = express.Router();
 
@@ -31,6 +32,47 @@ router.post("/favorite-organization", async (req, res) => {
     res.status(201).json(newFavoriteOrg);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// ********************************** FIXED-TABLING-LOCATIONS ROUTES **********************************
+router.post("/fixed-location", async (req, res) => {
+  try {
+    // console.log("Raw Body:", req.body); - can use this line to see if request goes through
+    const { name, location } = req.body;
+    const newFixedLoc = new FixedTablingLocs({
+      name,
+      location,
+    });
+    await newFixedLoc.save();
+    res.status(201).json(newFixedLoc);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.get("/fixed-locations", async (req, res) => {
+  try {
+    const fixedLocations = await FixedTablingLocs.find();
+    res.status(200).json(fixedLocations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get specific student based on the gator_id passed in the request query parameter
+router.get("/fixed-location", async (req, res) => {
+  const { name } = req.query; // Extract from request
+  try {
+    const specificLocation = await FixedTablingLocs.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      name: {
+        $eq: name,
+      },
+    });
+    res.status(200).json(specificLocation);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -230,21 +272,22 @@ router.post("/tabling-reservation", async (req, res) => {
   }
 });
 
-
 // Fetch live tabling reservations (live events)
 router.get("/live-tabling-events", async (req, res) => {
   try {
     const now = new Date();
-    
+
     // Find all events where the start_time is before now and end_time is after now
     const liveEvents = await TablingReservation.find({
-      start_time: { $lte: now },  // Events that have started
-      end_time: { $gte: now }     // Events that haven't ended yet
+      start_time: { $lte: now }, // Events that have started
+      end_time: { $gte: now }, // Events that haven't ended yet
     });
 
     // If no live events are found, return a message
     if (liveEvents.length === 0) {
-      return res.status(200).json({ message: "No live events happening right now", events: [] });
+      return res
+        .status(200)
+        .json({ message: "No live events happening right now", events: [] });
     }
 
     // Return live events
@@ -254,5 +297,48 @@ router.get("/live-tabling-events", async (req, res) => {
   }
 });
 
+// Fetch all tabling reservations taking place today
+router.get("/tabling-reservations-today", async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set time to the start of the day (00:00:00)
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day (23:59:59)
+
+    const liveEvents = await TablingReservation.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      start_time: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+    res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all tabling reservations taking place on a given day
+router.get("/tabling-reservations-day", async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set time to the start of the day (00:00:00)
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day (23:59:59)
+
+    const liveEvents = await TablingReservation.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      start_time: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+    res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 export default router;
