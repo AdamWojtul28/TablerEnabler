@@ -6,6 +6,9 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
 import generalRoutes from "./routes/general.js";
+import studentRoutes from "./routes/studentRoutes.js";
+//import organizationRoutes from "./routes/organizationRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 
 
@@ -17,16 +20,26 @@ import generalRoutes from "./routes/general.js";
 /* CONFIGURATION */
 dotenv.config();
 const app = express();
-app.use(express.json());
+//app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+//app.use(cors());
+
+// Middleware
+const corsOptions = {
+  origin: "http://localhost:3000" // frontend URI (ReactJS)
+};
+app.use(express.json());
+app.use(cors(corsOptions));
 
 /* ROUTES */
 app.use("/general", generalRoutes);
+app.use("/studentRoutes", studentRoutes);
+//app.use("/organizationRoutes", organizationRoutes);
+app.use("/authRoutes", authRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 9000;

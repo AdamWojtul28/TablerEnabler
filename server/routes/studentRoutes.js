@@ -1,7 +1,9 @@
-const router = require("express").Router();
-const { User, validate } = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const auth = require("../MiddleWare/authMiddleware");
+import express from "express"; 
+import { Student, validate } from "../models/StudentProfile.js"; 
+import bcrypt from "bcrypt"; 
+import auth from "../middleware/authenticationMiddleware.js";
+
+const router = express.Router();
 
 // Register new user
 router.post("/", async (req, res) => {
@@ -10,7 +12,7 @@ router.post("/", async (req, res) => {
         if (error)
             return res.status(400).send({ message: error.details[0].message });
 
-        const user = await User.findOne({ email: req.body.email });
+        const user = await Student.findOne({ email: req.body.email });
         if (user)
             return res
                 .status(409)
@@ -19,7 +21,7 @@ router.post("/", async (req, res) => {
         const salt = await bcrypt.genSalt(Number(process.env.SALT));
         const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-        const newUser = new User({ ...req.body, password: hashPassword });
+        const newUser = new StudentProfile({ ...req.body, password: hashPassword });
         await newUser.save();
 
         const token = newUser.generateAuthToken();
@@ -30,9 +32,9 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/me", auth, async (req, res) => {
-    const user = await User.findById(req.user._id).select("-password");
+    const user = await Student.findById(req.user._id).select("-password");
     res.send(user);
 });
 
 
-module.exports = router;
+export default router;

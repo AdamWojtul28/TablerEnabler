@@ -1,14 +1,15 @@
-const router = require("express").Router();
-const { User } = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const Joi = require("joi");
+import express from "express"; 
+import { Student } from "../models/StudentProfile.js"; 
+import bcrypt from "bcrypt";
+import Joi from "joi";
+const router = express.Router();
 
 router.post("/", async (req, res) => {
     try {
         const { error } = validate(req.body);
         if (error) return res.status(400).send({ message: error.details[0].message });
 
-        const user = await User.findOne({ email: req.body.email });
+        const user = await Student.findOne({ ufl_email: req.body.ufl_email });
         if (!user) return res.status(401).send({ message: "Invalid Email or Password" });
 
         const validPassword = await bcrypt.compare(req.body.password, user.password);
@@ -23,10 +24,10 @@ router.post("/", async (req, res) => {
 
 const validate = (data) => {
     const schema = Joi.object({
-        email: Joi.string().email().required().label("Email"),
+        ufl_email: Joi.string().email().required().label("Email"),
         password: Joi.string().required().label("Password"),
     });
     return schema.validate(data);
 };
 
-module.exports = router;
+export default router;

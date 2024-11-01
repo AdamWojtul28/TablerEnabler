@@ -1,38 +1,40 @@
-const router = require("express").Router();
-const { User, validate } = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const auth = require("../MiddleWare/authMiddleware");
+// import express from "express"; 
+// import OrganizationProfile, { Organization, validate } from "../models/OrganizationProfile"; 
+// import bcrypt from "bcrypt"; 
+// import auth from "../middleware/authenticationMiddleware.js";
 
-// Register new user
-router.post("/", async (req, res) => {
-    try {
-        const { error } = validate(req.body);
-        if (error)
-            return res.status(400).send({ message: error.details[0].message });
+// const router = express.Router();
 
-        const user = await User.findOne({ email: req.body.email });
-        if (user)
-            return res
-                .status(409)
-                .send({ message: "User with given email already exists!" });
+// // Register new user
+// router.post("/", async (req, res) => {
+//     try {
+//         const { error } = validate(req.body);
+//         if (error)
+//             return res.status(400).send({ message: error.details[0].message });
 
-        const salt = await bcrypt.genSalt(Number(process.env.SALT));
-        const hashPassword = await bcrypt.hash(req.body.password, salt);
+//         const user = await Organization.findOne({ email: req.body.email });
+//         if (user)
+//             return res
+//                 .status(409)
+//                 .send({ message: "User with given email already exists!" });
 
-        const newUser = new User({ ...req.body, password: hashPassword });
-        await newUser.save();
+//         const salt = await bcrypt.genSalt(Number(process.env.SALT));
+//         const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-        const token = newUser.generateAuthToken();
-        res.status(201).send({ data: token, message: "User created successfully" });
-    } catch (error) {
-        res.status(500).send({ message: "Internal Server Error" });
-    }
-});
+//         const newUser = new OrganizationProfile({ ...req.body, password: hashPassword });
+//         await newUser.save();
 
-router.get("/me", auth, async (req, res) => {
-    const user = await User.findById(req.user._id).select("-password");
-    res.send(user);
-});
+//         const token = newUser.generateAuthToken();
+//         res.status(201).send({ data: token, message: "User created successfully" });
+//     } catch (error) {
+//         res.status(500).send({ message: "Internal Server Error" });
+//     }
+// });
+
+// router.get("/me", auth, async (req, res) => {
+//     const user = await User.findById(req.user._id).select("-password");
+//     res.send(user);
+// });
 
 
-module.exports = router;
+// export default router;

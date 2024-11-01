@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import { setMode } from 'state';
 import profileImage from "assets/Max.jpg";
 import { AppBar, Box, Button, IconButton, InputBase, Toolbar, useTheme } from '@mui/material';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const Navbar = ({ 
@@ -21,6 +21,7 @@ const Navbar = ({
 }) => {
     const dispatch = useDispatch();
     const theme = useTheme();
+    const navigate = useNavigate();
     
   return (
     <AppBar
@@ -66,6 +67,7 @@ const Navbar = ({
                 </IconButton>
 
                 <Button
+                    onClick={() => navigate('/register')}
                     sx={{
                         display: "flex",
                         justifyContent: "space-between",

@@ -1,30 +1,59 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
 
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [accountType, setAccountType] = useState('student'); // Default to 'student' user
+  const [data, setData] = useState({
+    gator_id: '',
+    first_name: '',
+    last_name: '',
+    ufl_email: '',
+    password: 'student',
+    role: ''
+  });
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleChange = ({ currentTarget: input }) => {
+    setData({ ...data, [input.name]: input.value });
+  };
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const { ufl_email, password, role } = data;
+
     // Basic validation logic
-    if (email === '' || password === '' || confirmPassword === '' || !accountType) {
+    if (ufl_email === '' || password === '' || !role) {
       setErrorMessage('All fields are required.');
       return;
     }
 
-    if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match.');
-      return;
-    }
-
     // Registration logic here (API call, etc.) !!!********$$$%#%#%#&#$%%&!!!!!!!!!
-    console.log('User Registered:', { email, password, accountType });
+    try {
+      const response = await fetch('http://localhost:5001/api/users', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+          console.log('Signup successful:', result);
+          localStorage.setItem('token', result.data); // Store the token in localStorage
+          navigate('/map'); // Navigate to the main page after successful signup
+      } else {
+          console.error('Signup failed:', result.message);
+          setErrorMessage(result.message); // Display error message
+      }
+    } catch (error) {
+        console.error('Error signing up:', error);
+        setErrorMessage('An error occurred. Please try again.');
+    }
+    console.log('User Registered:', { ufl_email, password, role });
   };
 
   return (
@@ -36,12 +65,24 @@ export default function Register() {
 
         
         <div className="form-group">
+          <label htmlFor="gatorId">gator_id</label>
+          <input
+            id="gator_id"
+            name="gator_id"
+            value={data.gator_id}
+            onChange={handleChange}
+            placeholder="Enter your Gator id"
+          />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
             type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="UF Email"
+            name="ufl_email"
+            value={data.ufl_email}
+            onChange={handleChange}
             placeholder="Enter your email"
           />
         </div>
@@ -52,20 +93,10 @@ export default function Register() {
           <input
             type="password"
             id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="password"
+            value={data.password}
+            onChange={handleChange}
             placeholder="Enter your password"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm your password"
           />
         </div>
 
@@ -75,18 +106,20 @@ export default function Register() {
             <label>
               <input
                 type="radio"
+                name="role"
                 value="student"
-                checked={accountType === 'student'}
-                onChange={(e) => setAccountType(e.target.value)}
+                checked={data.role === 'student'}
+                onChange={handleChange}
               />
               Student
             </label>
             <label>
               <input
                 type="radio"
+                name="role"
                 value="organization"
-                checked={accountType === 'organization'}
-                onChange={(e) => setAccountType(e.target.value)}
+                checked={data.role === 'organization'}
+                onChange={handleChange}
               />
               Organization
             </label>
