@@ -63,43 +63,6 @@ export default function Register() {
 
         {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-        
-        <div className="form-group">
-          <label htmlFor="gatorId">gator_id</label>
-          <input
-            id="gator_id"
-            name="gator_id"
-            value={data.gator_id}
-            onChange={handleChange}
-            placeholder="Enter your Gator id"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="UF Email"
-            name="ufl_email"
-            value={data.ufl_email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-          />
-        </div>
-
-        
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={data.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-          />
-        </div>
-
         <div className="form-group">
           <label>Account Type</label>
           <div className="radio-group">
@@ -124,6 +87,73 @@ export default function Register() {
               Organization
             </label>
           </div>
+        </div>
+
+        {data.role === 'student' && (
+          <>
+            <div className="form-group">
+            <label htmlFor="first_name">First Name</label>
+            <input
+              id="first_name"
+              name="first_name"
+              value={data.first_name}
+              onChange={handleChange}
+              placeholder="Enter your First Name"
+            />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="last_name">Last Name</label>
+              <input
+                id="last_name"
+                name="last_name"
+                value={data.last_name}
+                onChange={handleChange}
+                placeholder="Enter your Last Name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="UF Email"
+                name="ufl_email"
+                value={data.ufl_email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+              />
+            </div>
+          </>
+        )}
+
+        {data.role === 'organization' && (
+          <>
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="name"
+                id="name"
+                name="name"
+                value={data.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+              />
+            </div>
+          </>
+          )
+        }
+        
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={data.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+          />
         </div>
 
         <button type="submit" className="register-button">Register</button>
