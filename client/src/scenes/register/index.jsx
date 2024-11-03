@@ -4,7 +4,7 @@ import './Register.css';
 
 export default function Register() {
   const [data, setData] = useState({
-    gator_id: '',
+   
     first_name: '',
     last_name: '',
     ufl_email: '',
@@ -18,44 +18,48 @@ export default function Register() {
     setData({ ...data, [input.name]: input.value });
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const { ufl_email, password, role } = data;
-
-    // Basic validation logic
+  
     if (ufl_email === '' || password === '' || !role) {
       setErrorMessage('All fields are required.');
       return;
     }
-
-    // Registration logic here (API call, etc.) !!!********$$$%#%#%#&#$%%&!!!!!!!!!
+  
     try {
-      const response = await fetch('http://localhost:5001/api/users', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-      });
-
-      const result = await response.json();
+      const response = await fetch('http://localhost:5001/api/students', { // Change to /api/students
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    
+  
+      const contentType = response.headers.get("content-type");
+  
       if (response.ok) {
-          console.log('Signup successful:', result);
-          localStorage.setItem('token', result.data); // Store the token in localStorage
-          navigate('/map'); // Navigate to the main page after successful signup
+        const result = await response.json();
+        console.log('Signup successful:', result);
+        localStorage.setItem('token', result.data); 
+        navigate('/map');
+      } else if (contentType && contentType.includes("application/json")) {
+        const errorData = await response.json();
+        console.error('Signup failed:', errorData.message);
+        setErrorMessage(errorData.message);
       } else {
-          console.error('Signup failed:', result.message);
-          setErrorMessage(result.message); // Display error message
+        console.error('Unexpected error response:', await response.text());
+        setErrorMessage('An unexpected error occurred. Please try again.');
       }
     } catch (error) {
-        console.error('Error signing up:', error);
-        setErrorMessage('An error occurred. Please try again.');
+      console.error('Error signing up:', error);
+      setErrorMessage('An error occurred. Please try again.');
     }
     console.log('User Registered:', { ufl_email, password, role });
   };
-
+  
   return (
     <div className="register-container">
       <form className="register-form" onSubmit={handleSubmit}>
