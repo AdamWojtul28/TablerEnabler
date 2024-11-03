@@ -134,6 +134,42 @@ router.post("/organization-profile", async (req, res) => {
   }
 });
 
+router.put("/organization-profile", async (req, res) => {
+  try {
+    const { org } = req.query;
+    const { name, description, profile_image, createdAt } = req.body;
+
+    // Check if name is provided in the query
+    if (!org) {
+      return res
+        .status(400)
+        .json({ error: "Email query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedOrganizationProfile =
+      await OrganizationProfile.findOneAndUpdate(
+        { name: org }, // Match based on org name
+        {
+          name,
+          description,
+          profile_image: profile_image || null,
+          createdAt: createdAt || undefined,
+        },
+        { new: true, runValidators: true } // Return updated document & enforce schema validation
+      );
+
+    // If no document found with the given email
+    if (!updatedOrganizationProfile) {
+      return res.status(404).json({ error: "Organization profile not found" });
+    }
+
+    res.status(200).json(updatedOrganizationProfile);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // ********************************** ORG-SOCIAL ROUTES **********************************
 
 router.get("/organization-socials", async (req, res) => {
@@ -156,6 +192,40 @@ router.post("/organization-social", async (req, res) => {
     });
     await newOrgSocial.save();
     res.status(201).json(newOrgSocial);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put("/organization-social", async (req, res) => {
+  try {
+    const { org } = req.query;
+    const { org_name, application_name, application_link } = req.body;
+
+    // Check if name is provided in the query
+    if (!org) {
+      return res
+        .status(400)
+        .json({ error: "Org name query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedOrganizationSocial = await OrgSocial.findOneAndUpdate(
+      { name: org }, // Match based on org name
+      {
+        org_name,
+        application_name,
+        application_link,
+      },
+      { new: true, runValidators: true } // Return updated document & enforce schema validation
+    );
+
+    // If no document found with the given email
+    if (!updatedOrganizationSocial) {
+      return res.status(404).json({ error: "Organization profile not found" });
+    }
+
+    res.status(200).json(updatedOrganizationSocial);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -241,6 +311,41 @@ router.post("/student-profile", async (req, res) => {
   }
 });
 
+router.put("/student-profile", async (req, res) => {
+  try {
+    const { email } = req.query;
+    const { first_name, last_name, ufl_email, profile_image } = req.body;
+
+    // Check if gatorid is provided in the query
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: "Gator ID query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedStudent = await StudentProfile.findOneAndUpdate(
+      { ufl_email: email }, // Match based on org name
+      {
+        first_name,
+        last_name,
+        ufl_email,
+        profile_image,
+      },
+      { new: true, runValidators: true } // Return updated document & enforce schema validation
+    );
+
+    // If no document found with the given email
+    if (!updatedStudent) {
+      return res.status(404).json({ error: "Student profile not found" });
+    }
+
+    res.status(200).json(updatedStudent);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // ********************************** TABLING RESERVATIONS ROUTES **********************************
 
 // Fetch all tabling reservations
@@ -268,6 +373,42 @@ router.post("/tabling-reservation", async (req, res) => {
     });
     await newReservation.save();
     res.status(201).json(newReservation);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put("/tabling-reservation", async (req, res) => {
+  try {
+    const { id, name } = req.query;
+    const { org_name, start_time, end_time, location, description } = req.body;
+
+    // Check if gatorid is provided in the query
+    if (!id || !name) {
+      return res
+        .status(400)
+        .json({ error: "Gator ID query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedReservation = await TablingReservation.findOneAndUpdate(
+      { _id: id, org_name: name }, // Match based on org name
+      {
+        org_name,
+        start_time,
+        end_time,
+        location,
+        description: description || "",
+      },
+      { new: true, runValidators: true } // Return updated document & enforce schema validation
+    );
+
+    // If no document found with the given email
+    if (!updatedReservation) {
+      return res.status(404).json({ error: "Student profile not found" });
+    }
+
+    res.status(200).json(updatedReservation);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
