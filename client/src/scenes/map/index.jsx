@@ -46,8 +46,8 @@ const userIcon = new Icon({
 const createClusterCustomIcon = function (cluster) {
   return new divIcon({
     html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
-    className: "custom-marker-cluster",
-    iconSize: point(40, 40, true)
+    // className: "cluster-icon", 
+    iconSize: point(40, 40, true),
   });
 };
 
@@ -120,7 +120,11 @@ const createClusterCustomIcon = function (cluster) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <MarkerClusterGroup chunkedLoading>
+      <MarkerClusterGroup
+  chunkedLoading
+  className="custom-marker-cluster"
+  iconCreateFunction={createClusterCustomIcon} // Ensure this function is referenced here
+>
         {events.map((event) => {
           const [lat, lng] = event.location.split(',').map(Number);  // Parse location string into lat/lng
           return (
