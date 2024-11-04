@@ -30,10 +30,10 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 /* ROUTES */
-app.use("/api/general", generalRoutes);
-app.use("/api/students", studentRoutes);
-app.use("/api/organizations", organizationRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/general", generalRoutes);
+app.use("/students", studentRoutes);
+app.use("/organizations", organizationRoutes);
+app.use("/auth", authRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 9000;

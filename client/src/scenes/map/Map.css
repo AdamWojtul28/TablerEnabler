@@ -1,64 +1,75 @@
 .Map {
-    font-family: sans-serif;
-    text-align: center;
-  }
-  
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  #root {
-    height: 100vh;
-  }
-  
-  
-  /* sizing of map container */
-  .leaflet-container {
-    height: calc(100vh - 64px); /* Adjust map to fill the remaining space */
-  }
-  
-  
-  
-  .cluster-icon {
-    background-color: #FA4616;
-    height: 2em;
-    width: 2em;
-    color: #0021A5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    box-shadow: 0 0 0px 5px #0021A5;
-  }
+  font-family: sans-serif;
+  text-align: center;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100vh;
+}
 
 
-  .no-events-message {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    z-index: 1000;
-  }
-  
-  .error-message {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    z-index: 1000;
-  }
-  
-  
-  
-  
+/* sizing of map container */
+.leaflet-container {
+  height: calc(100vh - 64px); /* Adjust map to fill the remaining space */
+}
+
+
+
+.cluster-icon {
+  background-color: #FA4616 !important;
+  height: 2em !important;
+  width: 2em !important;
+  color: #0021A5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 0% !important;
+  font-size: 1.2rem !important;
+  box-shadow: 0 0 0px 5px #0021A5 !important;
+}
+
+
+
+
+
+
+.no-events-message {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border: 1px solid #f5c6cb;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.error-message {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border: 1px solid #f5c6cb;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+
+
+
+
+
+

@@ -29,7 +29,7 @@ export default function Register() {
     }
   
     try {
-      const response = await fetch('http://localhost:5001/api/students', { // Change to /api/students
+      const response = await fetch('http://localhost:5001/students', { // Change to /api/students
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
