@@ -587,7 +587,7 @@ router.get("/latest-tabling-reservation-request", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching the most recent event with criteria:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error Reservation request" });
   }
 });
 

@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
         res.status(201).send({ data: token, message: "Student account created successfully" });
     } catch (error) {
         console.error("Error in /api/students route:", error); 
-        res.status(500).send({ message: "Internal Server Error" });
+        res.status(500).send({ message: "Internal Server Error new student" });
     }
 });
 
@@ -35,7 +35,7 @@ router.get("/me", auth, async (req, res) => {
         res.send(user);
     } catch (error) {
         console.error("Error fetching user profile:", error); 
-        res.status(500).send({ message: "Internal Server Error" });
+        res.status(500).send({ message: "Internal Server Error get student profile" });
     }
 });
 
