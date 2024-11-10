@@ -88,6 +88,21 @@ router.get("/organization-profiles", async (req, res) => {
   }
 });
 
+router.get("/organization-profile", async (req, res) => {
+  const { name } = req.query; // Extract from request
+  try {
+    const specificLocation = await OrganizationProfile.findOne({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      name: {
+        $eq: name,
+      },
+    });
+    res.status(200).json(specificLocation);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // extract all of the profile informations for organizations that a student (gator_id passed in as query parameter) has marked as favorite
 router.get("/favorite-organization-profiles", async (req, res) => {
   const { gator_id } = req.query; // Extract from request
@@ -174,8 +189,19 @@ router.put("/organization-profile", async (req, res) => {
 
 router.get("/organization-socials", async (req, res) => {
   try {
-    const allSocials = await OrgSocial.find();
-    res.status(200).json(allSocials);
+    const { org_name } = req.query;
+    if (org_name) {
+      const specificSocials = await OrgSocial.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        org_name: {
+          $eq: org_name,
+        },
+      }).sort({ application_name: 1 });
+      res.status(200).json(specificSocials);
+    } else {
+      const allSocials = await OrgSocial.find().sort({ application_name: 1 });
+      res.status(200).json(allSocials);
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -587,7 +613,9 @@ router.get("/latest-tabling-reservation-request", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching the most recent event with criteria:", error);
-    res.status(500).json({ error: "Internal Server Error Reservation request" });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error Reservation request" });
   }
 });
 

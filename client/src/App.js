@@ -9,6 +9,7 @@ import Map from "scenes/map";
 import CalendarList from "scenes/calendarList";
 import Favorites from "scenes/favorites";
 import Search from "scenes/search";
+import OrganizationPage from "scenes/organizationPage";
 import LoadingScreen from "scenes/loadingScreen";
 import LoadingScreen1 from "scenes/loadingScreen1";
 import LoadingScreen2 from "scenes/loadingScreen2";
@@ -45,24 +46,89 @@ function App() {
 
           <Routes>
             <Route element={<Layout />}>
-
               {/* Redirect to map if logged in, otherwise go to loading screen */}
-              <Route path="/" element={<Navigate to={isLoggedIn ? "/map" : "/loadingScreen"} replace />} />
-              
+              <Route
+                path="/"
+                element={
+                  <Navigate
+                    to={isLoggedIn ? "/map" : "/loadingScreen"}
+                    replace
+                  />
+                }
+              />
+
               {/* Public loading screen route */}
               <Route path="/loadingScreen" element={<LoadingScreen />} />
-              
+
               {/* Conditional routes based on login status */}
-              <Route path="/map" element={isLoggedIn ? <Map /> : <Navigate to="/login" replace />} />
-              <Route path="/calendarlist" element={isLoggedIn ? <CalendarList /> : <Navigate to="/login" replace />} />
-              <Route path="/search" element={isLoggedIn ? <Search /> : <Navigate to="/login" replace />} />
-              <Route path="/favorites" element={isLoggedIn ? <Favorites /> : <Navigate to="/login" replace />} />
-              <Route path="/addEvent" element={isLoggedIn ? <AddEvent /> : <Navigate to="/login" replace />} />
-              <Route path="/congrats" element={isLoggedIn ? <Congrats /> : <Navigate to="/login" replace />} />
+              <Route
+                path="/map"
+                element={
+                  isLoggedIn ? <Map /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/calendarlist"
+                element={
+                  isLoggedIn ? (
+                    <CalendarList />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/search"
+                element={
+                  isLoggedIn ? <Search /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/favorites"
+                element={
+                  isLoggedIn ? <Favorites /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/addEvent"
+                element={
+                  isLoggedIn ? <AddEvent /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/congrats"
+                element={
+                  isLoggedIn ? <Congrats /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/organization-profile"
+                element={
+                  isLoggedIn ? (
+                    <OrganizationPage />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
 
               {/* Public routes with conditional redirect for logged-in users */}
-              <Route path="/login" element={isLoggedIn ? <Navigate to="/map" replace /> : <Login onLogin={() => setIsLoggedIn(true)} />} />
-              <Route path="/register" element={isLoggedIn ? <Navigate to="/map" replace /> : <Register />} />
+              <Route
+                path="/login"
+                element={
+                  isLoggedIn ? (
+                    <Navigate to="/map" replace />
+                  ) : (
+                    <Login onLogin={() => setIsLoggedIn(true)} />
+                  )
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  isLoggedIn ? <Navigate to="/map" replace /> : <Register />
+                }
+              />
 
               {/* Loading screens */}
               <Route path="/loadingScreen1" element={<LoadingScreen1 />} />
