@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Calendar from "react-calendar";
-import { format, parseISO } from "date-fns";
+import "react-calendar/dist/Calendar.css";
 import "./OrganizationPage.css";
 
 const OrganizationPage = () => {
@@ -11,11 +11,8 @@ const OrganizationPage = () => {
   const [reservations, setReservations] = useState([]);
   const [isFavorite, setIsFavorite] = useState("Follow");
   const location = useLocation();
-
-  // Extract the 'name' query parameter from the URL
   const queryParams = new URLSearchParams(location.search);
   const orgName = queryParams.get("name");
-
   const email = localStorage.getItem("email");
 
   useEffect(() => {
@@ -90,18 +87,45 @@ const OrganizationPage = () => {
     }
   }, [favorites, orgName]);
 
-  // Helper function to check if a date has reservations
+  // Function to check if a date has a reservation
   const isReserved = (date) => {
-    const formattedDate = format(date, "yyyy-MM-dd");
+    const formattedDate = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+    // let value = "";
+    // for (let i = 0; i < reservations.length; i++) {
+    //   alert(JSON.stringify(reservations[i].start_time));
+    // }
+    return reservations.some(
+      (reservation) =>
+        reservation.start_time &&
+        reservation.start_time.startsWith(formattedDate)
+    );
+  };
 
+  // Check if a month has any reservations
+  const isMonthReserved = (date) => {
+    const month = date.getMonth();
+    const year = date.getFullYear();
     return reservations.some((reservation) => {
-      if (reservation.date) {
-        const reservationDate = parseISO(reservation.date);
-        return format(reservationDate, "yyyy-MM-dd") === formattedDate;
-      }
-      return false;
+      const reservationDate = new Date(reservation.start_time);
+      return (
+        reservationDate.getMonth() === month &&
+        reservationDate.getFullYear() === year
+      );
     });
   };
+
+  // Check if a year has any reservations
+  const isYearReserved = (date) => {
+    const year = date.getFullYear();
+    return reservations.some(
+      (reservation) => new Date(reservation.start_time).getFullYear() === year
+    );
+  };
+
+  // Add a useEffect to handle calendar reservations on initial load
+  useEffect(() => {
+    // This effect ensures that the calendar highlights all reservation dates upon loading.
+  }, [reservations]);
 
   const handleFollow = async () => {
     try {
@@ -159,9 +183,21 @@ const OrganizationPage = () => {
         <div className="calendar-container">
           <Calendar
             calendarType="gregory"
-            tileClassName={({ date }) =>
-              isReserved(date) ? "highlighted-day" : ""
-            }
+            tileClassName={({ date, view }) => {
+              if (view === "month" && isReserved(date)) {
+                return "highlighted-day"; // Reserved days in day view
+              } else if (view === "year" && isMonthReserved(date)) {
+                return "highlighted-month"; // Highlighted month in year view
+              } else if (view === "decade" && isYearReserved(date)) {
+                return "highlighted-year"; // Highlighted year in decade view
+              }
+              return "";
+            }}
+            onClickDay={(date) => {
+              if (isReserved(date)) {
+                alert("Successful");
+              }
+            }}
             className="custom-calendar"
           />
         </div>
@@ -180,7 +216,7 @@ const OrganizationPage = () => {
               >
                 <img
                   src={`/icons/${social.application_name}-icon.png`}
-                  alt={`/icons/${social.application_link} icon`}
+                  alt={`${social.application_name} icon`}
                   className="social-media-icon"
                 />
                 <span>{social.platform}</span>

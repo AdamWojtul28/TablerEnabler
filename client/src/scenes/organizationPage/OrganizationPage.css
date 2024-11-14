@@ -70,11 +70,42 @@ p {
   margin-bottom: 100px;
 }
 
-/* Styling for reserved dates */
+/* Calendar week day styling */
+.react-calendar__month-view__weekdays {
+  display: flex;
+  justify-content: space-around;
+  color: black; /* Make days of the week black */
+  font-weight: bold;
+  text-align: center;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  display: flex;
+  justify-content: center;
+}
+
+.first-day-of-month {
+  background-color: orange !important;
+  color: white !important;
+  border-radius: 0%; /* Optional: For a rounded effect */
+}
+
 .highlighted-day {
   background-color: orange !important;
-  color: white;
+  color: white !important;
+  border-radius: 0%; /* Optional: For a rounded effect */
 }
+
+.highlighted-month {
+  background-color: orange !important;
+  color: white !important;
+}
+
+.highlighted-year {
+  background-color: orange !important;
+  color: white !important;
+}
+
 
 /* Container to hold the calendar, centered within smooth-grey-box */
 .calendar-container {
