@@ -406,13 +406,28 @@ router.put("/student-profile", async (req, res) => {
 
 // ********************************** TABLING RESERVATIONS ROUTES **********************************
 
-// Fetch all tabling reservations
+// Fetch all tabling reservations or all tabling reservations for org if query passed in
 router.get("/tabling-reservations", async (req, res) => {
-  try {
-    const events = await TablingReservation.find();
-    res.status(200).json(events);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { org } = req.query; // Extract from request
+  if (org) {
+    try {
+      const orgReservations = await TablingReservation.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        org_name: {
+          $eq: org,
+        },
+      });
+      res.status(200).json(orgReservations);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    try {
+      const events = await TablingReservation.find();
+      res.status(200).json(events);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 

@@ -70,6 +70,90 @@ p {
   margin-bottom: 100px;
 }
 
+/* Styling for reserved dates */
+.highlighted-day {
+  background-color: orange !important;
+  color: white;
+}
+
+/* Container to hold the calendar, centered within smooth-grey-box */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Custom styling for the calendar itself */
+.custom-calendar {
+  width: 90%; /* Set calendar width to 90% of its container */
+  height: auto;
+  max-width: 700px; /* Optional max-width for larger screens */
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Ensure calendar days stay centered */
+.custom-calendar .react-calendar__tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Custom navigation button styling */
+.custom-calendar .react-calendar__navigation button {
+  background-color: #007bff; /* Match the Follow button color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 2px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.custom-calendar .react-calendar__navigation button:enabled:hover {
+  background-color: #0056b3;
+}
+
+/* Styling for the calendar navigation buttons */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: center; /* Centers navigation buttons horizontally */
+  margin-bottom: 10px;
+}
+
+.react-calendar__navigation button {
+  background-color: #007bff; /* Match the "Follow" button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #0056b3; /* Darker shade for hover effect */
+}
+
+/* Optional: Improve appearance of calendar cells */
+.react-calendar__tile {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-calendar__tile--now {
+  background-color: #f0f0f0; /* Gray for the current day */
+}
+
+
+
 /* Social media section styling */
 .social-media-section {
   margin-top: 20px;

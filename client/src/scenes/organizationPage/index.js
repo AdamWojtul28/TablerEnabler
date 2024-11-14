@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import Calendar from "react-calendar";
+import { format, parseISO } from "date-fns";
 import "./OrganizationPage.css";
 
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
   const [socialMedia, setSocialMedia] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [isFavorite, setIsFavorite] = useState("Follow");
   const location = useLocation();
 
@@ -58,9 +61,24 @@ const OrganizationPage = () => {
       }
     };
 
+    const fetchReservations = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5001/general/tabling-reservations?org=${encodeURIComponent(
+            orgName
+          )}`
+        );
+        const reservationsData = await response.json();
+        setReservations(reservationsData);
+      } catch (error) {
+        console.error("Error fetching reservations:", error);
+      }
+    };
+
     fetchOrganization();
     fetchSocialMedia();
     fetchFavorites();
+    fetchReservations();
   }, [orgName, email]);
 
   // Update isFavorite based on fetched favorites
@@ -71,6 +89,19 @@ const OrganizationPage = () => {
       setIsFavorite("Follow");
     }
   }, [favorites, orgName]);
+
+  // Helper function to check if a date has reservations
+  const isReserved = (date) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+
+    return reservations.some((reservation) => {
+      if (reservation.date) {
+        const reservationDate = parseISO(reservation.date);
+        return format(reservationDate, "yyyy-MM-dd") === formattedDate;
+      }
+      return false;
+    });
+  };
 
   const handleFollow = async () => {
     try {
@@ -111,7 +142,6 @@ const OrganizationPage = () => {
           {isFavorite}
         </button>
       </div>
-      {/* Smooth grey box wrapping the purpose and description */}
       <div className="smooth-grey-box">
         <div className="left-section">
           <h2>Organization Purpose:</h2>
@@ -125,11 +155,18 @@ const OrganizationPage = () => {
           />
         </div>
 
-        <h2>Tabling Calendar Placeholder:</h2>
-        <p>Event dates</p>
+        <h2>Tabling Calendar</h2>
+        <div className="calendar-container">
+          <Calendar
+            calendarType="gregory"
+            tileClassName={({ date }) =>
+              isReserved(date) ? "highlighted-day" : ""
+            }
+            className="custom-calendar"
+          />
+        </div>
 
         <h2>Contact Information</h2>
-        {/* Social media section */}
         <div className="social-media-section">
           <h2>Follow Us</h2>
           <div className="social-media-links">
