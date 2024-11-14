@@ -46,87 +46,37 @@ function App() {
 
           <Routes>
             <Route element={<Layout />}>
-              {/* Redirect to map if logged in, otherwise go to loading screen */}
-              <Route
-                path="/"
-                element={
-                  <Navigate
-                    to={isLoggedIn ? "/map" : "/loadingScreen"}
-                    replace
-                  />
-                }
-              />
+              {/* Redirect to map by default */}
+              <Route path="/" element={<Navigate to="/map" replace />} />
 
-              {/* Public loading screen route */}
+              {/* Public routes accessible to everyone */}
               <Route path="/loadingScreen" element={<LoadingScreen />} />
+              <Route path="/map" element={<Map />} />
+              <Route path="/calendarlist" element={<CalendarList />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/organization-profile" element={<OrganizationPage />} />
+              <Route path="/congrats" element={<Congrats />} />
 
-              {/* Conditional routes based on login status */}
-              <Route
-                path="/map"
-                element={
-                  isLoggedIn ? <Map /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/calendarlist"
-                element={
-                  isLoggedIn ? (
-                    <CalendarList />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/search"
-                element={
-                  isLoggedIn ? <Search /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/favorites"
-                element={
-                  isLoggedIn ? <Favorites /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/addEvent"
-                element={
-                  isLoggedIn ? <AddEvent /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/congrats"
-                element={
-                  isLoggedIn ? <Congrats /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/organization-profile"
-                element={
-                  isLoggedIn ? (
-                    <OrganizationPage />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-
-              {/* Public routes with conditional redirect for logged-in users */}
+              {/* Login and register routes */}
               <Route
                 path="/login"
                 element={
-                  isLoggedIn ? (
-                    <Navigate to="/map" replace />
-                  ) : (
-                    <Login onLogin={() => setIsLoggedIn(true)} />
-                  )
+                  isLoggedIn ? <Navigate to="/map" replace /> : <Login onLogin={() => setIsLoggedIn(true)} />
                 }
               />
               <Route
                 path="/register"
                 element={
                   isLoggedIn ? <Navigate to="/map" replace /> : <Register />
+                }
+              />
+
+              {/* Restricted route: Only accessible when logged in */}
+              <Route
+                path="/addEvent"
+                element={
+                  isLoggedIn ? <AddEvent /> : <Navigate to="/login" replace />
                 }
               />
 
@@ -138,6 +88,8 @@ function App() {
               <Route path="/loadingScreen5" element={<LoadingScreen5 />} />
             </Route>
           </Routes>
+
+          
         </ThemeProvider>
       </BrowserRouter>
     </div>
