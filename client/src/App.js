@@ -1,14 +1,15 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { useMemo } from "react";
-import { useSelector } from "react-redux";  // solves the state transfer problem by storing all of the states in a single place called a store
+import { useMemo, useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { themeSettings } from "theme";
 import Layout from "scenes/layout";
 import Map from "scenes/map";
 import CalendarList from "scenes/calendarList";
 import Favorites from "scenes/favorites";
 import Search from "scenes/search";
+import OrganizationPage from "scenes/organizationPage";
 import LoadingScreen from "scenes/loadingScreen";
 import LoadingScreen1 from "scenes/loadingScreen1";
 import LoadingScreen2 from "scenes/loadingScreen2";
@@ -18,32 +19,118 @@ import LoadingScreen5 from "scenes/loadingScreen5";
 import Login from "scenes/login";
 import Register from "scenes/register";
 import AddEvent from "scenes/addEvent";
+import Congrats from "scenes/SignedIn";
+import Navbar from "components/Navbar";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
-  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]) //createTheme -> pass what materialUI needs
+  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
+  // State to check if the user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+  // Check localStorage for token on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token); // Update login status based on token presence
+  }, []);
 
   return (
     <div className="app">
       <BrowserRouter>
-        <ThemeProvider theme={theme}> {/*materialUI setup*/}
-          <CssBaseline /> {/*css reset*/}
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+
+          {/* Navbar with login state passed as props */}
+          <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+
           <Routes>
-            <Route element={<Layout />}>  {/*Any Route withing this component will have Layout component as a parent for example we will have bottom navbar on every page*/}
-              <Route path="/" element={<Navigate to="/loadingScreen" replace />} /> {/*if we sign in successfully we will be redirected to main(map view) page*/}
+            <Route element={<Layout />}>
+              {/* Redirect to map if logged in, otherwise go to loading screen */}
+              <Route
+                path="/"
+                element={
+                  <Navigate
+                    to={isLoggedIn ? "/map" : "/loadingScreen"}
+                    replace
+                  />
+                }
+              />
+
+              {/* Public loading screen route */}
               <Route path="/loadingScreen" element={<LoadingScreen />} />
-              <Route path="/map" element={<Map />} />
-              <Route path="/calendarlist" element={<CalendarList />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/addEvent" element={<AddEvent />} />
 
+              {/* Conditional routes based on login status */}
+              <Route
+                path="/map"
+                element={
+                  isLoggedIn ? <Map /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/calendarlist"
+                element={
+                  isLoggedIn ? (
+                    <CalendarList />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/search"
+                element={
+                  isLoggedIn ? <Search /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/favorites"
+                element={
+                  isLoggedIn ? <Favorites /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/addEvent"
+                element={
+                  isLoggedIn ? <AddEvent /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/congrats"
+                element={
+                  isLoggedIn ? <Congrats /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/organization-profile"
+                element={
+                  isLoggedIn ? (
+                    <OrganizationPage />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
 
+              {/* Public routes with conditional redirect for logged-in users */}
+              <Route
+                path="/login"
+                element={
+                  isLoggedIn ? (
+                    <Navigate to="/map" replace />
+                  ) : (
+                    <Login onLogin={() => setIsLoggedIn(true)} />
+                  )
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  isLoggedIn ? <Navigate to="/map" replace /> : <Register />
+                }
+              />
 
-              {/*LOADING SCRENS' SAMPLES NEED HELP WITH CHOOSING ONE */}
+              {/* Loading screens */}
               <Route path="/loadingScreen1" element={<LoadingScreen1 />} />
               <Route path="/loadingScreen2" element={<LoadingScreen2 />} />
               <Route path="/loadingScreen3" element={<LoadingScreen3 />} />

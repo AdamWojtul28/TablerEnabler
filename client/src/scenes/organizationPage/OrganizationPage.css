@@ -1,0 +1,100 @@
+/* Smooth grey box for organization information */
+.smooth-grey-box {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  width: 90%;
+}
+
+/* Container for organization name and Follow button */
+.organization-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.organization-name {
+  margin: 0;
+  font-size: 32px;
+  text-align: center;
+  align-items: center;
+  margin-right: 50px;
+}
+
+/* Follow button styling */
+.follow-button {
+  background-color: #ff9900; /* Orange color */
+  color: #fff;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 10px; /* Small spacing between name and button */
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  background-color: #e68a00; /* Darker orange on hover */
+}
+
+/* Flexbox layout for the left and right sections */
+.left-section, .right-section {
+  flex: 1 1 50%; /* Each section takes up 50% of the width */
+  padding: 10px;
+}
+
+.left-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.right-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.organization-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Text paragraph styling */
+p {
+  color: black;
+  margin-bottom: 100px;
+}
+
+/* Social media section styling */
+.social-media-section {
+  margin-top: 20px;
+  text-align: center; /* Center the section */
+}
+
+/* Flex container for social media links with centered icons */
+.social-media-links {
+  display: flex;
+  justify-content: center; /* Centers the icons horizontally */
+  gap: 50px; /* Adds 20px spacing between each icon */
+  flex-wrap: wrap; /* Allows wrapping if there are many icons */
+  margin-bottom: 20px;
+}
+
+/* Styling for each individual social media link */
+.social-media-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+}
+
+/* Styling for the icons */
+.social-media-icon {
+  width: 100px; /* Adjust the size as needed */
+  height: 100px;
+}

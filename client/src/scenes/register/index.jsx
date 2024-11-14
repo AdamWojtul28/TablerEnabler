@@ -4,46 +4,57 @@ import './Register.css';
 
 export default function Register() {
   const [data, setData] = useState({
-   
     first_name: '',
     last_name: '',
     ufl_email: '',
-    password: 'student',
-    role: ''
+    password: '',
+    role: '',
+    name: ''
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = ({ currentTarget: input }) => {
     setData({ ...data, [input.name]: input.value });
+    console.log("Field updated:", input.name, input.value); // Log field changes
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const { ufl_email, password, role } = data;
-  
-    if (ufl_email === '' || password === '' || !role) {
+
+    const { ufl_email, password, role, name, first_name, last_name } = data;
+    console.log("Submitting data:", data); // Log entire data on submit
+
+    if ((role === 'student' && (ufl_email === '' || password === '' || first_name === '' || last_name === '')) ||
+        (role === 'organization' && (name === '' || password === ''))) {
       setErrorMessage('All fields are required.');
+      console.log("Validation failed: Missing required fields");
       return;
     }
-  
+
+    const submissionData = role === 'student' 
+      ? { first_name, last_name, ufl_email, password, role } 
+      : { name, password, role };
+
+    console.log("Sending submissionData:", submissionData); // Log the data being sent
+
     try {
-      const response = await fetch('http://localhost:5001/api/students', { // Change to /api/students
+      const endpoint = role === 'student' ? 'http://localhost:5001/students' : 'http://localhost:5001/organizations';
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data)
-    });
-    
-  
+        body: JSON.stringify(submissionData)
+      });
+
       const contentType = response.headers.get("content-type");
-  
+      console.log("Response received:", response.status); // Log response status
+
       if (response.ok) {
         const result = await response.json();
         console.log('Signup successful:', result);
-        localStorage.setItem('token', result.data); 
+        localStorage.setItem('token', result.data);
         navigate('/map');
       } else if (contentType && contentType.includes("application/json")) {
         const errorData = await response.json();
@@ -57,9 +68,8 @@ export default function Register() {
       console.error('Error signing up:', error);
       setErrorMessage('An error occurred. Please try again.');
     }
-    console.log('User Registered:', { ufl_email, password, role });
   };
-  
+
   return (
     <div className="register-container">
       <form className="register-form" onSubmit={handleSubmit}>
@@ -96,14 +106,14 @@ export default function Register() {
         {data.role === 'student' && (
           <>
             <div className="form-group">
-            <label htmlFor="first_name">First Name</label>
-            <input
-              id="first_name"
-              name="first_name"
-              value={data.first_name}
-              onChange={handleChange}
-              placeholder="Enter your First Name"
-            />
+              <label htmlFor="first_name">First Name</label>
+              <input
+                id="first_name"
+                name="first_name"
+                value={data.first_name}
+                onChange={handleChange}
+                placeholder="Enter your First Name"
+              />
             </div>
 
             <div className="form-group">
@@ -130,23 +140,22 @@ export default function Register() {
             </div>
           </>
         )}
-
+        
         {data.role === 'organization' && (
           <>
             <div className="form-group">
-              <label htmlFor="name">Name</label>
+              <label htmlFor="name">Organization Name</label>
               <input
-                type="name"
+                type="text"
                 id="name"
                 name="name"
                 value={data.name}
                 onChange={handleChange}
-                placeholder="Enter your name"
+                placeholder="Enter your organization name"
               />
             </div>
           </>
-          )
-        }
+        )}
         
         <div className="form-group">
           <label htmlFor="password">Password</label>

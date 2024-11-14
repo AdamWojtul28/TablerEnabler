@@ -164,4 +164,3 @@ const createClusterCustomIcon = function (cluster) {
     </MapContainer>
   );
 }
-

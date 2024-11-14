@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import './Search.css';  // Assuming you already have CSS for styling
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "./Search.css"; // Assuming you already have CSS for styling
 
 const Search = () => {
   const [organizations, setOrganizations] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');  // Search term state
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
 
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
-        const response = await fetch('http://localhost:5001/general/organization-profiles');  // Replace with your API endpoint
+        const response = await fetch(
+          "http://localhost:5001/general/organization-profiles"
+        ); // Replace with your API endpoint
         const data = await response.json();
-        setOrganizations(data);  // Set the organizations data
+        setOrganizations(data); // Set the organizations data
       } catch (error) {
-        console.error('Error fetching organizations:', error);
+        console.error("Error fetching organizations:", error);
       }
     };
 
@@ -20,9 +23,10 @@ const Search = () => {
   }, []);
 
   // Filter organizations based on the search term
-  const filteredOrganizations = organizations.filter(org =>
-    org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    org.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOrganizations = organizations.filter(
+    (org) =>
+      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      org.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -34,7 +38,7 @@ const Search = () => {
         type="text"
         placeholder="Search clubs..."
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}  // Update the search term
+        onChange={(e) => setSearchTerm(e.target.value)} // Update the search term
         className="search-bar"
       />
 
@@ -42,11 +46,19 @@ const Search = () => {
       <div className="club-grid">
         {filteredOrganizations.length > 0 ? (
           filteredOrganizations.map((org) => (
-            <div key={org._id} className="club-card">
-              <img src={org.profile_image || 'default-image-url.jpg'} alt={org.name} className="club-image" />
+            <Link
+              key={org._id}
+              to={`/organization-profile?name=${encodeURIComponent(org.name)}`}
+              className="club-card"
+            >
+              <img
+                src={org.profile_image || "default-image-url.jpg"}
+                alt={org.name}
+                className="club-image"
+              />
               <h2>{org.name}</h2>
               <p>{org.description}</p>
-            </div>
+            </Link>
           ))
         ) : (
           <p>No organizations found</p>

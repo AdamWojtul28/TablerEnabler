@@ -11,23 +11,39 @@ import TablingReservationRequest from "../models/TablingReservation.js";
 const router = express.Router();
 
 // ********************************** FAVORITE-ORGS ROUTES **********************************
+// get specific student based on the gator_id passed in the request query parameter
 router.get("/favorite-organizations", async (req, res) => {
-  try {
-    const allFavs = await FavoriteOrg.find();
-    res.status(200).json(allFavs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { email } = req.query; // Extract from request
+  if (email) {
+    try {
+      const favOrgsStudent = await FavoriteOrg.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        ufl_email: {
+          $eq: email,
+        },
+      });
+      res.status(200).json(favOrgsStudent);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    try {
+      const allFavs = await FavoriteOrg.find();
+      res.status(200).json(allFavs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
 router.post("/favorite-organization", async (req, res) => {
   try {
     // console.log("Raw Body:", req.body); - can use this line to see if request goes through
-    const { org_name, gator_id, createdAt } = req.body;
+    const { org_name, ufl_email } = req.body;
     const newFavoriteOrg = new FavoriteOrg({
       org_name,
-      gator_id,
-      createdAt: createdAt || undefined,
+      ufl_email,
+      createdAt: undefined,
     });
     await newFavoriteOrg.save();
     res.status(201).json(newFavoriteOrg);
@@ -83,6 +99,21 @@ router.get("/organization-profiles", async (req, res) => {
   try {
     const allOrgs = await OrganizationProfile.find();
     res.status(200).json(allOrgs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/organization-profile", async (req, res) => {
+  const { name } = req.query; // Extract from request
+  try {
+    const specificLocation = await OrganizationProfile.findOne({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      name: {
+        $eq: name,
+      },
+    });
+    res.status(200).json(specificLocation);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -174,8 +205,19 @@ router.put("/organization-profile", async (req, res) => {
 
 router.get("/organization-socials", async (req, res) => {
   try {
-    const allSocials = await OrgSocial.find();
-    res.status(200).json(allSocials);
+    const { org_name } = req.query;
+    if (org_name) {
+      const specificSocials = await OrgSocial.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        org_name: {
+          $eq: org_name,
+        },
+      }).sort({ application_name: 1 });
+      res.status(200).json(specificSocials);
+    } else {
+      const allSocials = await OrgSocial.find().sort({ application_name: 1 });
+      res.status(200).json(allSocials);
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -276,6 +318,22 @@ router.get("/student-profile", async (req, res) => {
       // This assumes that `date` is stored as a full Date object in the schema.
       gator_id: {
         $eq: gator_id,
+      },
+    });
+    res.status(200).json(specificStudent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get specific student based on the gator_id passed in the request query parameter
+router.get("/student-profile", async (req, res) => {
+  const { email } = req.query; // Extract from request
+  try {
+    const specificStudent = await StudentProfile.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      ufl_email: {
+        $eq: email,
       },
     });
     res.status(200).json(specificStudent);
@@ -587,7 +645,9 @@ router.get("/latest-tabling-reservation-request", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching the most recent event with criteria:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error Reservation request" });
   }
 });
 
