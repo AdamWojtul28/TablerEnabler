@@ -39,37 +39,35 @@
 
 
 
-.no-events-message {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  border: 1px solid #f5c6cb;
-  font-size: 1.1rem;
-  border-radius: 4px;
-  z-index: 1000;
-}
+  .no-events-message {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    font-size: 1.1rem;
+    border-radius: 4px;
+    z-index: 1000;
+  }
 
-.error-message {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  border: 1px solid #f5c6cb;
-  font-size: 1.1rem;
-  border-radius: 4px;
-  z-index: 1000;
-}
-
-
-
-
-
-
-
+  
+  .error-message {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    font-size: 1.1rem;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
+  
+  
+  
