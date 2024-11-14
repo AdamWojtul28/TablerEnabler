@@ -8,6 +8,39 @@
   width: 90%;
 }
 
+/* Container for organization name and Follow button */
+.organization-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.organization-name {
+  margin: 0;
+  font-size: 32px;
+  text-align: center;
+  align-items: center;
+  margin-right: 50px;
+}
+
+/* Follow button styling */
+.follow-button {
+  background-color: #ff9900; /* Orange color */
+  color: #fff;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 10px; /* Small spacing between name and button */
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  background-color: #e68a00; /* Darker orange on hover */
+}
+
 /* Flexbox layout for the left and right sections */
 .left-section, .right-section {
   flex: 1 1 50%; /* Each section takes up 50% of the width */

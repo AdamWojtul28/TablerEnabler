@@ -5,11 +5,15 @@ import "./OrganizationPage.css";
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
   const [socialMedia, setSocialMedia] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [isFavorite, setIsFavorite] = useState("Follow");
   const location = useLocation();
 
   // Extract the 'name' query parameter from the URL
   const queryParams = new URLSearchParams(location.search);
   const orgName = queryParams.get("name");
+
+  const email = localStorage.getItem("email");
 
   useEffect(() => {
     const fetchOrganization = async () => {
@@ -40,11 +44,60 @@ const OrganizationPage = () => {
       }
     };
 
-    if (orgName) {
-      fetchOrganization();
-      fetchSocialMedia();
+    const fetchFavorites = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5001/general/favorite-organizations?email=${encodeURIComponent(
+            email
+          )}`
+        );
+        const favoritesData = await response.json();
+        setFavorites(favoritesData);
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };
+
+    fetchOrganization();
+    fetchSocialMedia();
+    fetchFavorites();
+  }, [orgName, email]);
+
+  // Update isFavorite based on fetched favorites
+  useEffect(() => {
+    if (favorites.some((favorite) => favorite.org_name === orgName)) {
+      setIsFavorite("Following");
+    } else {
+      setIsFavorite("Follow");
     }
-  }, [orgName]);
+  }, [favorites, orgName]);
+
+  const handleFollow = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5001/general/favorite-organization",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ org_name: orgName, ufl_email: email }),
+        }
+      );
+      if (response.ok) {
+        alert(`${orgName} added to favorites!`);
+        setFavorites((prev) => [
+          ...prev,
+          { org_name: orgName, ufl_email: email },
+        ]);
+      } else {
+        alert("Failed to add organization to favorites.");
+      }
+    } catch (error) {
+      console.error("Error favoriting organization:", error);
+      alert("An error occurred.");
+    }
+  };
 
   if (!organization) {
     return <div>Loading...</div>;
@@ -52,7 +105,12 @@ const OrganizationPage = () => {
 
   return (
     <div className="organization-page">
-      <h1>{organization.name}</h1>
+      <div className="organization-header">
+        <h1 className="organization-name">{organization.name}</h1>
+        <button className="follow-button" onClick={handleFollow}>
+          {isFavorite}
+        </button>
+      </div>
       {/* Smooth grey box wrapping the purpose and description */}
       <div className="smooth-grey-box">
         <div className="left-section">
@@ -84,7 +142,7 @@ const OrganizationPage = () => {
                 className="social-media-link"
               >
                 <img
-                  src={`/icons/${social.application_name}-icon.png`} // Assumes local icons for each platform
+                  src={`/icons/${social.application_name}-icon.png`}
                   alt={`/icons/${social.application_link} icon`}
                   className="social-media-icon"
                 />

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 
 export default function Login({ onLogin }) {
+  const [user, setUser] = useState(null);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('student');
@@ -43,6 +44,8 @@ export default function Login({ onLogin }) {
           // Set success message with user's name and email
           setSuccessMessage(`Login successful! Welcome, ${result.user.name} (${result.user.email})`);
           setErrorMessage(''); // Clear any previous error
+
+          localStorage.setItem('email', result.user.email);
           
           // Trigger the login success callback to update app state
           if (onLogin) {
