@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 
 const favoriteOrganizationsSchema = new mongoose.Schema({
   org_name: { type: String, required: true },
-  gator_id: { type: Number, required: true },
+  ufl_email: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 
 favoriteOrganizationsSchema.index(
-  { org_name: 1, gator_id: 1 },
+  { org_name: 1, ufl_email: 1 },
   { unique: true }
 );
 

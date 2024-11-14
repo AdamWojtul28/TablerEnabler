@@ -5,32 +5,91 @@ import TablingReservation from "../models/TablingReservation.js";
 import FavoriteOrg from "../models/FavoriteOrg.js";
 import OrganizationProfile from "../models/OrganizationProfile.js";
 import OrgSocial from "../models/OrgSocial.js";
+import FixedTablingLocs from "../models/FixedTablingLocations.js";
+import TablingReservationRequest from "../models/TablingReservation.js";
 
 const router = express.Router();
 
 // ********************************** FAVORITE-ORGS ROUTES **********************************
+// get specific student based on the gator_id passed in the request query parameter
 router.get("/favorite-organizations", async (req, res) => {
-  try {
-    const allFavs = await FavoriteOrg.find();
-    res.status(200).json(allFavs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { email } = req.query; // Extract from request
+  if (email) {
+    try {
+      const favOrgsStudent = await FavoriteOrg.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        ufl_email: {
+          $eq: email,
+        },
+      });
+      res.status(200).json(favOrgsStudent);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    try {
+      const allFavs = await FavoriteOrg.find();
+      res.status(200).json(allFavs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
 router.post("/favorite-organization", async (req, res) => {
   try {
     // console.log("Raw Body:", req.body); - can use this line to see if request goes through
-    const { org_name, gator_id, createdAt } = req.body;
+    const { org_name, ufl_email } = req.body;
     const newFavoriteOrg = new FavoriteOrg({
       org_name,
-      gator_id,
-      createdAt: createdAt || undefined,
+      ufl_email,
+      createdAt: undefined,
     });
     await newFavoriteOrg.save();
     res.status(201).json(newFavoriteOrg);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// ********************************** FIXED-TABLING-LOCATIONS ROUTES **********************************
+router.post("/fixed-location", async (req, res) => {
+  try {
+    // console.log("Raw Body:", req.body); - can use this line to see if request goes through
+    const { name, location } = req.body;
+    const newFixedLoc = new FixedTablingLocs({
+      name,
+      location,
+    });
+    await newFixedLoc.save();
+    res.status(201).json(newFixedLoc);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.get("/fixed-locations", async (req, res) => {
+  try {
+    const fixedLocations = await FixedTablingLocs.find();
+    res.status(200).json(fixedLocations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get specific student based on the gator_id passed in the request query parameter
+router.get("/fixed-location", async (req, res) => {
+  const { name } = req.query; // Extract from request
+  try {
+    const specificLocation = await FixedTablingLocs.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      name: {
+        $eq: name,
+      },
+    });
+    res.status(200).json(specificLocation);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -40,6 +99,21 @@ router.get("/organization-profiles", async (req, res) => {
   try {
     const allOrgs = await OrganizationProfile.find();
     res.status(200).json(allOrgs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/organization-profile", async (req, res) => {
+  const { name } = req.query; // Extract from request
+  try {
+    const specificLocation = await OrganizationProfile.findOne({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      name: {
+        $eq: name,
+      },
+    });
+    res.status(200).json(specificLocation);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,12 +165,59 @@ router.post("/organization-profile", async (req, res) => {
   }
 });
 
+router.put("/organization-profile", async (req, res) => {
+  try {
+    const { org } = req.query;
+    const { name, description, profile_image, createdAt } = req.body;
+
+    // Check if name is provided in the query
+    if (!org) {
+      return res
+        .status(400)
+        .json({ error: "Email query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedOrganizationProfile =
+      await OrganizationProfile.findOneAndUpdate(
+        { name: org }, // Match based on org name
+        {
+          name,
+          description,
+          profile_image: profile_image || null,
+          createdAt: createdAt || undefined,
+        },
+        { new: true, runValidators: true } // Return updated document & enforce schema validation
+      );
+
+    // If no document found with the given email
+    if (!updatedOrganizationProfile) {
+      return res.status(404).json({ error: "Organization profile not found" });
+    }
+
+    res.status(200).json(updatedOrganizationProfile);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // ********************************** ORG-SOCIAL ROUTES **********************************
 
 router.get("/organization-socials", async (req, res) => {
   try {
-    const allSocials = await OrgSocial.find();
-    res.status(200).json(allSocials);
+    const { org_name } = req.query;
+    if (org_name) {
+      const specificSocials = await OrgSocial.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        org_name: {
+          $eq: org_name,
+        },
+      }).sort({ application_name: 1 });
+      res.status(200).json(specificSocials);
+    } else {
+      const allSocials = await OrgSocial.find().sort({ application_name: 1 });
+      res.status(200).json(allSocials);
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -113,6 +234,40 @@ router.post("/organization-social", async (req, res) => {
     });
     await newOrgSocial.save();
     res.status(201).json(newOrgSocial);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put("/organization-social", async (req, res) => {
+  try {
+    const { org } = req.query;
+    const { org_name, application_name, application_link } = req.body;
+
+    // Check if name is provided in the query
+    if (!org) {
+      return res
+        .status(400)
+        .json({ error: "Org name query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedOrganizationSocial = await OrgSocial.findOneAndUpdate(
+      { name: org }, // Match based on org name
+      {
+        org_name,
+        application_name,
+        application_link,
+      },
+      { new: true, runValidators: true } // Return updated document & enforce schema validation
+    );
+
+    // If no document found with the given email
+    if (!updatedOrganizationSocial) {
+      return res.status(404).json({ error: "Organization profile not found" });
+    }
+
+    res.status(200).json(updatedOrganizationSocial);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -171,6 +326,22 @@ router.get("/student-profile", async (req, res) => {
   }
 });
 
+// get specific student based on the gator_id passed in the request query parameter
+router.get("/student-profile", async (req, res) => {
+  const { email } = req.query; // Extract from request
+  try {
+    const specificStudent = await StudentProfile.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      ufl_email: {
+        $eq: email,
+      },
+    });
+    res.status(200).json(specificStudent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Create a new student profile
 router.post("/student-profile", async (req, res) => {
   try {
@@ -198,15 +369,65 @@ router.post("/student-profile", async (req, res) => {
   }
 });
 
+router.put("/student-profile", async (req, res) => {
+  try {
+    const { email } = req.query;
+    const { first_name, last_name, ufl_email, profile_image } = req.body;
+
+    // Check if gatorid is provided in the query
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: "Gator ID query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedStudent = await StudentProfile.findOneAndUpdate(
+      { ufl_email: email }, // Match based on org name
+      {
+        first_name,
+        last_name,
+        ufl_email,
+        profile_image,
+      },
+      { new: true, runValidators: true } // Return updated document & enforce schema validation
+    );
+
+    // If no document found with the given email
+    if (!updatedStudent) {
+      return res.status(404).json({ error: "Student profile not found" });
+    }
+
+    res.status(200).json(updatedStudent);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // ********************************** TABLING RESERVATIONS ROUTES **********************************
 
-// Fetch all tabling reservations
+// Fetch all tabling reservations or all tabling reservations for org if query passed in
 router.get("/tabling-reservations", async (req, res) => {
-  try {
-    const events = await TablingReservation.find();
-    res.status(200).json(events);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { org } = req.query; // Extract from request
+  if (org) {
+    try {
+      const orgReservations = await TablingReservation.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        org_name: {
+          $eq: org,
+        },
+      });
+      res.status(200).json(orgReservations);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    try {
+      const events = await TablingReservation.find();
+      res.status(200).json(events);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
@@ -230,21 +451,58 @@ router.post("/tabling-reservation", async (req, res) => {
   }
 });
 
+router.put("/tabling-reservation", async (req, res) => {
+  try {
+    const { id, name } = req.query;
+    const { org_name, start_time, end_time, location, description } = req.body;
+
+    // Check if gatorid is provided in the query
+    if (!id || !name) {
+      return res
+        .status(400)
+        .json({ error: "Gator ID query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedReservation = await TablingReservation.findOneAndUpdate(
+      { _id: id, org_name: name }, // Match based on org name
+      {
+        org_name,
+        start_time,
+        end_time,
+        location,
+        description: description || "",
+      },
+      { new: true, runValidators: true } // Return updated document & enforce schema validation
+    );
+
+    // If no document found with the given email
+    if (!updatedReservation) {
+      return res.status(404).json({ error: "Student profile not found" });
+    }
+
+    res.status(200).json(updatedReservation);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 // Fetch live tabling reservations (live events)
 router.get("/live-tabling-events", async (req, res) => {
   try {
     const now = new Date();
-    
+
     // Find all events where the start_time is before now and end_time is after now
     const liveEvents = await TablingReservation.find({
-      start_time: { $lte: now },  // Events that have started
-      end_time: { $gte: now }     // Events that haven't ended yet
+      start_time: { $lte: now }, // Events that have started
+      end_time: { $gte: now }, // Events that haven't ended yet
     });
 
     // If no live events are found, return a message
     if (liveEvents.length === 0) {
-      return res.status(200).json({ message: "No live events happening right now", events: [] });
+      return res
+        .status(200)
+        .json({ message: "No live events happening right now", events: [] });
     }
 
     // Return live events
@@ -254,5 +512,220 @@ router.get("/live-tabling-events", async (req, res) => {
   }
 });
 
+// Fetch all tabling reservations taking place today
+router.get("/tabling-reservations-today", async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set time to the start of the day (00:00:00)
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day (23:59:59)
+
+    const liveEvents = await TablingReservation.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      start_time: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+    res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all tabling reservations taking place on a given day
+router.get("/tabling-reservations-day", async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set time to the start of the day (00:00:00)
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day (23:59:59)
+
+    const liveEvents = await TablingReservation.find({
+      // This assumes that `date` is stored as a full Date object in the schema.
+      start_time: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+    res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all places and times a reservation cannot be made
+router.get("/unavailable-tabling-options", async (req, res) => {
+  try {
+    const { start_time, end_time } = req.query;
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // Set time to the start of the day (00:00:00)
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // Set time to the end of the day (23:59:59)
+
+    const liveEvents = await TablingReservation.find({
+      // events that occur on the same day
+      start_time: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+      // that occur either before (end_time less than or equal to start time of this reservation)
+      // or after (start_time greater than or equal the end time of this reservation)
+      // equal to condition provided for both for when an existing reservation ends at 2:00PM and this one starts at 2:00PM for example
+      $or: [
+        { start_time: { $le: end_time } },
+        { end_time: { $ge: start_time } },
+      ],
+    });
+    res.status(200).json(liveEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ********************************** TABLING RESERVATION REQUESTS ROUTES **********************************
+// Create a new tabling reservation request based on the existing formatting from EMS
+router.post("/tabling-reservation-request", async (req, res) => {
+  try {
+    const {
+      event_name,
+      groups,
+      first_contact,
+      first_contact_fax,
+      first_contact_phone_number,
+      first_contact_email_address,
+      event_description,
+      event_advertisement,
+      event_advertisement_info,
+      gatorconnect_permit,
+      collaborating_bool,
+      collaborating_orgs,
+      tables_needed,
+      org_name,
+      payment_method,
+      location,
+      start_time,
+      end_time,
+    } = req.body;
+    const newReservationRequest = new TablingReservationRequest({
+      event_name,
+      event_type: "Tabling",
+      groups,
+      first_contact,
+      first_contact_fax,
+      first_contact_phone_number,
+      first_contact_email_address,
+      event_description,
+      event_advertisement,
+      event_advertisement_info,
+      gatorconnect_permit,
+      collaborating_bool,
+      collaborating_orgs,
+      tables_needed,
+      org_name,
+      payment_method,
+      location,
+      start_time,
+      end_time,
+      createdAt: createdAt || undefined,
+      status: "Pending",
+    });
+    await newReservationRequest.save();
+    res.status(201).json(newReservationRequest);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Route to get the most recent event by createdAt that matches criteria
+router.get("/latest-tabling-reservation-request", async (req, res) => {
+  try {
+    const { organization } = req.query;
+
+    // Query to find the most recent event with matching organization and eventName
+    const mostRecentRequest = await TablingReservationRequest.findOne({
+      organization: organization,
+    }).sort({ createdAt: -1 });
+
+    // Send the result as a JSON response
+    if (mostRecentRequest) {
+      res.status(200).json(mostRecentEvent);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No request found matching the criteria" });
+    }
+  } catch (error) {
+    console.error("Error fetching the most recent event with criteria:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error Reservation request" });
+  }
+});
+
+// Fetch all tabling reservation requests made by a specific student org
+router.get("/latest-tabling-reservation-request", async (req, res) => {
+  try {
+    const latestRequests = await TablingReservationRequest.find({
+      organization: organization,
+    }).sort({ createdAt: -1 });
+    // Send the result as a JSON response
+    if (latestRequests.length > 0) {
+      res.status(200).json(latestRequests);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No events found matching the criteria" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all tabling reservation requests (displayed in descending order)
+router.get("/tabling-reservation-requests", async (req, res) => {
+  try {
+    const latestRequests = await TablingReservationRequest.find().sort({
+      createdAt: -1,
+    });
+    // Send the result as a JSON response
+    if (latestRequests.length > 0) {
+      res.status(200).json(latestRequests);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No requests found matching the criteria" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fetch all pending tabling reservation requests that need to be approved (displayed in descending order)
+// For the purposes of this project, we will let student government to approve this so we may not have to implement this
+// For non-EMS tabling reservations, as long as the location and time doesn't interfere with others, we will allow
+// student orgs to table at any location
+router.get("/pending-tabling-reservation-requests", async (req, res) => {
+  try {
+    const latestRequests = await TablingReservationRequest.find({
+      status: "Pending",
+    }).sort({
+      createdAt: 1,
+    });
+    // Send the result as a JSON response
+    if (latestRequests.length > 0) {
+      res.status(200).json(latestRequests);
+    } else {
+      res
+        .status(404)
+        .json({ message: "No requests found matching the criteria" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 export default router;

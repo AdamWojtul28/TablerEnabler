@@ -7,6 +7,10 @@ h1 {
   margin-bottom: 20px;
 }
 
+h2 {
+  color: #00204b;
+}
+
 .search-bar {
   width: 100%;
   max-width: 400px;
@@ -24,7 +28,7 @@ h1 {
 }
 
 .club-card {
-  background-color: #f9f9f9;
+  background-color: #e5e5e5;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
