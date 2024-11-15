@@ -174,12 +174,7 @@ const Sidebar = ({
                 navigate('/login'); // Redirect to login otherwise
               }
             } else if (lcText === 'calendar list') {
-              // Navigate to Calendar List if logged in
-              if (isLoggedIn) {
-                navigate('/calendarlist');
-              } else {
-                navigate('/login'); // Redirect to login otherwise
-              }
+              navigate('/calendarlist');
             } else {
               navigate(`/${lcText}`);
             }
