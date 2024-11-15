@@ -20,6 +20,7 @@ import {
   SearchOutlined,
   FavoriteBorderOutlined,
   CalendarMonthOutlined,
+  EventAvailableOutlined
 } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
@@ -37,7 +38,7 @@ const navItems = [
     icon: null,
   },
   {
-    text: "CalendarList",
+    text: "Calendar List",
     icon: <CalendarMonthOutlined />,
   },
   {
@@ -48,6 +49,11 @@ const navItems = [
     text: "Favorites",
     icon: <FavoriteBorderOutlined />,
   },
+  {
+    text: "Add Event",
+    icon: <EventAvailableOutlined />,
+  }
+  
 ];
 
 const user = JSON.parse(localStorage.getItem('user'));
@@ -130,64 +136,86 @@ const Sidebar = ({
               </FlexBetween>
             </Box>
             <List>
-              {navItems.map(({ text, icon }) => {
-                if (!icon) {
-                  return (
-                    <Typography
-                      key={text}
-                      sx={{
-                        m: "2.25rem 0 1rem 3rem",
-                        color: theme.palette.mode === "dark"
-                          ? theme.palette.common.white
-                          : theme.palette.common.black,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      {text}
-                    </Typography>
-                  );
-                }
-                const lcText = text.toLowerCase();
+  {navItems.map(({ text, icon }) => {
+    // Check for conditional display of "Add Event"
+    if (text === "Add Event" && (!isLoggedIn || localStorage.getItem('role') !== 'organization')) {
+      return null; // Do not render "Add Event" if not logged in or not an organization
+    }
 
-                return (
-                  <ListItem key={text} disablePadding>
-                    <ListItemButton
-                      onClick={() => {
-                        navigate(`/${lcText}`);
-                        setActive(lcText);
-                      }}
-                      sx={{
-                        backgroundColor:
-                          active === lcText
-                            ? theme.palette.secondary[300]
-                            : "transparent",
-                        color:
-                          active === lcText
-                            ? theme.palette.primary[600]
-                            : theme.palette.secondary[100],
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          ml: "2rem",
-                          color:
-                            active === lcText
-                              ? theme.palette.primary[600]
-                              : theme.palette.secondary[200],
-                        }}
-                      >
-                        {icon}
-                      </ListItemIcon>
-                      <ListItemText primary={text} />
-                      {active === lcText && (
-                        <ChevronRightOutlined sx={{ ml: "auto" }} />
-                      )}
-                    </ListItemButton>
-                  </ListItem>
-                );
-              })}
-            </List>
+    if (!icon) {
+      return (
+        <Typography
+          key={text}
+          sx={{
+            m: "2.25rem 0 1rem 3rem",
+            color: theme.palette.mode === "dark"
+              ? theme.palette.common.white
+              : theme.palette.common.black,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {text}
+        </Typography>
+      );
+    }
+
+    const lcText = text.toLowerCase();
+
+    return (
+      <ListItem key={text} disablePadding>
+        <ListItemButton
+          onClick={() => {
+            if (lcText === 'add event') {
+              // Navigate to Add Event if logged in and role is organization
+              if (isLoggedIn && localStorage.getItem('role') === 'organization') {
+                navigate('/addEvent');
+              } else {
+                navigate('/login'); // Redirect to login otherwise
+              }
+            } else if (lcText === 'calendar list') {
+              // Navigate to Calendar List if logged in
+              if (isLoggedIn) {
+                navigate('/calendarlist');
+              } else {
+                navigate('/login'); // Redirect to login otherwise
+              }
+            } else {
+              navigate(`/${lcText}`);
+            }
+            setActive(lcText);
+          }}
+          sx={{
+            backgroundColor:
+              active === lcText
+                ? theme.palette.secondary[300]
+                : "transparent",
+            color:
+              active === lcText
+                ? theme.palette.primary[600]
+                : theme.palette.secondary[100],
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              ml: "2rem",
+              color:
+                active === lcText
+                  ? theme.palette.primary[600]
+                  : theme.palette.secondary[200],
+            }}
+          >
+            {icon}
+          </ListItemIcon>
+          <ListItemText primary={text} />
+          {active === lcText && (
+            <ChevronRightOutlined sx={{ ml: "auto" }} />
+          )}
+        </ListItemButton>
+      </ListItem>
+    );
+  })}
+</List>
           </Box>
 
           <Box position="absolute" bottom="2rem">

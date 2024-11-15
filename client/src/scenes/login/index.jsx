@@ -5,14 +5,13 @@ import './Login.css';
 export default function Login({ onLogin }) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student'); // "student" or "organization"
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted with:", { identifier, password, role });
+    console.log("Form submitted with:", { identifier, password });
 
     if (identifier === '' || password === '') {
       setErrorMessage('Both fields are required.');
@@ -24,7 +23,7 @@ export default function Login({ onLogin }) {
       const response = await fetch('http://localhost:5001/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, password, role })
+        body: JSON.stringify({ identifier, password }), // Only identifier and password
       });
 
       if (response.ok) {
@@ -35,8 +34,12 @@ export default function Login({ onLogin }) {
         if (result.data && result.user) {
           localStorage.setItem('token', result.data); // Store token
           localStorage.setItem('user', JSON.stringify(result.user)); // Store user details
-          localStorage.setItem('role', role);
-          
+
+          // Pull the role from the user data provided by the backend
+          const role = result.user.role; 
+          localStorage.setItem('role', role); // Save the role for future use
+          console.log("AAAAAAAA&*^*%^&*% &A% &:", result.user.role);
+
           console.log("Login successful:", result.user);
 
           // Set success message with user's name and email
@@ -71,43 +74,18 @@ export default function Login({ onLogin }) {
         <h2>Login</h2>
         {errorMessage && <div className="error-message">{errorMessage}</div>}
         {successMessage && <div className="success-message">{successMessage}</div>}
+        
         <div className="form-group">
-          <label>Account Type</label>
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="student"
-                checked={role === 'student'}
-                onChange={() => setRole('student')}
-              />
-              Student
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="organization"
-                checked={role === 'organization'}
-                onChange={() => setRole('organization')}
-              />
-              Organization
-            </label>
-          </div>
-        </div>
-        <div className="form-group">
-          <label htmlFor="identifier">
-            {role === 'student' ? 'Email' : 'Organization Name'}
-          </label>
+          <label htmlFor="identifier">Email</label>
           <input
             type="text"
             id="identifier"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            placeholder={`Enter your ${role === 'student' ? 'email' : 'organization name'}`}
+            placeholder="Enter your email"
           />
         </div>
+        
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
@@ -118,6 +96,7 @@ export default function Login({ onLogin }) {
             placeholder="Enter your password"
           />
         </div>
+        
         <button type="submit" className="login-button">Login</button>
         <p className="switch-form">
           Don't have an account? <Link to="/register">Register here</Link>
