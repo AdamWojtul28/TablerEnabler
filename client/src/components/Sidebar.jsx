@@ -1,7 +1,4 @@
-// test comment
-
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Divider,
@@ -24,51 +21,82 @@ import {
   FavoriteBorderOutlined,
   CalendarMonthOutlined,
 } from "@mui/icons-material";
-import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
-import profileImage from "assets/Max.jpg";
+import profileImage from "../assets/gator_profile_image.png"; 
+import loginImage from "../assets/user_default.png"; 
+
 
 const navItems = [
-    {
-        text: "Map",
-        icon: <HomeOutlined />,
-    },
-    {
-        text: "Top Features",
-        icon: null,
-    },
-    {
-        text: "CalendarList",
-        icon: <CalendarMonthOutlined />,
-    },
-    {
-        text: "Search",
-        icon: <SearchOutlined />,
-    },
-    {
-        text: "Favorites",
-        icon: <FavoriteBorderOutlined />,
-    },
+  {
+    text: "Map",
+    icon: <HomeOutlined />,
+  },
+  {
+    text: "Top Features",
+    icon: null,
+  },
+  {
+    text: "CalendarList",
+    icon: <CalendarMonthOutlined />,
+  },
+  {
+    text: "Search",
+    icon: <SearchOutlined />,
+  },
+  {
+    text: "Favorites",
+    icon: <FavoriteBorderOutlined />,
+  },
 ];
+
+const user = JSON.parse(localStorage.getItem('user'));
+const userName = user?.name;
+const userStatus = user?.status;
 
 const Sidebar = ({
   drawerWidth,
   isSidebarOpen,
   setIsSidebarOpen,
   isNonMobile,
+
 }) => {
   const { pathname } = useLocation();
   const [active, setActive] = useState("");
   const navigate = useNavigate();
   const theme = useTheme();
 
+  // State to track if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+
   useEffect(() => {
     setActive(pathname.substring(1));
   }, [pathname]);
 
+  // Sync login status with local storage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsLoggedIn(!!localStorage.getItem('token'));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Handle profile click based on login status
+  const handleProfileClick = () => {
+    if (isLoggedIn) {
+      navigate('/congrats'); // Redirect to the "SignedIn" page if logged in
+    } else {
+      navigate('/login'); // Redirect to login if not logged in
+    }
+  };
+
   return (
-    <Box component="nav" display= {isNonMobile ? "flex" : "none"}>
+    <Box component="nav" display={isNonMobile ? "flex" : "none"}>
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
@@ -80,7 +108,7 @@ const Sidebar = ({
             "& .MuiDrawer-paper": {
               color: theme.palette.secondary[200],
               backgroundColor: theme.palette.background.alt,
-              boxSixing: "border-box",
+              boxSizing: "border-box",
               borderWidth: isNonMobile ? 0 : "2px",
               width: drawerWidth,
             },
@@ -105,7 +133,17 @@ const Sidebar = ({
               {navItems.map(({ text, icon }) => {
                 if (!icon) {
                   return (
-                    <Typography key={text} sx={{ m: "2.25rem 0 1rem 3rem" }}>
+                    <Typography
+                      key={text}
+                      sx={{
+                        m: "2.25rem 0 1rem 3rem",
+                        color: theme.palette.mode === "dark"
+                          ? theme.palette.common.white
+                          : theme.palette.common.black,
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
                       {text}
                     </Typography>
                   );
@@ -154,11 +192,17 @@ const Sidebar = ({
 
           <Box position="absolute" bottom="2rem">
             <Divider />
-            <FlexBetween textTransform="none" gap="1rem" m="1.5rem 2rem 0 3rem">
+            <FlexBetween
+              textTransform="none"
+              gap="1rem"
+              m="1.5rem 2rem 0 3rem"
+              onClick={handleProfileClick}
+              sx={{ cursor: "pointer" }}
+            >
               <Box
                 component="img"
-                alt="profile"
-                src={profileImage}
+                alt={isLoggedIn ? "profile" : "login"}
+                src={isLoggedIn ? profileImage : loginImage}
                 height="40px"
                 width="40px"
                 borderRadius="50%"
@@ -170,19 +214,19 @@ const Sidebar = ({
                   fontSize="0.9rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                    {"Maksim"} {/*USER NAME ATTRIBUTE SHOUILD GO HERE ONCE WE HAVE OUR SCHEMAS */}
+                  {isLoggedIn ? userName : "Login"}
                 </Typography>
                 <Typography
                   fontSize="0.8rem"
                   sx={{ color: theme.palette.secondary[200] }}
                 >
-                  {"Very nice and polite ADMIN"} {/*USER STATUS ATTRIBUTE SHOULD GO HERE ONCE WE HAVE OUR SCHEMAS like student, admin, or club officer*/}
+                  {isLoggedIn ? userStatus : ""}
                 </Typography>
               </Box>
               <SettingsOutlined
                 sx={{
                   color: theme.palette.secondary[300],
-                  fontSize: "25px ",
+                  fontSize: "25px",
                 }}
               />
             </FlexBetween>

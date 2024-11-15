@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 
 export default function Login({ onLogin }) {
-  const [user, setUser] = useState(null);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState('student'); // "student" or "organization"
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
@@ -21,8 +20,6 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    console.log("Sending request to server...");
-
     try {
       const response = await fetch('http://localhost:5001/auth', {
         method: 'POST',
@@ -30,24 +27,23 @@ export default function Login({ onLogin }) {
         body: JSON.stringify({ identifier, password, role })
       });
 
-      console.log("Received response status:", response.status);
-
       if (response.ok) {
         const result = await response.json();
         console.log("Parsed result:", result);
 
-        // Check if token is present in response
+        // Check if token and user data are present
         if (result.data && result.user) {
-          localStorage.setItem('token', result.data); // Store token for authentication
+          localStorage.setItem('token', result.data); // Store token
+          localStorage.setItem('user', JSON.stringify(result.user)); // Store user details
+          localStorage.setItem('role', role);
+          
           console.log("Login successful:", result.user);
 
           // Set success message with user's name and email
           setSuccessMessage(`Login successful! Welcome, ${result.user.name} (${result.user.email})`);
           setErrorMessage(''); // Clear any previous error
 
-          localStorage.setItem('email', result.user.email);
-          
-          // Trigger the login success callback to update app state
+          // Trigger login callback to update app state
           if (onLogin) {
             onLogin(true);
           }

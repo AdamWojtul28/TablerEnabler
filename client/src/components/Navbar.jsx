@@ -10,9 +10,11 @@ import {
 import FlexBetween from 'components/FlexBetween';
 import { useDispatch } from 'react-redux';
 import { setMode } from 'state';
-import profileImage from "assets/Max.jpg";
+import profileImage from "../assets/gator_profile_image.png"; 
 import { AppBar, Box, Button, IconButton, InputBase, Toolbar, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import loginImage from "../assets/user_default.png"; 
+
 
 const Navbar = ({ 
     isNonMobile,
@@ -104,7 +106,7 @@ const Navbar = ({
 
                     {/* Profile Button */}
                     <Button
-                        onClick={handleProfileClick} // Updated to use conditional redirect
+                        onClick={handleProfileClick}
                         sx={{
                             display: "flex",
                             justifyContent: "space-between",
@@ -116,7 +118,7 @@ const Navbar = ({
                         <Box
                             component="img"
                             alt="profile"
-                            src={profileImage}
+                            src={isLoggedIn ? profileImage : loginImage} // Conditionally render image
                             height="32px"
                             width="32px"
                             borderRadius="50%"
