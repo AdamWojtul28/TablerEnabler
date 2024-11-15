@@ -154,29 +154,57 @@ const OrganizationPage = () => {
   }, [reservations]);
 
   const handleFollow = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:5001/general/favorite-organization",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ org_name: orgName, ufl_email: email }),
+    if (isFavorite === "Follow") {
+      // Handle following the organization
+      try {
+        const response = await fetch(
+          "http://localhost:5001/general/favorite-organization",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ org_name: orgName, ufl_email: email }),
+          }
+        );
+        if (response.ok) {
+          alert(`${orgName} added to favorites!`);
+          setFavorites((prev) => [
+            ...prev,
+            { org_name: orgName, ufl_email: email },
+          ]);
+          setIsFavorite("Following"); // Update the button state
+        } else {
+          alert("Failed to add organization to favorites.");
         }
-      );
-      if (response.ok) {
-        alert(`${orgName} added to favorites!`);
-        setFavorites((prev) => [
-          ...prev,
-          { org_name: orgName, ufl_email: email },
-        ]);
-      } else {
-        alert("Failed to add organization to favorites.");
+      } catch (error) {
+        console.error("Error favoriting organization:", error);
+        alert("An error occurred.");
       }
-    } catch (error) {
-      console.error("Error favoriting organization:", error);
-      alert("An error occurred.");
+    } else if (isFavorite === "Following") {
+      // Handle unfollowing the organization
+      try {
+        const response = await fetch(
+          `http://localhost:5001/general/favorite-organization?org_name=${encodeURIComponent(
+            orgName
+          )}&ufl_email=${encodeURIComponent(email)}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (response.ok) {
+          alert(`${orgName} removed from favorites!`);
+          setFavorites((prev) =>
+            prev.filter((favorite) => favorite.org_name !== orgName)
+          );
+          setIsFavorite("Follow"); // Update the button state
+        } else {
+          alert("Failed to remove organization from favorites.");
+        }
+      } catch (error) {
+        console.error("Error unfavoriting organization:", error);
+        alert("An error occurred.");
+      }
     }
   };
 

@@ -52,6 +52,37 @@ router.post("/favorite-organization", async (req, res) => {
   }
 });
 
+router.delete("/favorite-organization", async (req, res) => {
+  try {
+    const { org_name, ufl_email } = req.query;
+
+    if (!org_name || !ufl_email) {
+      return res.status(400).json({
+        message: "Missing required query parameters: org_name or ufl_email",
+      });
+    }
+
+    // Find and delete the favorite organization
+    const deletedFavoriteOrg = await FavoriteOrg.findOneAndDelete({
+      org_name,
+      ufl_email,
+    });
+
+    if (!deletedFavoriteOrg) {
+      return res.status(404).json({
+        message: "Favorite organization not found for the specified user.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Favorite organization successfully removed.",
+      deletedFavoriteOrg,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ********************************** FIXED-TABLING-LOCATIONS ROUTES **********************************
 router.post("/fixed-location", async (req, res) => {
   try {
