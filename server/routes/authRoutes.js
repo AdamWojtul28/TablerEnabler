@@ -8,31 +8,44 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { identifier, password, role } = req.body;
+    const { identifier, password } = req.body; // Removed `role` from destructuring
 
-    const { error } = validateLogin({ identifier, password, role });
+    // Validate input
+    const { error } = validateLogin({ identifier, password });
     if (error) return res.status(400).send({ message: error.details[0].message });
 
-    let user;
-    if (role === "student") {
-      user = await StudentProfile.findOne({ ufl_email: identifier });
-    } else if (role === "organization") {
+    let user = null;
+    let role = null;
+
+    // Check if the user exists in the student collection
+    user = await StudentProfile.findOne({ ufl_email: identifier });
+    if (user) {
+      role = "student";
+    } else {
+      // If not found, check in the organization collection
       user = await OrganizationProfile.findOne({ name: identifier });
+      if (user) {
+        role = "organization";
+      }
     }
 
+    // If no user is found, return an error
     if (!user) return res.status(401).send({ message: "Invalid credentials" });
 
+    // Verify the password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) return res.status(401).send({ message: "Invalid credentials" });
 
+    // Generate the token
     const token = user.generateAuthToken();
-    
-    // Sending back user details along with token
+
+    // Respond with the user details, role, and token
     const userData = {
-      name: user.first_name || user.name, // Assuming `first_name` for students and `name` for organizations
-      email: user.ufl_email || user.email  // Assuming `ufl_email` for students and `email` for organizations if available
+      name: user.first_name || user.name, // Use `first_name` for students, `name` for organizations
+      email: user.ufl_email || user.email, // Use `ufl_email` for students, `email` for organizations
+      role, // Include the determined role
     };
-    
+
     res.status(200).send({ data: token, user: userData, message: "Logged in successfully" });
   } catch (error) {
     console.error("Error in /auth route:", error);
@@ -45,9 +58,9 @@ const validateLogin = (data) => {
   const schema = Joi.object({
     identifier: Joi.string().required().label("Email or Organization Name"),
     password: Joi.string().required().label("Password"),
-    role: Joi.string().valid("student", "organization").required().label("Role"),
   });
   return schema.validate(data);
 };
+
 
 export default router;
