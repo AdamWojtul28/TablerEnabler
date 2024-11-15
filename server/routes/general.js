@@ -21,7 +21,7 @@ router.get("/favorite-organizations", async (req, res) => {
         ufl_email: {
           $eq: email,
         },
-      });
+      }).sort({ org_name: 1 });
       res.status(200).json(favOrgsStudent);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -96,11 +96,32 @@ router.get("/fixed-location", async (req, res) => {
 // ********************************** ORG-PROFILE ROUTES **********************************
 
 router.get("/organization-profiles", async (req, res) => {
-  try {
-    const allOrgs = await OrganizationProfile.find();
-    res.status(200).json(allOrgs);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const { orgNames } = req.query; // Extract the orgNames query parameter
+  if (orgNames) {
+    try {
+      let allOrgs;
+      if (orgNames) {
+        // If orgNames exists, parse it and query for matching organizations
+        const orgNamesArray = JSON.parse(orgNames); // Parse orgNames if sent as a JSON string
+        allOrgs = await OrganizationProfile.find({
+          name: { $in: orgNamesArray },
+        }).sort({ name: 1 });
+      } else {
+        // If orgNames is not provided, return all organizations
+        allOrgs = await OrganizationProfile.find();
+      }
+
+      res.status(200).json(allOrgs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    try {
+      const allOrgs = await OrganizationProfile.find();
+      res.status(200).json(allOrgs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
@@ -428,6 +449,27 @@ router.get("/tabling-reservations", async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
+  }
+});
+
+router.get("/favorite-organization-reservations", async (req, res) => {
+  try {
+    const { orgNames } = req.query; // Extract the orgNames query parameter
+    let allOrgs;
+    if (orgNames) {
+      // If orgNames exists, parse it and query for matching organizations
+      const orgNamesArray = JSON.parse(orgNames); // Parse orgNames if sent as a JSON string
+      favoriteReservations = await TablingReservation.find({
+        name: { $in: orgNamesArray },
+      }).sort({ start_time: 1 });
+    } else {
+      // If orgNames is not provided, return all organizations
+      favoriteReservations = await TablingReservation.find();
+    }
+
+    res.status(200).json(favoriteReservations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

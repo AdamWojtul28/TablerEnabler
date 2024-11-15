@@ -10,6 +10,7 @@ const OrganizationPage = () => {
   const [favorites, setFavorites] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [isFavorite, setIsFavorite] = useState("Follow");
+  const [modalData, setModalData] = useState(null); // To store data for modal
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const orgName = queryParams.get("name");
@@ -99,6 +100,31 @@ const OrganizationPage = () => {
         reservation.start_time &&
         reservation.start_time.startsWith(formattedDate)
     );
+  };
+
+  const handleModalClose = () => setModalData(null);
+
+  const handleClickOutsideModal = (e) => {
+    if (e.target.className === "modal-overlay") handleModalClose();
+  };
+
+  const handleClickDay = (date) => {
+    const formattedDate = date.toISOString().split("T")[0];
+    const reservation = reservations.find(
+      (res) => res.start_time && res.start_time.startsWith(formattedDate)
+    );
+
+    if (reservation) {
+      setModalData({
+        title: `${organization.name} ${
+          reservation.start_time.split("T")[0]
+        } Tabling Session`,
+        location: reservation.location,
+        startTime: new Date(reservation.start_time).toLocaleTimeString(),
+        endTime: new Date(reservation.end_time).toLocaleTimeString(),
+        description: reservation.description,
+      });
+    }
   };
 
   // Check if a month has any reservations
@@ -193,11 +219,7 @@ const OrganizationPage = () => {
               }
               return "";
             }}
-            onClickDay={(date) => {
-              if (isReserved(date)) {
-                alert("Successful");
-              }
-            }}
+            onClickDay={handleClickDay}
             className="custom-calendar"
           />
         </div>
@@ -225,6 +247,28 @@ const OrganizationPage = () => {
           </div>
         </div>
       </div>
+      {modalData && (
+        <div className="modal-overlay" onClick={handleClickOutsideModal}>
+          <div className="modal">
+            <button className="close-button" onClick={handleModalClose}>
+              X
+            </button>
+            <h2>{modalData.title}</h2>
+            <p>
+              <strong>Location:</strong> {modalData.location}
+            </p>
+            <p>
+              <strong>Start Time:</strong> {modalData.startTime}
+            </p>
+            <p>
+              <strong>End Time:</strong> {modalData.endTime}
+            </p>
+            <p>
+              <strong>Description:</strong> {modalData.description}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

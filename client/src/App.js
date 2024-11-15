@@ -55,14 +55,21 @@ function App() {
               <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
               <Route path="/favorites" element={<Favorites />} />
-              <Route path="/organization-profile" element={<OrganizationPage />} />
+              <Route
+                path="/organization-profile"
+                element={<OrganizationPage />}
+              />
               <Route path="/congrats" element={<Congrats />} />
 
               {/* Login and register routes */}
               <Route
                 path="/login"
                 element={
-                  isLoggedIn ? <Navigate to="/map" replace /> : <Login onLogin={() => setIsLoggedIn(true)} />
+                  isLoggedIn ? (
+                    <Navigate to="/map" replace />
+                  ) : (
+                    <Login onLogin={() => setIsLoggedIn(true)} />
+                  )
                 }
               />
               <Route
@@ -88,8 +95,6 @@ function App() {
               <Route path="/loadingScreen5" element={<LoadingScreen5 />} />
             </Route>
           </Routes>
-
-          
         </ThemeProvider>
       </BrowserRouter>
     </div>
