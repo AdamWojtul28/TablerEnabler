@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Favorites.css"; // Assuming you already have CSS for styling
 
-const Search = () => {
+const Favorites = () => {
   const [organizations, setOrganizations] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [favorites, setFavorites] = useState([]);
 
@@ -28,7 +29,7 @@ const Search = () => {
     fetchFavorites();
   }, [email]);
 
-  // Fetch organizations based on favorites, only after favorites are loaded
+  // Fetch organizations and reservations based on favorites
   useEffect(() => {
     if (favorites.length > 0) {
       const favoriteOrgs = favorites.map((favorite) => favorite.org_name);
@@ -48,7 +49,28 @@ const Search = () => {
         }
       };
 
+      const fetchReservations = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:5001/general/favorite-organization-reservations?orgNames=${encodeURIComponent(
+              orgNames
+            )}`
+          );
+          const data = await response.json();
+          // Filter reservations to include only future tabling events
+          const currentDateTime = new Date();
+          const upcomingReservations = data.filter((reservation) => {
+            const startTime = new Date(reservation.start_time);
+            return startTime > currentDateTime;
+          });
+          setReservations(upcomingReservations); // Set the reservations data
+        } catch (error) {
+          console.error("Error fetching reservations:", error);
+        }
+      };
+
       fetchOrganizations();
+      fetchReservations();
     }
   }, [favorites]);
 
@@ -96,8 +118,58 @@ const Search = () => {
       </div>
 
       <h1>Upcoming Tabling Events</h1>
+      <div className="reservations-banner">
+        {reservations.length > 0 ? (
+          reservations.map((reservation, index) => {
+            const organization = organizations.find(
+              (org) => org.name === reservation.org_name
+            );
+
+            return (
+              <div key={index} className="reservation-banner">
+                {/* Left image container */}
+                <div className="banner-image-container">
+                  <img
+                    src={organization?.profile_image || "default-image-url.jpg"}
+                    alt={reservation.org_name}
+                    className="banner-image"
+                  />
+                </div>
+
+                {/* Right text container */}
+                <div className="banner-text-container">
+                  <h2>
+                    {new Date(reservation.start_time).toLocaleDateString()} -{" "}
+                    {reservation.org_name} Tabling Session
+                  </h2>
+                  <p>
+                    <strong>Start Time:</strong>{" "}
+                    {new Date(reservation.start_time).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    {" | "} <strong>End Time:</strong>{" "}
+                    {new Date(reservation.end_time).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    {" | "} <strong>Location: </strong>
+                    {reservation.location}
+                  </p>
+                  <p>
+                    <strong>Description: </strong>
+                    {reservation.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p>No upcoming tabling events</p>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Search;
+export default Favorites;

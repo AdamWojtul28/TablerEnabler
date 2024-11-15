@@ -455,18 +455,17 @@ router.get("/tabling-reservations", async (req, res) => {
 router.get("/favorite-organization-reservations", async (req, res) => {
   try {
     const { orgNames } = req.query; // Extract the orgNames query parameter
-    let allOrgs;
+    let favoriteReservations;
     if (orgNames) {
       // If orgNames exists, parse it and query for matching organizations
       const orgNamesArray = JSON.parse(orgNames); // Parse orgNames if sent as a JSON string
       favoriteReservations = await TablingReservation.find({
-        name: { $in: orgNamesArray },
+        org_name: { $in: orgNamesArray },
       }).sort({ start_time: 1 });
     } else {
       // If orgNames is not provided, return all organizations
       favoriteReservations = await TablingReservation.find();
     }
-
     res.status(200).json(favoriteReservations);
   } catch (error) {
     res.status(500).json({ error: error.message });

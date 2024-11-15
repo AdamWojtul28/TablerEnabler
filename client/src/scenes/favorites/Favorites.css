@@ -23,12 +23,12 @@ h2 {
 
 .club-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);  /* Two columns layout */
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+  gap: 20px; /* Even spacing between items */
 }
 
 .club-card {
-  background-color: #e5e5e5;
+  background-color: orange;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -50,4 +50,47 @@ h2 {
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
+}
+
+
+.reservation-banner {
+  display: flex;
+  align-items: center;
+  background-color: orange;
+  color: darkblue;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.banner-image-container {
+  flex-shrink: 0;
+  width: 80px; /* Adjust width as needed */
+  height: 80px; /* Ensures square shape */
+  overflow: hidden;
+  border-radius: 4px; /* Optional: rounded corners */
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-text-container {
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
+
+.reservation-banner h2 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.reservation-banner p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.2; /* Compact line spacing */
 }
