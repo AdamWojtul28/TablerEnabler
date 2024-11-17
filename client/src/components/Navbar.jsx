@@ -50,6 +50,7 @@ const Navbar = ({
         localStorage.removeItem('token'); // Remove token from local storage
         setIsLoggedIn(false); // Immediately update state
         navigate('/login'); // Redirect to login page
+        window.location.reload();
     };
 
     // Handle profile click based on login status

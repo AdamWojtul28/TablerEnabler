@@ -53,6 +53,7 @@ export default function Login({ onLogin }) {
 
           // Redirect to congratulations page after successful login
           navigate('/congrats');
+          window.location.reload();
         } else {
           setErrorMessage("Login successful, but user data is missing.");
           console.log("Error: JWT token or user details missing in response.");
