@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./OrganizationPage.css";
+import defaultImage from "../../assets/organization-default.png";
+
 
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
@@ -227,8 +229,8 @@ const OrganizationPage = () => {
         </div>
         <div className="right-section">
           <img
-            src={organization.profile_image || "default-image-url.jpg"}
-            alt={organization.name}
+            src={organization.profile_image || defaultImage} 
+            alt={organization.name || "Default Organization"}
             className="organization-image"
           />
         </div>

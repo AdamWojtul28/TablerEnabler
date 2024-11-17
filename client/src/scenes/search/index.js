@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Search.css"; // Assuming you already have CSS for styling
+import defaultImage from "../../assets/organization-default.png";
+
 
 const Search = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -52,7 +54,7 @@ const Search = () => {
               className="club-card"
             >
               <img
-                src={org.profile_image || "default-image-url.jpg"}
+                src={org.profile_image || defaultImage}
                 alt={org.name}
                 className="club-image"
               />
