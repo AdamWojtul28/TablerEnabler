@@ -213,14 +213,15 @@ const Sidebar = ({
 </List>
           </Box>
 
+
+
           <Box position="absolute" bottom="2rem">
             <Divider />
             <FlexBetween
               textTransform="none"
               gap="1rem"
               m="1.5rem 2rem 0 3rem"
-              onClick={handleProfileClick}
-              sx={{ cursor: "pointer" }}
+              // onClick={handleProfileClick}
             >
               <Box
                 component="img"
@@ -243,13 +244,21 @@ const Sidebar = ({
                   fontSize="0.8rem"
                   sx={{ color: theme.palette.secondary[200] }}
                 >
-                  {isLoggedIn ? userStatus : ""}
+                  {isLoggedIn ? userStatus : "" }
                 </Typography>
               </Box>
               <SettingsOutlined
+                onClick={() => {
+                  if (isLoggedIn && localStorage.getItem('role') === 'organization') {
+                    navigate('/settingsPage');
+                  } else {
+                    alert("Settings are only available for logged-in organizations.");
+                  }
+                }}
                 sx={{
                   color: theme.palette.secondary[300],
                   fontSize: "25px",
+                  cursor: "pointer"
                 }}
               />
             </FlexBetween>
