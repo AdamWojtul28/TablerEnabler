@@ -94,3 +94,12 @@ h2 {
   font-size: 14px;
   line-height: 1.2; /* Compact line spacing */
 }
+
+
+.no-events {
+  color: #ff8000; 
+  text-align: center; 
+  font-weight: bold; 
+  margin-top: 20px; 
+  font-size: 1.5rem;
+}

@@ -113,7 +113,7 @@ const Favorites = () => {
             </Link>
           ))
         ) : (
-          <p>No organizations found</p>
+          <p className="no-events">No organizations found</p>
         )}
       </div>
 
@@ -165,7 +165,7 @@ const Favorites = () => {
             );
           })
         ) : (
-          <p>No upcoming tabling events</p>
+          <p className="no-events">No upcoming tabling events</p> 
         )}
       </div>
     </div>

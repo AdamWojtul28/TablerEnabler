@@ -45,9 +45,9 @@ h2 {
 }
 
 .club-image {
-  width: 100px; /* Adjust the width as needed */
-  height: 100px; /* Adjust the height as needed */
-  object-fit: cover; /* Ensures the image fits within the dimensions while maintaining aspect ratio */
+  width: 100px; 
+  height: 100px; 
+  object-fit: cover; 
   border-radius: 8px; 
   margin-bottom: 10px; 
 }

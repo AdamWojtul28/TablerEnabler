@@ -21,9 +21,13 @@ const Congrats = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>You're logged in, congratulations!</h1>
-      <p>Welcome to the application, <strong>{userName || "Guest"}</strong>!</p>
-      <p>Your role: <em>{userRole}</em></p>
-    </div>
+      <p style={{ color: '#ff8000', fontSize: '1.5rem', fontWeight: 'bold' }}>
+        Welcome to the application, <strong>{userName || "Guest"}</strong>!
+      </p>
+      <p style={{ color: '#ff8000', fontSize: '1.4rem', fontStyle: 'italic' }}>
+          Your role: <em>{userRole}</em>
+        </p>
+  </div>
   );
 };
 
