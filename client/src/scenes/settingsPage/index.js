@@ -14,20 +14,19 @@ const SettingsPage = () => {
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const orgName = queryParams.get("name");
+  const orgName = localStorage.getItem('organizationName');
+  
+
   const email = localStorage.getItem("email");
 
   useEffect(() => {
     const fetchOrganization = async () => {
       try {
-        // const response = await fetch(
-        //   `http://localhost:5001/general/organization-profile?name=${encodeURIComponent(
-        //     orgName
-        //   )}`
-        // );
         const response = await fetch(
-            `http://localhost:5001/general/organization-profile?name=MaxLife`
-          );
+          `http://localhost:5001/general/organization-profile?name=${encodeURIComponent(
+            orgName
+          )}`
+        );
         const data = await response.json();
         console.log("Organization Data:", data);    // Debug log
         setOrganization(data);

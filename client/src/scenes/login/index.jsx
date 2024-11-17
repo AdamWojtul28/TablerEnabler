@@ -38,9 +38,22 @@ export default function Login({ onLogin }) {
           // Pull the role from the user data provided by the backend
           const role = result.user.role; 
           localStorage.setItem('role', role); // Save the role for future use
-          console.log("AAAAAAAA&*^*%^&*% &A% &:", result.user.role);
+          console.log("Role stored in localStorage:", role);
 
-          console.log("Login successful:", result.user);
+
+
+          // Store organization name in localStorage if role is "organization"
+          if (role === 'organization' && result.user.name) {
+            const orgName = result.user.name; 
+            localStorage.setItem('organizationName', orgName);
+            console.log("Organization name stored in localStorage:", orgName);
+          }
+          else {
+            console.log("Role is not 'organization' or organization name is missing.");
+          }
+          
+
+          
 
           // Set success message with user's name and email
           setSuccessMessage(`Login successful! Welcome, ${result.user.name} (${result.user.email})`);
