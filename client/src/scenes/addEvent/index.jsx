@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import './AddEvent.css';
-import MapModal from './MapModal'; // Import the map modal component (we will create this next)
+import MapModal from './MapModal'; // Import the map modal component
 
 export default function AddEvent() {
   const [orgName, setOrgName] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [eventDate, setEventDate] = useState(""); 
+  const [startTime, setStartTime] = useState(""); 
+  const [endTime, setEndTime] = useState(""); 
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showMapModal, setShowMapModal] = useState(false); // To toggle the map modal
+
+  useEffect(() => {
+    const storedOrgName = localStorage.getItem("organizationName");
+    if (storedOrgName) {
+      setOrgName(storedOrgName);
+    } else {
+      setError("Organization name not found. Please log in again.");
+    }
+  }, []);
 
   const handleMapClick = (coords) => {
     setLocation(`${coords.lat}, ${coords.lng}`); // Set location from map click
@@ -20,10 +30,14 @@ export default function AddEvent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Combine the date with the times to form ISO strings
+    const startDateTime = new Date(`${eventDate}T${startTime}`).toISOString();
+    const endDateTime = new Date(`${eventDate}T${endTime}`).toISOString();
+
     const eventDetails = {
       org_name: orgName,
-      start_time: new Date(startTime).toISOString(),
-      end_time: new Date(endTime).toISOString(),
+      start_time: startDateTime,
+      end_time: endDateTime,
       location,
       description,
     };
@@ -42,7 +56,7 @@ export default function AddEvent() {
       if (response.ok) {
         setMessage("Event added successfully!");
         setError("");
-        setOrgName("");
+        setEventDate("");
         setStartTime("");
         setEndTime("");
         setLocation("");
@@ -70,7 +84,17 @@ export default function AddEvent() {
               type="text"
               id="orgName"
               value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
+              readOnly
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="eventDate">Event Date:</label>
+            <input
+              type="date"
+              id="eventDate"
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
               required
             />
           </div>
@@ -78,7 +102,7 @@ export default function AddEvent() {
           <div className="form-group">
             <label htmlFor="startTime">Start Time:</label>
             <input
-              type="datetime-local"
+              type="time"
               id="startTime"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
@@ -89,7 +113,7 @@ export default function AddEvent() {
           <div className="form-group">
             <label htmlFor="endTime">End Time:</label>
             <input
-              type="datetime-local"
+              type="time"
               id="endTime"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
@@ -98,7 +122,7 @@ export default function AddEvent() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="location">Location (latitude, longitude):</label>
+            <label htmlFor="location">Location:</label>
             <input
               type="text"
               id="location"
@@ -107,10 +131,13 @@ export default function AddEvent() {
               placeholder="e.g., 29.648996, -82.343920"
               required
             />
-            <button className="select-map-button" type="button" onClick={() => setShowMapModal(true)}>
-              Select on Map
+            <button
+              className="select-map-button"
+              type="button"
+              onClick={() => setShowMapModal(true)}
+            >
+              Select Location on Map
             </button>
-
           </div>
 
           <div className="form-group">
@@ -127,7 +154,15 @@ export default function AddEvent() {
         </form>
 
         {/* Show map modal if triggered */}
-        {showMapModal && <MapModal onMapClick={handleMapClick} onClose={() => setShowMapModal(false)} />}
+        {showMapModal && (
+          <MapModal
+            onMapClick={handleMapClick}
+            onClose={() => setShowMapModal(false)}
+            eventDate={eventDate} 
+            startTime={startTime} 
+            endTime={endTime} 
+          />
+        )}
       </div>
     </div>
   );

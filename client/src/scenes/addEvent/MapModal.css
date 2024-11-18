@@ -31,7 +31,7 @@
     top: 10px;
     right: 10px;
     background: red;
-    color: white;
+    color: rgb(233, 7, 7);
     border: none;
     border-radius: 5px;
     padding: 5px 10px;
@@ -77,5 +77,19 @@
   
   .confirm-button:hover:enabled {
     background-color: #ffb366;
+  }
+  
+
+
+  .no-events-message {
+    color: #ffffff; 
+    font-size: 0.8rem; 
+    font-weight: bold; 
+    text-align: center; 
+    margin-top: 15px; 
+    padding: 4px; 
+    background-color: #ff5733; 
+    border: 2px solid #ff8000;
+    border-radius: 5px; 
   }
   

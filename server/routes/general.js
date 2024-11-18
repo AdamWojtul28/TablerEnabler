@@ -658,6 +658,38 @@ router.get("/unavailable-tabling-options", async (req, res) => {
   }
 });
 
+
+
+// Fetch events during a specific time range
+router.get("/events-during", async (req, res) => {
+  try {
+    const { start_time, end_time } = req.query;
+
+    // Validate query parameters
+    if (!start_time || !end_time) {
+      return res.status(400).json({ error: "start_time and end_time are required." });
+    }
+
+    const start = new Date(start_time);
+    const end = new Date(end_time);
+
+    // Find events that overlap with the given time range
+    const overlappingEvents = await TablingReservation.find({
+      $or: [
+        { start_time: { $lt: end, $gte: start } }, // Events starting during the range
+        { end_time: { $lte: end, $gt: start } },  // Events ending during the range
+        { start_time: { $lte: start }, end_time: { $gte: end } }, // Events encompassing the range
+      ],
+    });
+
+    res.status(200).json(overlappingEvents);
+  } catch (error) {
+    console.error("Error fetching events during time range:", error);
+    res.status(500).json({ error: "Failed to fetch events during the specified time range." });
+  }
+});
+
+
 // ********************************** TABLING RESERVATION REQUESTS ROUTES **********************************
 // Create a new tabling reservation request based on the existing formatting from EMS
 router.post("/tabling-reservation-request", async (req, res) => {

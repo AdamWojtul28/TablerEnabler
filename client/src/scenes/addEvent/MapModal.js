@@ -1,83 +1,143 @@
 import './MapModal.css';
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { useState, useEffect } from "react";
 import { Icon } from "leaflet";
 
 const customIcon = new Icon({
-    iconUrl: "/icons/pin.png", 
-    iconSize: [35, 35], 
-    iconAnchor: [17, 35], 
-    popupAnchor: [0, -35] 
-  });
+  iconUrl: "/icons/pin.png",
+  iconSize: [35, 35],
+  iconAnchor: [17, 35],
+  popupAnchor: [0, -35],
+});
 
+const tableIcon = new Icon({
+  iconUrl: "/icons/side-table.png",
+  iconSize: [35, 35],
+  iconAnchor: [17, 35],
+  popupAnchor: [0, -35],
+});
 
 // Custom component to capture map clicks and place a marker
 function LocationMarker({ onPositionSelect }) {
-    const [position, setPosition] = useState(null);
-  
-    // Handle map click event to place marker and set position
-    useMapEvents({
-      click(e) {
-        const { lat, lng } = e.latlng;
-        setPosition(e.latlng); // Update the marker position locally
-        onPositionSelect(e.latlng); // Pass selected coordinates to parent component
-      },
-    });
-  
-    return position === null ? null : (
-      <Marker position={position} icon={customIcon} /> // Use custom icon for marker
-    );
-  }
-  
-  export default function MapModal({ onMapClick, onClose }) {
-    const [selectedPosition, setSelectedPosition] = useState(null);
-  
-    // Handle "Confirm" button click
-    const handleConfirm = () => {
-      if (selectedPosition) {
-        onMapClick(selectedPosition); // Pass the selected coordinates to the parent component
+  const [position, setPosition] = useState(null);
+
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      setPosition(e.latlng);
+      onPositionSelect(e.latlng);
+    },
+  });
+
+  return position ? <Marker position={position} icon={customIcon} /> : null;
+}
+
+export default function MapModal({ onMapClick, onClose, eventDate, startTime, endTime }) {
+  const [selectedPosition, setSelectedPosition] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false); // Track loading state
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch events only if all required fields are filled
+    if (!eventDate || !startTime || !endTime) {
+      setEvents([]); // Clear events if inputs are incomplete
+      return;
+    }
+
+    const fetchEventsForTimeRange = async () => {
+      const startDateTime = new Date(`${eventDate}T${startTime}`).toISOString();
+      const endDateTime = new Date(`${eventDate}T${endTime}`).toISOString();
+
+      setLoading(true);
+      setError(null);
+      setEvents([]);
+
+      try {
+        const response = await fetch(
+          `http://localhost:5001/general/events-during?start_time=${startDateTime}&end_time=${endDateTime}`
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          setEvents(data || []);
+        } else {
+          setError(data.error || "Failed to fetch events.");
+        }
+      } catch (err) {
+        setError("Failed to fetch events.");
+      } finally {
+        setLoading(false);
       }
     };
-  
-    return (
-      <div className="map-modal">
-        <div className="map-modal-content">
-          <button className="close-button" onClick={onClose}>Close</button>
-          
-          <MapContainer
-            center={[29.64929896217566, -82.34410532210882]} // Default center (you can change this if needed)
-            zoom={17}
-            style={{ height: '400px', width: '100%' }}
+
+    fetchEventsForTimeRange();
+  }, [eventDate, startTime, endTime]);
+
+  const handleConfirm = () => {
+    if (selectedPosition) {
+      onMapClick(selectedPosition);
+    }
+  };
+
+  return (
+    <div className="map-modal">
+      <div className="map-modal-content">
+        <button className="close-button" onClick={onClose}>X</button>
+
+        <MapContainer
+          center={[29.64929896217566, -82.34410532210882]}
+          zoom={17}
+          style={{ height: '400px', width: '100%' }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+
+          {/* Conditionally display event markers */}
+          {eventDate && startTime && endTime && events.map((event) => {
+            const [lat, lng] = event.location.split(',').map(Number);
+            return (
+              <Marker position={[lat, lng]} icon={tableIcon} key={event._id}>
+                <Popup>
+                  <strong>{event.org_name}</strong><br />
+                  {event.description || 'No description'}<br />
+                  {new Date(event.start_time).toLocaleTimeString()} - {new Date(event.end_time).toLocaleTimeString()}
+                </Popup>
+              </Marker>
+            );
+          })}
+
+          <LocationMarker onPositionSelect={setSelectedPosition} />
+        </MapContainer>
+
+        <div className="confirm-section">
+          {selectedPosition ? (
+            <p className="selected-coordinates">
+              Coordinates selected: {selectedPosition.lat}, {selectedPosition.lng}
+            </p>
+          ) : (
+            <p className="no-coordinates">No coordinates selected</p>
+          )}
+
+          <button
+            className="confirm-button"
+            onClick={handleConfirm}
+            disabled={!selectedPosition}
           >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            
-            {/* Pass the selected position to parent when a marker is placed */}
-            <LocationMarker onPositionSelect={setSelectedPosition} />
-          </MapContainer>
-  
-          <div className="confirm-section">
-            {/* Display coordinates in black if selected */}
-            {selectedPosition ? (
-              <p className="selected-coordinates">
-                Coordinates selected: {selectedPosition.lat}, {selectedPosition.lng}
-              </p>
-            ) : (
-              <p className="no-coordinates">No coordinates selected</p>
-            )}
-            
-            {/* Display confirm button, make it disabled if no position is selected */}
-            <button
-              className="confirm-button"
-              onClick={handleConfirm}
-              disabled={!selectedPosition} // Disable button if no position is selected
-            >
-              Confirm Coordinates
-            </button>
-          </div>
+            Confirm Coordinates
+          </button>
         </div>
+
+        {loading && <p className="loading-message">Loading events...</p>}
+
+        {!loading && events.length === 0 && !error && eventDate && startTime && endTime && (
+          <p className="no-events-message">There's no events found for the selected time.</p>
+        )}
+
+        {error && <p className="error-message">{error}</p>}
       </div>
-    );
-  }
+    </div>
+  );
+}
