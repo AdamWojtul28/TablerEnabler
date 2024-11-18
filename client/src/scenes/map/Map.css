@@ -36,22 +36,20 @@
 
 
 
-
-
-
   .no-events-message {
     position: fixed;
-    top: 20%;
+    top: 15%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
+    background-color: #ff5733; 
+    color: #ffffff; 
+    padding: 5px;
+    border: 2px solid #ff8000;
     font-size: 1.1rem;
     border-radius: 4px;
     z-index: 1000;
   }
+
 
   
   .error-message {
@@ -70,4 +68,25 @@
   
   
   
+  
+
+  @media (max-width: 768px) {
+    .no-events-message {
+      /* font-size: 0.9rem; 
+      padding: 3px 8px;  */
+
+      position: fixed;
+      top: 8%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #ff5733; 
+      color: #ffffff; 
+      padding: 3.5px;
+      border: 2px solid #ff8000;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      z-index: 1000;
+
+    }
+  }
   

@@ -133,7 +133,7 @@ export default function MapModal({ onMapClick, onClose, eventDate, startTime, en
         {loading && <p className="loading-message">Loading events...</p>}
 
         {!loading && events.length === 0 && !error && eventDate && startTime && endTime && (
-          <p className="no-events-message">There's no events found for the selected time.</p>
+          <p className="no-events-message-small-map">There's no events found for the selected time.</p>
         )}
 
         {error && <p className="error-message">{error}</p>}
