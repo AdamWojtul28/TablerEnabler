@@ -47,6 +47,8 @@ const CalendarComponent = () => {
       nowIndicator={true}
       editable={true}
       selectable={true}
+      height={790}
+        
       // Define resources only for the daily view
       views={{
         resourceTimeGridDay: {
@@ -59,6 +61,7 @@ const CalendarComponent = () => {
       }}
       events={events}
       resourceAreaHeaderContent="Tables"
+      
       eventClick={(info) => {
         alert(`Event: ${info.event.title}\nDescription: ${info.event.extendedProps.description}`);
       }}
