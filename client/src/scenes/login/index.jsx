@@ -40,6 +40,9 @@ export default function Login({ onLogin }) {
           localStorage.setItem('role', role); // Save the role for future use
           console.log("Role stored in localStorage:", role);
 
+          // Set the current user to the right information for proper extraction of favorites
+          localStorage.setItem('email', result.user.email);
+
 
 
           // Store organization name in localStorage if role is "organization"

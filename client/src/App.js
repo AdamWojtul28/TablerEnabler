@@ -55,12 +55,17 @@ function App() {
               <Route path="/map" element={<Map />} />
               <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
-              <Route path="/favorites" element={<Favorites />} />
               <Route
                 path="/organization-profile"
                 element={<OrganizationPage />}
               />
               <Route path="/congrats" element={<Congrats />} />
+
+              {/* Conditional Routes */}
+              <Route
+                path="/favorites"
+                element={isLoggedIn ? <Favorites /> : <Login />}
+              />
 
               {/* Login and register routes */}
               <Route
@@ -89,9 +94,7 @@ function App() {
               />
 
               {/* Settings page */}
-              <Route path="/settingsPage" element={<SettingsPage />}>
-
-              </Route>
+              <Route path="/settingsPage" element={<SettingsPage />}></Route>
               {/* Loading screens */}
               <Route path="/loadingScreen1" element={<LoadingScreen1 />} />
               <Route path="/loadingScreen2" element={<LoadingScreen2 />} />

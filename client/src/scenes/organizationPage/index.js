@@ -5,7 +5,6 @@ import "react-calendar/dist/Calendar.css";
 import "./OrganizationPage.css";
 import defaultImage from "../../assets/organization-default.png";
 
-
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
   const [socialMedia, setSocialMedia] = useState([]);
@@ -223,18 +222,19 @@ const OrganizationPage = () => {
         </button>
       </div>
       <div className="smooth-grey-box">
-        <div className="left-section">
-          <h2>Organization Purpose:</h2>
-          <p>{organization.description}</p>
+        <div className="parent-div">
+          <div className="left-section">
+            <h2>Organization Purpose:</h2>
+            <p>{organization.description}</p>
+          </div>
+          <div className="right-section">
+            <img
+              src={organization.profile_image || defaultImage}
+              alt={organization.name || "Default Organization"}
+              className="organization-image"
+            />
+          </div>
         </div>
-        <div className="right-section">
-          <img
-            src={organization.profile_image || defaultImage} 
-            alt={organization.name || "Default Organization"}
-            className="organization-image"
-          />
-        </div>
-
         <h2>Tabling Calendar</h2>
         <div className="calendar-container">
           <Calendar

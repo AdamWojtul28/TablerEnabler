@@ -38,6 +38,8 @@
 
 
 
+
+
 /* Smooth grey box for organization information */
 .smooth-grey-box {
   background-color: #f0f0f0;
@@ -81,25 +83,29 @@
   background-color: #e68a00; /* Darker orange on hover */
 }
 
-/* Flexbox layout for the left and right sections */
-.left-section, .right-section {
-  flex: 1 1 50%; /* Each section takes up 50% of the width */
-  padding: 10px;
+.parent-div {
+  display: flex; /* Enables flexbox for the container */
+  justify-content: space-between; /* Ensures even spacing between sections */
 }
 
 .left-section {
+  flex: 1; /* Makes both sections take up equal space */
   display: flex;
-  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  margin: 0 10px; /* Optional: Adds spacing between the sections */
 }
 
 .right-section {
+  flex: 1; /* Makes both sections take up equal space */
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; /* Centers content horizontally within each section */
+  align-items: center; /* Centers content vertically within each section */
+  margin: 0 10px; /* Optional: Adds spacing between the sections */
 }
 
 .organization-image {
-  max-width: 100%;
+  max-width: 80%;
   height: auto;
   border-radius: 8px;
 }
