@@ -1,13 +1,13 @@
 .fullscreen-calendar {
   width: 100vw;
-  height: 100vh;
+  height: 100%; /* Inherit from parent container */
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden; /* Prevent external overflow */
 }
 
 /* Specific styling for the current time indicator */
-
 .fc-timegrid-now-indicator-line,
 .fc-now-indicator,
 .fc-timegrid-now-indicator-arrow{
@@ -20,4 +20,31 @@
 .fc-toolbar-title {
   color: #ff8000; 
 }
+
+@media (max-width: 390px) {
+  .fullscreen-calendar {
+    height: calc(100vh - 100px) !important; /* Adjust to subtract any navbar/footer */
+    overflow-y: auto !important; /* Ensure scrolling for calendar content */
+    background-color: red; /* Debugging: Visible cue for mobile */
+  }
+
+  .fc-view-container {
+    height: 100%; /* Ensure calendar fills its parent container */
+    overflow-y: auto !important; /* Enable scrolling for time slots */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
+  }
+}
+
+
+html, body, #root {
+  height: 100%; /* Ensure parent containers occupy full viewport */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent unwanted scrollbars */
+}
+
+.fullscreen-calendar {
+  height: 100%; /* Inherit height from parent containers */
+}
+
 

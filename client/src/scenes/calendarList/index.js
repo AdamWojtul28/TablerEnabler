@@ -8,7 +8,9 @@ import './CalendarList.css';
 
 const CalendarComponent = () => {
   const [events, setEvents] = useState([]);
+  const [theme, setTheme] = useState(document.body.classList.contains('dark-mode') ? 'dark' : 'light');
 
+  // Fetch reservations
   useEffect(() => {
     const fetchReservations = async () => {
       try {
@@ -35,33 +37,57 @@ const CalendarComponent = () => {
     fetchReservations();
   }, []);
 
+  // Recalculate layout when theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+      if (currentTheme !== theme) {
+        setTheme(currentTheme);
+        document.querySelector('.fullscreen-calendar')?.dispatchEvent(new Event('resize'));
+      }
+    });
+
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, [theme]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      document.querySelector('.fullscreen-calendar')?.dispatchEvent(new Event('resize'));
+    };
+
+    // Trigger resize on window resize
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <FullCalendar
-      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]} 
-      initialView="timeGridWeek"  // Use standard timeGridWeek to avoid showing tables in the weekly view
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]}
+      initialView="timeGridWeek"
       headerToolbar={{
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,resourceTimeGridDay',  // Use resourceTimeGridDay for daily view
+        right: 'dayGridMonth,timeGridWeek,resourceTimeGridDay',
       }}
       nowIndicator={true}
       editable={true}
       selectable={true}
-      height={790}
-        
-      // Define resources only for the daily view
+      height={window.innerWidth < 768 ? 'calc(100vh - 100px)' : '100%'}
       views={{
         resourceTimeGridDay: {
           resources: [
             { id: '1', title: 'Table 1' },
             { id: '2', title: 'Table 2' },
             { id: '3', title: 'Table 3' },
-          ]
-        }
+          ],
+        },
       }}
       events={events}
       resourceAreaHeaderContent="Tables"
-      
       eventClick={(info) => {
         alert(`Event: ${info.event.title}\nDescription: ${info.event.extendedProps.description}`);
       }}
