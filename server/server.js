@@ -10,6 +10,10 @@ import studentRoutes from "./routes/studentRoutes.js";
 import organizationRoutes from "./routes/organizationRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
+//data imports
+import StudentProfile from "./models/StudentProfile.js";
+import { dataUser } from "./data/index.js";
+
 dotenv.config();
 const app = express();
 
@@ -40,5 +44,8 @@ const PORT = process.env.PORT || 9000;
 mongoose.connect(process.env.MONGODB_URI, {})
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+
+    /*insert only once */
+    //StudentProfile.insertMany(dataUser)
   })
   .catch((error) => console.log(`${error} did not connect`));
