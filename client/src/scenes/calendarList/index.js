@@ -10,6 +10,15 @@ const CalendarComponent = () => {
   const [events, setEvents] = useState([]);
   const [theme, setTheme] = useState(document.body.classList.contains('dark-mode') ? 'dark' : 'light');
 
+
+  // Refresh the page once when the component mounts
+  useEffect(() => {
+    if (!sessionStorage.getItem('refreshed')) {
+      sessionStorage.setItem('refreshed', 'true');
+      window.location.reload();
+    }
+  }, []);
+  
   // Fetch reservations
   useEffect(() => {
     const fetchReservations = async () => {
@@ -65,6 +74,7 @@ const CalendarComponent = () => {
   }, []);
 
   return (
+    
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]}
       initialView="timeGridWeek"
