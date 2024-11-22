@@ -5,29 +5,29 @@
   justify-content: center;
 }
 
-p {
+.system-admin-home p {
   margin-left: 20px;
   color: black;
 }
 
-.title {
+.system-admin-home .title {
   font-size: 1.2rem;
 }
 
-.wide-margin-p {
+.system-admin-home .wide-margin-p {
   margin-bottom: 60px;
 }
 
-.content {
+.system-admin-home .content {
   display: flex;
   align-items: center;
   flex-direction: column;
   margin-top: 20px;
 }
 
-.update-system-section, 
-.my-courses-section, 
-.manage-section {
+.system-admin-home .update-system-section,
+.system-admin-home .my-courses-section,
+.system-admin-home .manage-section {
   display: flex;
   flex-direction: column;
   width: 75%;
@@ -42,7 +42,7 @@ p {
   align-items: center;
 }
 
-h2 {
+.system-admin-home h2 {
   margin-top: 5px;
   font-size: 1.4rem;
   margin-bottom: 5px;
@@ -50,24 +50,24 @@ h2 {
   color: #00204b; /* Matches h2 color from search page */
 }
 
-.apply-section p,
-.my-courses-section p {
+.system-admin-home .apply-section p,
+.system-admin-home .my-courses-section p {
   font-size: 1.1rem;
   margin-left: 20px;
   margin-bottom: 10px;
 }
 
-a {
+.system-admin-home a {
   color: #00204b; /* Adjusted to match the theme */
   text-decoration: none;
   font-weight: bold;
 }
 
-.manage-section a:hover {
+.system-admin-home .manage-section a:hover {
   text-decoration: underline;
 }
 
-.wider-btn {
+.system-admin-home .wider-btn {
   margin-top: 100px;
   background-color: orange; /* Matches the club-card background */
   color: white;
@@ -87,7 +87,7 @@ a {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.button-container {
+.system-admin-home .button-container {
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -96,7 +96,7 @@ a {
   gap: 10px;
 }
 
-.square-btn {
+.system-admin-home .square-btn {
   background-color: orange; /* Matches the club-card background */
   color: white;
   width: 300px;
@@ -112,11 +112,11 @@ a {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.apply-btn:hover {
+.system-admin-home .apply-btn:hover {
   background-color: #e68a00; /* Slightly darker shade of orange */
 }
 
-table {
+.system-admin-home table {
   width: 95%;
   border-collapse: collapse;
   margin: 0 auto;
@@ -130,39 +130,37 @@ table {
   overflow-wrap: anywhere; /* Helps break long words */
 }
 
-table, th, td {
+.system-admin-home table, 
+.system-admin-home th, 
+.system-admin-home td {
   border: 1px solid black;
 }
 
-th, td {
+.system-admin-home th, 
+.system-admin-home td {
   padding: 10px;
   text-align: center;
 }
 
-td {
+.system-admin-home td {
   color: black;
 }
 
-th {
+.system-admin-home th {
   background-color: orange;
   text-align: center;
 }
 
-tr:hover {
+.system-admin-home tr:hover {
   background-color: #f0f0f0;
 }
 
-/* Autofit column widths with priority to content length */
-table {
-  width: 100%; /* Ensure table takes the full container */
-}
-
-table th:first-child,
-table td:first-child {
+.system-admin-home table th:first-child,
+.system-admin-home table td:first-child {
   width: 10%; /* Make the first column smaller for typical numbers */
 }
 
-button {
+.system-admin-home button {
   padding: 7.5px 15px;
   font-size: 1rem;
   border: none;
