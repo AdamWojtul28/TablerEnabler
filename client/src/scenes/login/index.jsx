@@ -34,7 +34,7 @@ export default function Login({ onLogin }) {
         if (result.data && result.user) {
           localStorage.setItem('token', result.data); // Store token
           localStorage.setItem('user', JSON.stringify(result.user)); // Store user details
-
+  
           // Pull the role from the user data provided by the backend
           const role = result.user.role; 
           localStorage.setItem('role', role); // Save the role for future use

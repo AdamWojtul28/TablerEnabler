@@ -15,18 +15,12 @@ router.post("/", async (req, res) => {
     if (error) return res.status(400).send({ message: error.details[0].message });
 
     let user = null;
-    let role = null;
 
     // Check if the user exists in the student collection
     user = await StudentProfile.findOne({ ufl_email: identifier });
-    if (user) {
-      role = "student";
-    } else {
+    if (!user) {
       // If not found, check in the organization collection
       user = await OrganizationProfile.findOne({ name: identifier });
-      if (user) {
-        role = "organization";
-      }
     }
 
     // If no user is found, return an error
@@ -43,7 +37,7 @@ router.post("/", async (req, res) => {
     const userData = {
       name: user.first_name || user.name, // Use `first_name` for students, `name` for organizations
       email: user.ufl_email || user.email, // Use `ufl_email` for students, `email` for organizations
-      role, // Include the determined role
+      role: user.role, // Use the actual `role` field from the user object
     };
 
     res.status(200).send({ data: token, user: userData, message: "Logged in successfully" });
@@ -52,6 +46,7 @@ router.post("/", async (req, res) => {
     res.status(500).send({ message: "Internal Server Error" });
   }
 });
+
 
 // Validation schema
 const validateLogin = (data) => {

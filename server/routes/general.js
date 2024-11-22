@@ -7,6 +7,8 @@ import OrganizationProfile from "../models/OrganizationProfile.js";
 import OrgSocial from "../models/OrgSocial.js";
 import FixedTablingLocs from "../models/FixedTablingLocations.js";
 import TablingReservationRequest from "../models/TablingReservation.js";
+import bcrypt from "bcrypt";
+
 
 const router = express.Router();
 
@@ -831,5 +833,39 @@ router.get("/pending-tabling-reservation-requests", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.post("/admin", async (req, res) => {
+  try {
+    const {
+      first_name,
+      last_name,
+      ufl_email,
+      profile_image,
+      password,
+      organization,
+      role,
+    } = req.body;
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const studentProfile = new StudentProfile({
+      first_name,
+      last_name,
+      ufl_email,
+      profile_image,
+      password: hashedPassword, // Save the hashed password
+      organization,
+      role,
+    });
+
+    await studentProfile.save();
+    res.status(201).json(studentProfile);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 
 export default router;
