@@ -9,73 +9,94 @@ export default function Register() {
     ufl_email: '',
     password: '',
     role: '',
-    name: ''
+    name: '',
+    description: '',
+    officers: '',
+    profile_image: null, // New field for image
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = ({ currentTarget: input }) => {
-    setData({ ...data, [input.name]: input.value });
-    console.log("Field updated:", input.name, input.value); // Log field changes
+    const value = input.type === 'file' ? input.files[0] : input.value; // Handle file input
+    setData({ ...data, [input.name]: value });
+    console.log("Field updated:", input.name, value); // Log field changes
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { ufl_email, password, role, name, first_name, last_name } = data;
+    const { ufl_email, password, role, name, description, officers, first_name, last_name, profile_image } = data;
     console.log("Submitting data:", data); // Log entire data on submit
 
-    if ((role === 'student' && (ufl_email === '' || password === '' || first_name === '' || last_name === '')) ||
-        (role === 'organization' && (name === '' || password === ''))) {
+    if (
+      (role === 'student' && (ufl_email === '' || password === '' || first_name === '' || last_name === '')) ||
+      (role === 'organization' && (name === '' || description === '' || officers === ''))
+    ) {
       setErrorMessage('All fields are required.');
       console.log("Validation failed: Missing required fields");
       return;
     }
 
-    const submissionData = role === 'student' 
-      ? { first_name, last_name, ufl_email, password, role } 
-      : { name, password, role };
-
-    console.log("Sending submissionData:", submissionData); // Log the data being sent
+    const submissionData = new FormData(); // Use FormData for file uploads
+    if (role === 'student') {
+      submissionData.append('first_name', first_name);
+      submissionData.append('last_name', last_name);
+      submissionData.append('ufl_email', ufl_email);
+      submissionData.append('password', password);
+      submissionData.append('role', role);
+    } else {
+      submissionData.append('name', name);
+      submissionData.append('description', description);
+      submissionData.append('officers', officers);
+      if (profile_image) submissionData.append('profile_image', profile_image); // Add image if provided
+    }
 
     try {
-      const endpoint = role === 'student' ? 'http://localhost:5001/students' : 'http://localhost:5001/organizations';
+      const endpoint =
+        role === 'student'
+          ? 'http://localhost:5001/students'
+          : 'http://localhost:5001/pending-organizations';
+
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(submissionData)
+        body: submissionData, // Send FormData directly
       });
 
-      const contentType = response.headers.get("content-type");
-      console.log("Response received:", response.status); // Log response status
+      console.log('Response received:', response.status); // Log response status
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Signup successful:', result);
-        localStorage.setItem('token', result.data);
-        navigate('/map');
-      } else if (contentType && contentType.includes("application/json")) {
-        const errorData = await response.json();
-        console.error('Signup failed:', errorData.message);
-        setErrorMessage(errorData.message);
+        console.log('Request successful:', result);
+
+        if (role === 'student') {
+          localStorage.setItem('token', result.data);
+          navigate('/map');
+        } else {
+          setSuccessMessage(
+            'Your application to register an organization has been sent successfully. When it is approved, officers can edit the organization profile and create tabling events. You can log in or create an account with any email provided in the form and start using the app.'
+          );
+          setErrorMessage('');
+        }
       } else {
-        console.error('Unexpected error response:', await response.text());
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        const errorData = await response.json();
+        console.error('Request failed:', errorData.message);
+        setErrorMessage(errorData.message);
       }
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error('Error during request:', error);
       setErrorMessage('An error occurred. Please try again.');
     }
   };
 
   return (
     <div className="register-container">
-      <form className="register-form" onSubmit={handleSubmit}>
+      <form className="register-form" onSubmit={handleSubmit} encType="multipart/form-data">
         <h2>Register</h2>
 
         {errorMessage && <div className="error-message">{errorMessage}</div>}
+        {successMessage && <div className="success-message">{successMessage}</div>}
 
         <div className="form-group">
           <label>Account Type</label>
@@ -128,10 +149,10 @@ export default function Register() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="ufl_email">Email</label>
               <input
                 type="email"
-                id="UF Email"
+                id="ufl_email"
                 name="ufl_email"
                 value={data.ufl_email}
                 onChange={handleChange}
@@ -140,7 +161,7 @@ export default function Register() {
             </div>
           </>
         )}
-        
+
         {data.role === 'organization' && (
           <>
             <div className="form-group">
@@ -154,22 +175,50 @@ export default function Register() {
                 placeholder="Enter your organization name"
               />
             </div>
+
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                value={data.description}
+                onChange={handleChange}
+                placeholder="Enter a brief description of your organization"
+              ></textarea>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="officers">Officers' Emails (comma-separated)</label>
+              <label htmlFor="officers" className="officers-info">
+              <span className="icon">ℹ️</span>
+              Officers can edit organization information and create tabling events.
+            </label>              
+            <input
+                type="text"
+                id="officers"
+                name="officers"
+                value={data.officers}
+                onChange={handleChange}
+                placeholder="Enter officers' emails"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="profile_image">Upload Organization Image (optional)</label>
+              <input
+                type="file"
+                id="profile_image"
+                name="profile_image"
+                onChange={handleChange}
+              />
+            </div>
           </>
         )}
-        
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={data.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-          />
-        </div>
 
-        <button type="submit" className="register-button">Register</button>
+
+        <button type="submit" className="register-button">
+          {data.role === 'organization' ? 'Send Request' : 'Register'}
+        </button>
 
         <p className="switch-form">
           Already have an account? <Link to="/login">Login here</Link>

@@ -10,7 +10,7 @@ const studentProfileSchema = new mongoose.Schema({
   profile_image: { type: Buffer, default: null },
   password: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  role: { type: String, enum: ['student', 'admin', 'organization'], default: 'student' }
+  role: { type: String, enum: ['student'], default: 'student' }
 });
 
 // Define password complexity options
