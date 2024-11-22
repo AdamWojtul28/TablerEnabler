@@ -74,7 +74,6 @@ const CalendarComponent = () => {
   }, []);
 
   return (
-    
     <FullCalendar
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, resourceTimeGridPlugin]}
       initialView="timeGridWeek"

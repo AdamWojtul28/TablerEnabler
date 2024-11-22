@@ -40,7 +40,7 @@ html, body, #root {
   height: 100%; /* Ensure parent containers occupy full viewport */
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent unwanted scrollbars */
+  overflow-y: auto !important; /*  DO NOT CHANGE! THIS BREAKS SCROLL BAR EVERYWHERE */
 }
 
 .fullscreen-calendar {
