@@ -7,9 +7,7 @@ const organizationProfileSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, required: false }, // Optional field
   profile_image: { type: Buffer, required: false },
-  password: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  role: { type: String, enum: ['student', 'admin', 'organization'], default: 'organization' }
 });
 
 // Unique index on the name field
