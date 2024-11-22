@@ -11,35 +11,66 @@ export default function Register() {
     role: '',
     name: '',
     description: '',
-    officers: '',
-    profile_image: null, // New field for image
+    officers: [], // Store officers as an array
+    officerEmail: '', // Current officer email being typed
+    profile_image: null,
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = ({ currentTarget: input }) => {
-    const value = input.type === 'file' ? input.files[0] : input.value; // Handle file input
-    setData({ ...data, [input.name]: value });
-    console.log("Field updated:", input.name, value); // Log field changes
+    const value = input.type === 'file' ? input.files[0] : input.value;
+    setData((prev) => ({
+      ...prev,
+      [input.name]: value,
+    }));
+  };
+
+  const handleAddEmail = (e) => {
+    e.preventDefault();
+    const email = data.officerEmail.trim();
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    // Add email to the list if not already added
+    if (!data.officers.includes(email)) {
+      setData((prev) => ({
+        ...prev,
+        officerEmail: '',
+        officers: [...prev.officers, email],
+      }));
+    } else {
+      alert('Email is already added.');
+    }
+  };
+
+  const handleRemoveEmail = (index) => {
+    setData((prev) => ({
+      ...prev,
+      officers: prev.officers.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { ufl_email, password, role, name, description, officers, first_name, last_name, profile_image } = data;
-    console.log("Submitting data:", data); // Log entire data on submit
 
     if (
       (role === 'student' && (ufl_email === '' || password === '' || first_name === '' || last_name === '')) ||
-      (role === 'organization' && (name === '' || description === '' || officers === ''))
+      (role === 'organization' && (name === '' || officers.length === 0))
     ) {
       setErrorMessage('All fields are required.');
-      console.log("Validation failed: Missing required fields");
       return;
     }
 
-    const submissionData = new FormData(); // Use FormData for file uploads
+    const submissionData = new FormData();
     if (role === 'student') {
       submissionData.append('first_name', first_name);
       submissionData.append('last_name', last_name);
@@ -49,8 +80,8 @@ export default function Register() {
     } else {
       submissionData.append('name', name);
       submissionData.append('description', description);
-      submissionData.append('officers', officers);
-      if (profile_image) submissionData.append('profile_image', profile_image); // Add image if provided
+      submissionData.append('officers', JSON.stringify(officers));
+      if (profile_image) submissionData.append('profile_image', profile_image);
     }
 
     try {
@@ -61,15 +92,11 @@ export default function Register() {
 
       const response = await fetch(endpoint, {
         method: 'POST',
-        body: submissionData, // Send FormData directly
+        body: submissionData,
       });
-
-      console.log('Response received:', response.status); // Log response status
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Request successful:', result);
-
         if (role === 'student') {
           localStorage.setItem('token', result.data);
           navigate('/map');
@@ -81,11 +108,9 @@ export default function Register() {
         }
       } else {
         const errorData = await response.json();
-        console.error('Request failed:', errorData.message);
-        setErrorMessage(errorData.message);
+        setErrorMessage(errorData.message || 'An unexpected error occurred.');
       }
     } catch (error) {
-      console.error('Error during request:', error);
       setErrorMessage('An error occurred. Please try again.');
     }
   };
@@ -136,7 +161,6 @@ export default function Register() {
                 placeholder="Enter your First Name"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="last_name">Last Name</label>
               <input
@@ -147,7 +171,6 @@ export default function Register() {
                 placeholder="Enter your Last Name"
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="ufl_email">Email</label>
               <input
@@ -175,9 +198,8 @@ export default function Register() {
                 placeholder="Enter your organization name"
               />
             </div>
-
             <div className="form-group">
-              <label htmlFor="description">Description</label>
+              <label htmlFor="description">Description (optional)</label>
               <textarea
                 id="description"
                 name="description"
@@ -186,23 +208,33 @@ export default function Register() {
                 placeholder="Enter a brief description of your organization"
               ></textarea>
             </div>
-
             <div className="form-group">
-              <label htmlFor="officers">Officers' Emails (comma-separated)</label>
-              <label htmlFor="officers" className="officers-info">
-              <span className="icon">ℹ️</span>
-              Officers can edit organization information and create tabling events.
-            </label>              
-            <input
-                type="text"
-                id="officers"
-                name="officers"
-                value={data.officers}
-                onChange={handleChange}
-                placeholder="Enter officers' emails"
-              />
+              <label htmlFor="officers">Officers' Emails</label>
+              <div className="email-input-container">
+                <input
+                  type="text"
+                  id="officers"
+                  name="officerEmail"
+                  value={data.officerEmail || ''}
+                  onChange={handleChange}
+                  placeholder="Enter officer's email and press 'Add' or 'Enter'"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddEmail(e)}
+                />
+                <button type="button" onClick={handleAddEmail} className="add-email-button">
+                  Add
+                </button>
+              </div>
+              <ul className="officer-email-list">
+                {data.officers.map((email, index) => (
+                  <li key={index}>
+                    {email}
+                    <button type="button" onClick={() => handleRemoveEmail(index)} className="remove-email-button">
+                      ✖
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-
             <div className="form-group">
               <label htmlFor="profile_image">Upload Organization Image (optional)</label>
               <input
@@ -214,7 +246,6 @@ export default function Register() {
             </div>
           </>
         )}
-
 
         <button type="submit" className="register-button">
           {data.role === 'organization' ? 'Send Request' : 'Register'}
