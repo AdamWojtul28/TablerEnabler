@@ -22,6 +22,7 @@ import AddEvent from "scenes/addEvent";
 import Congrats from "scenes/SignedIn";
 import SettingsPage from "scenes/settingsPage";
 import Navbar from "components/Navbar";
+import SystemAdminHome from "scenes/system-admin-home";
 
 function App() {
   const mode = useSelector((state) => state.global.mode);
@@ -55,6 +56,7 @@ function App() {
               <Route path="/map" element={<Map />} />
               <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
+              <Route path="/system-admin-home" element={<SystemAdminHome />} />
               <Route
                 path="/organization-profile"
                 element={<OrganizationPage />}

@@ -1,0 +1,173 @@
+.system-admin-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+p {
+  margin-left: 20px;
+  color: black;
+}
+
+.title {
+  font-size: 1.2rem;
+}
+
+.wide-margin-p {
+  margin-bottom: 60px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.update-system-section, 
+.my-courses-section, 
+.manage-section {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center; /* Centers the header text */
+  position: relative;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  align-items: center;
+}
+
+h2 {
+  margin-top: 5px;
+  font-size: 1.4rem;
+  margin-bottom: 5px;
+  text-align: center; /* Centers header text */
+  color: #00204b; /* Matches h2 color from search page */
+}
+
+.apply-section p,
+.my-courses-section p {
+  font-size: 1.1rem;
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+a {
+  color: #00204b; /* Adjusted to match the theme */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.manage-section a:hover {
+  text-decoration: underline;
+}
+
+.wider-btn {
+  margin-top: 100px;
+  background-color: orange; /* Matches the club-card background */
+  color: white;
+  position: relative;
+  margin-top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
+  padding: 10px 20px;
+  width: 80%;
+  height: 40px;
+  border: none;
+  border-radius: 8px; /* Matches the club card style */
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 5px;
+  width: 100%;
+  gap: 10px;
+}
+
+.square-btn {
+  background-color: orange; /* Matches the club-card background */
+  color: white;
+  width: 300px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.apply-btn:hover {
+  background-color: #e68a00; /* Slightly darker shade of orange */
+}
+
+table {
+  width: 95%;
+  border-collapse: collapse;
+  margin: 0 auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  table-layout: auto; /* Enables autofit based on content */
+  background-color: #fff; /* Matches background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  word-wrap: break-word; /* Ensures text wraps to fit within cells */
+  overflow-wrap: anywhere; /* Helps break long words */
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+}
+
+td {
+  color: black;
+}
+
+th {
+  background-color: orange;
+  text-align: center;
+}
+
+tr:hover {
+  background-color: #f0f0f0;
+}
+
+/* Autofit column widths with priority to content length */
+table {
+  width: 100%; /* Ensure table takes the full container */
+}
+
+table th:first-child,
+table td:first-child {
+  width: 10%; /* Make the first column smaller for typical numbers */
+}
+
+button {
+  padding: 7.5px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #365798;
+  color: white;
+}
