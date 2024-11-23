@@ -5,18 +5,28 @@
     box-sizing: border-box;
   }
   
-  /* Register container */
+
+
+
+
+  .content-wrapper {
+    flex: 1; /* Ensures content fills the available space */
+    display: flex;
+    justify-content: center; /* Center the form horizontally */
+    align-items: center; /* Center the form vertically */
+  }
+  
   .register-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #023372;
+    height: 100vh;   
   }
+  
   
   .register-form {
     background-color: #ffffff;
-    padding: 2rem;
+    padding: 2rem 2rem 0rem 2rem;
     border-radius: 8px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -133,14 +143,17 @@
     margin-top: 10px;
   }
   
+
   .add-email-button {
-    padding: 5px 10px;
-    font-size: 1rem;
+    padding: 5px 15px; /* Smaller padding for a compact button */
+    font-size: 0.9rem; /* Slightly smaller font size */
     background-color: #ff8000;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    align-self: flex-end; 
+    margin-top: 2px; /* Add some spacing above */
   }
   
   .add-email-button:hover {
@@ -168,7 +181,7 @@
   .remove-email-button {
     background: none;
     border: none;
-    color: red;
+    color: #023372;
     font-size: 1rem;
     cursor: pointer;
   }
@@ -177,3 +190,20 @@
     color: darkred;
   }
   
+
+  .email-input-container.stacked {
+    display: flex;
+    flex-direction: column; /* Stack inputs vertically */
+    gap: 10px; /* Add space between inputs */
+    align-items: flex-start; 
+  }
+
+
+  .page-container {
+    min-height: 100vh; /* Ensures the container takes the full viewport height */
+    display: flex;
+    flex-direction: column; /* Ensures vertical stacking of the page content */
+    padding-top: 120px; /* Same as navbar height */
+    padding-bottom: 200px; /* Same as footer height */
+  }
+

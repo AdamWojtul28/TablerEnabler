@@ -57,8 +57,7 @@ const navItems = [
 ];
 
 const user = JSON.parse(localStorage.getItem('user'));
-const userName = user?.name;
-const userStatus = user?.status;
+
 
 const Sidebar = ({
   drawerWidth,
@@ -215,8 +214,13 @@ const Sidebar = ({
 
 
 
-          <Box position="absolute" bottom="2rem">
-            <Divider />
+          <Box position="absolute" bottom="2rem" width="100%">
+          <Divider 
+              sx={{ 
+                width: "100%", 
+                backgroundColor: theme.palette.secondary[300] 
+              }} 
+            />
             <FlexBetween
               textTransform="none"
               gap="1rem"
@@ -232,21 +236,7 @@ const Sidebar = ({
                 borderRadius="50%"
                 sx={{ objectFit: "cover" }}
               />
-              <Box textAlign="left">
-                <Typography
-                  fontWeight="bold"
-                  fontSize="0.9rem"
-                  sx={{ color: theme.palette.secondary[100] }}
-                >
-                  {isLoggedIn ? userName : "Login"}
-                </Typography>
-                <Typography
-                  fontSize="0.8rem"
-                  sx={{ color: theme.palette.secondary[200] }}
-                >
-                  {isLoggedIn ? userStatus : "" }
-                </Typography>
-              </Box>
+
               <SettingsOutlined
                 onClick={() => {
                   if (isLoggedIn && localStorage.getItem('role') === 'organization') {

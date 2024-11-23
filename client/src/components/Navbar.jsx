@@ -77,18 +77,6 @@ const Navbar = ({
                     <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                         <MenuIcon />
                     </IconButton>
-
-                    <FlexBetween 
-                        backgroundColor={theme.palette.background.alt}
-                        borderRadius={"9px"}
-                        gap="3rem"
-                        p="0.1rem 1.5rem"
-                    >
-                        <InputBase placeholder='Type to start search...' />
-                        <IconButton>
-                            <Search />
-                        </IconButton>
-                    </FlexBetween>
                 </FlexBetween>
 
                 {/* RIGHT SIDE: Dark/light mode + settings + user profile */}
