@@ -1,90 +1,132 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "./SystemAdminHome.css";
 
 const SystemAdminHome = () => {
   const [organizations, setOrganizations] = useState([]);
-  const [tablingReservations, setTablingReservations] = useState([]);
-
-  // Default data for organizations
-  const defaultOrganizations = [
-    {
-      name: "Coding Club",
-      description: "A club for coding enthusiasts.",
-      officers: ["Alice Smith", "Bob Johnson"],
-      approved: false,
-    },
-    {
-      name: "AI Society",
-      description: "Promoting AI knowledge.",
-      officers: ["Jane Doe", "John Snow"],
-      approved: false,
-    },
-  ];
-
-  // Default data for tabling reservations
-  const defaultReservations = [
-    {
-      org_name: "Coding Club",
-      start_time: new Date().toISOString(),
-      end_time: new Date(Date.now() + 3600000).toISOString(),
-      location: "Reitz Lawn",
-      description: "Recruiting new members",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      org_name: "AI Society",
-      start_time: new Date().toISOString(),
-      end_time: new Date(Date.now() + 7200000).toISOString(),
-      location: "Turlington Plaza",
-      description: "Showcasing AI projects",
-      createdAt: new Date().toISOString(),
-    },
-  ];
+  const [showModal, setShowModal] = useState(false);
+  const [comment, setComment] = useState("");
+  const [selectedOrgIndex, setSelectedOrgIndex] = useState(null);
 
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5001/general/organization-profiles"
-        ); // Replace with your API endpoint
+          "http://localhost:5001/general/pending-organization-profiles"
+        );
         const data = await response.json();
         setOrganizations(data);
       } catch (error) {
         console.error("Error fetching organizations:", error);
-        setOrganizations(defaultOrganizations); // Use default data on error
-      }
-    };
-
-    const fetchTablingReservations = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:5001/general/tabling-reservations"
-        ); // Replace with your API endpoint
-        const data = await response.json();
-        setTablingReservations(data);
-      } catch (error) {
-        console.error("Error fetching tabling reservations:", error);
-        setTablingReservations(defaultReservations); // Use default data on error
       }
     };
 
     fetchOrganizations();
-    fetchTablingReservations();
-  }, []);
+  }, organizations);
 
-  const approveOrganization = (index) => {
+  const approveOrganization = async (index) => {
     const updatedOrganizations = [...organizations];
-    updatedOrganizations[index].approved = true;
+    updatedOrganizations[index].status = "Approved";
+    alert(JSON.stringify(updatedOrganizations[index]));
     setOrganizations(updatedOrganizations);
-    // Save changes to server (optional)
+
+    let orgName = updatedOrganizations[index].name;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(
+          orgName
+        )}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "Approved",
+          }),
+        }
+      );
+      if (response.ok) {
+        alert(`${orgName} status updated!`);
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (error) {
+      console.error("No such organization:", error);
+      alert("An error occurred.");
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/general/organization-profile`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: updatedOrganizations[index].name,
+            description: updatedOrganizations[index].description,
+            profile_image: updatedOrganizations[index].profile_image,
+            createdAt: Date.now,
+          }),
+        }
+      );
+      if (response.ok) {
+        alert(`${orgName} now has an official organization profile!`);
+      } else {
+        alert("Failed to make profile");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred.");
+    }
   };
 
-  const handleReservationApproval = (index) => {
-    const updatedReservations = [...tablingReservations];
-    updatedReservations.splice(index, 1); // Remove approved reservation
-    setTablingReservations(updatedReservations);
-    // Save changes to server (optional)
+  const handleRemoveClick = async (index) => {
+    setSelectedOrgIndex(index);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    setComment("");
+  };
+
+  const handleRemoveSubmit = async () => {
+    const updatedOrganizations = [...organizations];
+    setOrganizations(updatedOrganizations);
+    setShowModal(false);
+
+    let orgName = updatedOrganizations[selectedOrgIndex].name;
+
+    alert(orgName);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(
+          orgName
+        )}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "Rejected",
+            adminComments: comment,
+          }),
+        }
+      );
+      if (response.ok) {
+        alert(`${orgName} status updated!`);
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (error) {
+      console.error("No such organization:", error);
+      alert("An error occurred.");
+    }
   };
 
   return (
@@ -111,13 +153,21 @@ const SystemAdminHome = () => {
                 <td>{index + 1}</td>
                 <td>{org.name}</td>
                 <td>{org.description}</td>
-                <td>{org.officers?.join(", ") || "N/A"}</td>
-                <td>{org.approved ? "Yes" : "No"}</td>
+                <td>{org.officer?.join(", ") || "N/A"}</td>
+                <td>{org.status}</td>
                 <td>
-                  {!org.approved && (
-                    <button onClick={() => approveOrganization(index)}>
-                      Approve
-                    </button>
+                  {org.status === "Pending" && (
+                    <>
+                      <button
+                        style={{ marginRight: "10px" }}
+                        onClick={() => approveOrganization(index)}
+                      >
+                        Approve
+                      </button>
+                      <button onClick={() => handleRemoveClick(index)}>
+                        Remove
+                      </button>
+                    </>
                   )}
                 </td>
               </tr>
@@ -126,40 +176,25 @@ const SystemAdminHome = () => {
         </table>
       </div>
 
-      {/* Approve Tabling Reservations Section */}
-      <div className="manage-section">
-        <h2>Approve Tabling Reservations</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Organization</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Location</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tablingReservations.map((reservation, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{reservation.org_name}</td>
-                <td>{new Date(reservation.start_time).toLocaleString()}</td>
-                <td>{new Date(reservation.end_time).toLocaleString()}</td>
-                <td>{reservation.location}</td>
-                <td>{reservation.description || "N/A"}</td>
-                <td>
-                  <button onClick={() => handleReservationApproval(index)}>
-                    Approve
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={handleModalClose}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>
+              Please provide feedback about why this organization was rejected
+            </h2>
+            <textarea
+              placeholder="Enter your comments here..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+            <div>
+              <button onClick={handleRemoveSubmit}>Submit</button>
+              <button onClick={handleModalClose}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

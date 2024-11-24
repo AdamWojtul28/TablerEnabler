@@ -8,7 +8,7 @@ import OrgSocial from "../models/OrgSocial.js";
 import FixedTablingLocs from "../models/FixedTablingLocations.js";
 import TablingReservationRequest from "../models/TablingReservation.js";
 import bcrypt from "bcrypt";
-
+import PendingOrganizationProfile from "../models/PendingOrganizationProfile.js";
 
 const router = express.Router();
 
@@ -247,6 +247,82 @@ router.put("/organization-profile", async (req, res) => {
     // If no document found with the given email
     if (!updatedOrganizationProfile) {
       return res.status(404).json({ error: "Organization profile not found" });
+    }
+
+    res.status(200).json(updatedOrganizationProfile);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ********************************** PENDING-ORG-Profile ROUTES **********************************
+router.get("/pending-organization-profiles", async (req, res) => {
+  try {
+    const { org_name } = req.query;
+    if (org_name) {
+      const specificSocials = await PendingOrganizationProfile.find({
+        // This assumes that `date` is stored as a full Date object in the schema.
+        name: {
+          $eq: org_name,
+        },
+      }).sort({ application_name: 1 });
+      res.status(200).json(specificSocials);
+    } else {
+      const allSocials = await PendingOrganizationProfile.find().sort({
+        requestedAt: -1,
+      });
+      res.status(200).json(allSocials);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/pending-organization-profile", async (req, res) => {
+  try {
+    // console.log("Raw Body:", req.body); - can use this line to see if request goes through
+    const { name, description, profile_image, officers } = req.body;
+    const newOrganizationProfile = new PendingOrganizationProfile({
+      name,
+      description,
+      profile_image: profile_image || null,
+      officers: officers || "",
+    });
+    await newOrganizationProfile.save();
+    res.status(201).json(newOrganizationProfile);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.put("/pending-organization-profile", async (req, res) => {
+  try {
+    const { name } = req.query;
+    const { status, adminComments } = req.body;
+
+    // Check if name is provided in the query
+    if (!name) {
+      return res
+        .status(400)
+        .json({ error: "Email query parameter is required" });
+    }
+
+    // Update the organization profile
+    const updatedOrganizationProfile =
+      await PendingOrganizationProfile.findOneAndUpdate(
+        { name: name }, // Match based on org name
+        {
+          status,
+          adminComments: adminComments || "",
+        },
+        { new: true, runValidators: true } // Return updated document & enforce schema validation
+      );
+
+    // If no document found with the given name
+    if (!updatedOrganizationProfile) {
+      return res
+        .status(404)
+        .json({ error: "Pending organization profile not found" });
     }
 
     res.status(200).json(updatedOrganizationProfile);
@@ -660,8 +736,6 @@ router.get("/unavailable-tabling-options", async (req, res) => {
   }
 });
 
-
-
 // Fetch events during a specific time range
 router.get("/events-during", async (req, res) => {
   try {
@@ -669,7 +743,9 @@ router.get("/events-during", async (req, res) => {
 
     // Validate query parameters
     if (!start_time || !end_time) {
-      return res.status(400).json({ error: "start_time and end_time are required." });
+      return res
+        .status(400)
+        .json({ error: "start_time and end_time are required." });
     }
 
     const start = new Date(start_time);
@@ -679,7 +755,7 @@ router.get("/events-during", async (req, res) => {
     const overlappingEvents = await TablingReservation.find({
       $or: [
         { start_time: { $lt: end, $gte: start } }, // Events starting during the range
-        { end_time: { $lte: end, $gt: start } },  // Events ending during the range
+        { end_time: { $lte: end, $gt: start } }, // Events ending during the range
         { start_time: { $lte: start }, end_time: { $gte: end } }, // Events encompassing the range
       ],
     });
@@ -687,10 +763,11 @@ router.get("/events-during", async (req, res) => {
     res.status(200).json(overlappingEvents);
   } catch (error) {
     console.error("Error fetching events during time range:", error);
-    res.status(500).json({ error: "Failed to fetch events during the specified time range." });
+    res.status(500).json({
+      error: "Failed to fetch events during the specified time range.",
+    });
   }
 });
-
 
 // ********************************** TABLING RESERVATION REQUESTS ROUTES **********************************
 // Create a new tabling reservation request based on the existing formatting from EMS
@@ -866,6 +943,5 @@ router.post("/admin", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
 
 export default router;

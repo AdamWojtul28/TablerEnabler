@@ -7,9 +7,13 @@ const pendingOrganizationProfileSchema = new mongoose.Schema({
   description: { type: String, required: false }, // Optional field
   profile_image: { type: Buffer, required: false }, // Optional profile image
   requestedAt: { type: Date, default: Date.now }, // When the request was made
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }, // Approval status
-  adminComments: { type: String, default: '' }, // Admin's comments for approval/rejection
-  officers: [{ type: String, required: false, validate: emailValidator }], // List of officer emails
+  status: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
+  }, // Approval status
+  adminComments: { type: String, default: "" }, // Admin's comments for approval/rejection
+  officers: [{ type: String, required: true }], // List of officer emails
 });
 
 // Email validation function
@@ -38,7 +42,10 @@ const validatePendingOrganizationProfile = (data) => {
       .optional()
       .label("Status"),
     adminComments: Joi.string().optional().label("Admin Comments"),
-    officers: Joi.array().items(Joi.string().email()).optional().label("Officers"),
+    officers: Joi.array()
+      .items(Joi.string().email())
+      .optional()
+      .label("Officers"),
   });
   return schema.validate(data);
 };
