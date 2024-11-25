@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { themeSettings } from "theme";
@@ -30,12 +30,39 @@ function App() {
 
   // State to check if the user is logged in
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const role = localStorage.getItem("role"); // Save the role for future use
 
-  // Check localStorage for token on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token); // Update login status based on token presence
   }, []);
+
+  // ProtectedRoute component with double-alert prevention
+  const ProtectedRoute = ({
+    isLoggedIn,
+    role,
+    requiredRole,
+    children,
+    redirectPath,
+    alertMessage,
+  }) => {
+    const alertShownRef = useRef(false); // Use ref to prevent double alerts in strict mode
+
+    useEffect(() => {
+      if (!isLoggedIn || role !== requiredRole) {
+        if (!alertShownRef.current) {
+          alert(alertMessage); // Show the alert only once
+          alertShownRef.current = true; // Mark as shown
+        }
+      }
+    }, [isLoggedIn, role, requiredRole, alertMessage]);
+
+    if (!isLoggedIn || role !== requiredRole) {
+      return <Navigate to={redirectPath} replace />;
+    }
+
+    return children; // Render protected component if conditions are met
+  };
 
   return (
     <div className="app">
@@ -56,7 +83,6 @@ function App() {
               <Route path="/map" element={<Map />} />
               <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
-              <Route path="/system-admin-home" element={<SystemAdminHome />} />
               <Route
                 path="/organization-profile"
                 element={<OrganizationPage />}
@@ -67,6 +93,21 @@ function App() {
               <Route
                 path="/favorites"
                 element={isLoggedIn ? <Favorites /> : <Login />}
+              />
+
+              <Route
+                path="/system-admin-home"
+                element={
+                  <ProtectedRoute
+                    isLoggedIn={isLoggedIn}
+                    role={role}
+                    requiredRole="admin"
+                    redirectPath="/map"
+                    alertMessage="You do not have privileges to access this page."
+                  >
+                    <SystemAdminHome />
+                  </ProtectedRoute>
+                }
               />
 
               {/* Login and register routes */}
