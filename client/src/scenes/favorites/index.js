@@ -60,8 +60,8 @@ const Favorites = () => {
           // Filter reservations to include only future tabling events
           const currentDateTime = new Date();
           const upcomingReservations = data.filter((reservation) => {
-            const startTime = new Date(reservation.start_time);
-            return startTime > currentDateTime;
+            const endTime = new Date(reservation.end_time);
+            return endTime > currentDateTime;
           });
           setReservations(upcomingReservations); // Set the reservations data
         } catch (error) {
@@ -145,13 +145,13 @@ const Favorites = () => {
                   <p>
                     <strong>Start Time:</strong>{" "}
                     {new Date(reservation.start_time).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
+                      timeZone: "UTC",
+                      hour12: true,
                     })}
                     {" | "} <strong>End Time:</strong>{" "}
                     {new Date(reservation.end_time).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
+                      timeZone: "UTC",
+                      hour12: true,
                     })}
                     {" | "} <strong>Location: </strong>
                     {reservation.location}
@@ -165,7 +165,7 @@ const Favorites = () => {
             );
           })
         ) : (
-          <p className="no-events">No upcoming tabling events</p> 
+          <p className="no-events">No upcoming tabling events</p>
         )}
       </div>
     </div>

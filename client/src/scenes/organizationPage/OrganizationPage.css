@@ -37,7 +37,29 @@
 }
 
 
+.modal-navigation {
+  border: 5px solid;
+  margin: auto;
+  width: 50%;
+  align-items: center;
+  justify-content: center;
+}
 
+.navigate-button {
+  background-color: #ff9900; /* Orange color */
+  color: #fff;
+  border: none;
+  width: 100px;
+  height: 40px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navigate-button:hover {
+  background-color: #e68a00; /* Darker orange on hover */
+}
 
 
 /* Smooth grey box for organization information */

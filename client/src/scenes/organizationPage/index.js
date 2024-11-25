@@ -4,6 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./OrganizationPage.css";
 import defaultImage from "../../assets/organization-default.png";
+import { format } from "date-fns";
 
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
@@ -11,7 +12,13 @@ const OrganizationPage = () => {
   const [favorites, setFavorites] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [isFavorite, setIsFavorite] = useState("Follow");
-  const [modalData, setModalData] = useState(null); // To store data for modal
+  const [modalData, setModalData] = useState(null); // Current modal data
+  const [modalIndex, setModalIndex] = useState(0); // Current reservation index for the modal
+  const [modalArrayLength, setModalArrayLength] = useState(1); // Current reservation index for the modal
+  const [dayReservations, setDayReservations] = useState([]); // Reservations for the selected day
+  const [next, setNext] = useState(false); // Reservations for the selected day
+  const [previous, setPrevious] = useState(false); // Reservations for the selected day
+  const [updateModalTitle, setUpdateModalTitle] = useState(null);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const orgName = queryParams.get("name");
@@ -87,7 +94,24 @@ const OrganizationPage = () => {
     } else {
       setIsFavorite("Follow");
     }
-  }, [favorites, orgName]);
+  }, [favorites, orgName, modalArrayLength]);
+
+  // Ensure modalData initializes properly when dayReservations or modalIndex changes
+  useEffect(() => {
+    if (dayReservations.length > 0) {
+      setModalData(
+        formatReservationData(dayReservations[modalIndex], modalIndex)
+      );
+    }
+  }, [dayReservations, modalIndex]);
+
+  // Update modalArrayLength and reset modalIndex when dayReservations changes
+  useEffect(() => {
+    if (dayReservations.length > 0) {
+      setModalArrayLength(dayReservations.length); // Set total count of reservations for the day
+      setModalIndex(0); // Reset modal index to the first reservation
+    }
+  }, [dayReservations]);
 
   // Function to check if a date has a reservation
   const isReserved = (date) => {
@@ -103,29 +127,61 @@ const OrganizationPage = () => {
     );
   };
 
-  const handleModalClose = () => setModalData(null);
-
-  const handleClickOutsideModal = (e) => {
-    if (e.target.className === "modal-overlay") handleModalClose();
-  };
-
   const handleClickDay = (date) => {
     const formattedDate = date.toISOString().split("T")[0];
-    const reservation = reservations.find(
+    const matchingReservations = reservations.filter(
       (res) => res.start_time && res.start_time.startsWith(formattedDate)
     );
 
-    if (reservation) {
-      setModalData({
-        title: `${organization.name} ${
-          reservation.start_time.split("T")[0]
-        } Tabling Session`,
-        location: reservation.location,
-        startTime: new Date(reservation.start_time).toLocaleTimeString(),
-        endTime: new Date(reservation.end_time).toLocaleTimeString(),
-        description: reservation.description,
-      });
+    if (matchingReservations.length > 0) {
+      setPrevious(true);
+      setDayReservations(matchingReservations); // Store reservations for the day
+      setModalArrayLength(matchingReservations.length); // Set total count
+      setModalIndex(0); // Reset modal index
+      setModalData(formatReservationData(matchingReservations[0])); // Initialize modal data with index 0
     }
+    setPrevious(false);
+  };
+
+  const handleNext = () => {
+    if (modalIndex < dayReservations.length - 1) {
+      const nextIndex = modalIndex + 1;
+      setModalIndex(nextIndex); // Update modal index
+      setModalData(formatReservationData(dayReservations[nextIndex])); // Update modal content
+    }
+  };
+
+  const handlePrevious = () => {
+    if (modalIndex > 0) {
+      const prevIndex = modalIndex - 1;
+      setModalIndex(prevIndex); // Update modal index
+      setModalData(formatReservationData(dayReservations[prevIndex])); // Update modal content
+    }
+  };
+
+  const formatReservationData = (reservation) => ({
+    title: `${organization?.name || "Organization"} ${
+      reservation.start_time.split("T")[0]
+    } Tabling Session ${modalIndex + 1} / ${dayReservations.length}`,
+    location: reservation.location,
+    startTime: new Date(reservation.start_time).toLocaleTimeString("en-US", {
+      timeZone: "UTC",
+      hour12: true,
+    }),
+    endTime: new Date(reservation.end_time).toLocaleTimeString("en-US", {
+      timeZone: "UTC",
+      hour12: true,
+    }),
+    description: reservation.description,
+  });
+
+  const handleModalClose = () => {
+    setModalData(null);
+    setDayReservations([]);
+  };
+
+  const handleClickOutsideModal = (e) => {
+    if (e.target.className === "modal-overlay") handleModalClose();
   };
 
   // Check if a month has any reservations
@@ -296,6 +352,22 @@ const OrganizationPage = () => {
             <p>
               <strong>Description:</strong> {modalData.description}
             </p>
+            <div className="modal-navigation">
+              <button
+                className="navigate-button"
+                onClick={handlePrevious}
+                disabled={modalIndex === 0}
+              >
+                Previous
+              </button>
+              <button
+                className="navigate-button"
+                onClick={handleNext}
+                disabled={modalIndex === dayReservations.length - 1}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       )}
