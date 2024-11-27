@@ -11,6 +11,16 @@ const CalendarComponent = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const calendarRef = useRef(null); // Reference for FullCalendar instance
 
+  // Generate a random color
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -31,6 +41,8 @@ const CalendarComponent = () => {
           start: event.start_time,
           end: event.end_time,
           description: event.description,
+          backgroundColor: getRandomColor(), // Assign a random color to each event
+          borderColor: getRandomColor(), // Optional: border color
         }));
 
         setEvents(formattedEvents);
