@@ -47,4 +47,13 @@
   height: 100%; /* Inherit height from parent containers */
 }
 
+.fc-event {
+  max-width: 25%; /* Limit event width to 40% of the container */
+  margin-left: 0; /* Remove auto-centering */
+  border-radius: 5px; /* Add rounded corners for better visuals */
+  padding: 2px; /* Add padding for better spacing */
+  overflow: hidden; /* Prevent text from overflowing */
+  text-align: left; /* Align text to the left */
+}
+
 
