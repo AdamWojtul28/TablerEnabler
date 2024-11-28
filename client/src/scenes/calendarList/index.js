@@ -94,10 +94,14 @@ const CalendarComponent = () => {
             const selectedDate = prompt('Enter a date (YYYY-MM-DD):');
             if (selectedDate) {
               calendarApi.gotoDate(selectedDate); // Use the API to navigate to the selected date
+              if (window.innerWidth < 768) {
+                calendarApi.changeView('timeGridDay'); // Force the day view for mobile
+              }
             }
           },
         },
       }}
+      
       nowIndicator={true}
       editable={false}
       selectable={true}

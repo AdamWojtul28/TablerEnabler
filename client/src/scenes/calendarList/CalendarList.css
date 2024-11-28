@@ -26,6 +26,7 @@
     height: calc(100vh - 100px) !important; /* Adjust to subtract any navbar/footer */
     overflow-y: auto !important; /* Ensure scrolling for calendar content */
     background-color: red; /* Debugging: Visible cue for mobile */
+    overflow-x: auto; /* Enable horizontal scrolling */
   }
 
   .fc-view-container {
@@ -48,7 +49,7 @@
 }
 
 .fc-event {
-  max-width: 25%; /* Limit event width to 40% of the container */
+  max-width: 100%; /* Limit event width to 40% of the container */
   margin-left: 0; /* Remove auto-centering */
   border-radius: 5px; /* Add rounded corners for better visuals */
   padding: 2px; /* Add padding for better spacing */
