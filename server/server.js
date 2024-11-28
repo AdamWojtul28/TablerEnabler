@@ -24,6 +24,7 @@ app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+
 // CORS configuration
 const corsOptions = {
   origin: "http://localhost:3000" // Replace with frontend URI
@@ -38,6 +39,8 @@ app.use("/general", generalRoutes);
 app.use("/students", studentRoutes);
 app.use("/organizations", organizationRoutes);
 app.use("/auth", authRoutes);
+app.use('/uploads', express.static('uploads'));
+
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 9000;

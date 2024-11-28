@@ -9,8 +9,22 @@ import FixedTablingLocs from "../models/FixedTablingLocations.js";
 import TablingReservationRequest from "../models/TablingReservation.js";
 import bcrypt from "bcrypt";
 import PendingOrganizationProfile from "../models/PendingOrganizationProfile.js";
+import multer from 'multer';
+import Officer from '../models/Officer.js';
 
 const router = express.Router();
+
+// Configure multer storage for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Save files in the 'uploads' directory
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
 
 // ********************************** FAVORITE-ORGS ROUTES **********************************
 // get specific student based on the gator_id passed in the request query parameter
@@ -173,6 +187,33 @@ router.get("/organization-profile", async (req, res) => {
   }
 });
 
+
+// Route to delete a regular organization
+router.delete("/organization-profile", async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    return res.status(400).json({ error: "Organization name is required" });
+  }
+
+  try {
+    const deletedOrg = await OrganizationProfile.findOneAndDelete({ name });
+
+    if (!deletedOrg) {
+      return res.status(404).json({ error: "Organization not found" });
+    }
+
+    res.status(200).json({
+      message: "Organization successfully deleted",
+      deletedOrg,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 // extract all of the profile informations for organizations that a student (gator_id passed in as query parameter) has marked as favorite
 router.get("/favorite-organization-profiles", async (req, res) => {
   const { gator_id } = req.query; // Extract from request
@@ -278,58 +319,88 @@ router.get("/pending-organization-profiles", async (req, res) => {
   }
 });
 
-router.post("/pending-organization-profile", async (req, res) => {
+router.post("/pending-organization-profile", upload.single("profile_image"), async (req, res) => {
   try {
-    // console.log("Raw Body:", req.body); - can use this line to see if request goes through
-    const { name, description, profile_image, officers } = req.body;
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
+
+    const { name, description } = req.body;
+
+    // Handle officers array
+    const officersRaw = req.body["officers[]"] || req.body["officers"] || [];
+    const officersArray = Array.isArray(officersRaw) ? officersRaw : [officersRaw].filter(Boolean);
+
+    console.log("Original officers field:", officersRaw);
+    console.log("Parsed officers array:", officersArray);
+
+    // Handle the uploaded file
+    const profile_image = req.file ? req.file.buffer : null;
+
     const newOrganizationProfile = new PendingOrganizationProfile({
       name,
       description,
-      profile_image: profile_image || null,
-      officers: officers || "",
+      profile_image,
+      officers: officersArray, // Store officers as an array of strings
     });
+
     await newOrganizationProfile.save();
+
     res.status(201).json(newOrganizationProfile);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  } catch (err) {
+    console.error("Error occurred:", err);
+    res.status(400).json({ error: err.message });
   }
 });
+
+
 
 router.put("/pending-organization-profile", async (req, res) => {
+  const { name } = req.query;
+  const { status, adminComments } = req.body;
+
   try {
-    const { name } = req.query;
-    const { status, adminComments } = req.body;
+    const updatedOrganization = await PendingOrganizationProfile.findOneAndUpdate(
+      { name },
+      { status, adminComments },
+      { new: true } // Return the updated document
+    );
 
-    // Check if name is provided in the query
-    if (!name) {
-      return res
-        .status(400)
-        .json({ error: "Email query parameter is required" });
+    if (!updatedOrganization) {
+      return res.status(404).json({ error: "Organization not found" });
     }
 
-    // Update the organization profile
-    const updatedOrganizationProfile =
-      await PendingOrganizationProfile.findOneAndUpdate(
-        { name: name }, // Match based on org name
-        {
-          status,
-          adminComments: adminComments || "",
-        },
-        { new: true, runValidators: true } // Return updated document & enforce schema validation
-      );
-
-    // If no document found with the given name
-    if (!updatedOrganizationProfile) {
-      return res
-        .status(404)
-        .json({ error: "Pending organization profile not found" });
-    }
-
-    res.status(200).json(updatedOrganizationProfile);
+    res.status(200).json(updatedOrganization);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
+
+
+// Route to delete a pending organization
+router.delete("/pending-organization-profile", async (req, res) => {
+  try {
+    const { name } = req.query;
+
+    if (!name) {
+      return res.status(400).json({ message: "Organization name is required" });
+    }
+
+    const deletedPendingOrg = await PendingOrganizationProfile.findOneAndDelete({ name });
+
+    if (!deletedPendingOrg) {
+      return res.status(404).json({ message: "Pending organization not found" });
+    }
+
+    res.status(200).json({
+      message: "Pending organization successfully deleted",
+      deletedPendingOrg,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 // ********************************** ORG-SOCIAL ROUTES **********************************
 
@@ -943,5 +1014,65 @@ router.post("/admin", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+
+
+router.put("/student-role", async (req, res) => {
+  const { email, role } = req.body;
+
+  if (!email || !role) {
+    return res.status(400).json({ message: "Email and role are required" });
+  }
+
+  try {
+    const user = await StudentProfile.findOneAndUpdate(
+      { ufl_email: email },
+      { role },
+      { new: true }
+    );
+
+    if (user) {
+      res.status(200).json({ message: "Role updated successfully", user });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    res.status(500).json({ error: "An error occurred while updating role" });
+  }
+});
+
+
+
+router.get("/is-officer", async (req, res) => {
+  const { ufl_email } = req.query;
+
+  if (!ufl_email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    console.log("Checking officer status for email:", ufl_email);
+
+    const officerRecord = await Officer.findOne({ ufl_email });
+    if (officerRecord) {
+      return res.status(200).json({
+        isOfficer: true,
+        message: "Student is an officer",
+        officerRecord,
+      });
+    } else {
+      return res.status(200).json({
+        isOfficer: false,
+        message: "Student is not an officer",
+      });
+    }
+  } catch (error) {
+    console.error("Error checking officer status:", error.message, error.stack);
+    res.status(500).json({ error: "An error occurred while checking officer status" });
+  }
+});
+
+
 
 export default router;

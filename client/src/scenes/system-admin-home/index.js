@@ -14,24 +14,37 @@ const SystemAdminHome = () => {
           "http://localhost:5001/general/pending-organization-profiles"
         );
         const data = await response.json();
+        console.log("Fetched organizations:", data); // Debug fetched data
         setOrganizations(data);
       } catch (error) {
         console.error("Error fetching organizations:", error);
       }
     };
-
+  
     fetchOrganizations();
-  }, organizations);
+  }, []);
+  
+
+
+  const refreshOrganizations = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5001/general/pending-organization-profiles"
+      );
+      const data = await response.json();
+      setOrganizations(data); // Ensure this updates with the latest data
+    } catch (error) {
+      console.error("Error refreshing organizations:", error);
+    }
+  };
+  
 
   const approveOrganization = async (index) => {
-    const updatedOrganizations = [...organizations];
-    updatedOrganizations[index].status = "Approved";
-    alert(JSON.stringify(updatedOrganizations[index]));
-    setOrganizations(updatedOrganizations);
-
-    let orgName = updatedOrganizations[index].name;
-
+    const org = organizations[index];
+    const orgName = org.name;
+  
     try {
+      // Update pending organization profile status to "Approved"
       const response = await fetch(
         `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(
           orgName
@@ -46,18 +59,64 @@ const SystemAdminHome = () => {
           }),
         }
       );
+  
       if (response.ok) {
+        // Update the local state immediately
+        setOrganizations((prevOrgs) =>
+          prevOrgs.map((o, i) =>
+            i === index ? { ...o, status: "Approved" } : o
+          )
+        );
+  
         alert(`${orgName} status updated!`);
+  
+        // Update officer roles in the database
+        if (Array.isArray(org.officers)) {
+          console.log("Officers to update:", org.officers);
+          for (const officerEmail of org.officers) {
+            console.log(`Updating role for officer: ${officerEmail}`);
+            try {
+              // Update the officer role in the database
+              const roleResponse = await fetch(
+                `http://localhost:5001/general/student-role`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    email: officerEmail, // Email of the officer
+                    role: "officer", // New role for the officer
+                  }),
+                }
+              );
+  
+              if (!roleResponse.ok) {
+                console.error(`Failed to update role for ${officerEmail}`);
+              } else {
+                console.log(`Role updated for ${officerEmail}`);
+              }
+            } catch (error) {
+              console.error(`Error updating role for ${officerEmail}:`, error);
+            }
+          }
+        } else {
+          console.warn("No officers provided for this organization.");
+        }
+  
+        // Refresh organizations to sync data
+        refreshOrganizations();
       } else {
-        alert("Failed to update status");
+        alert("Failed to update organization status.");
       }
     } catch (error) {
-      console.error("No such organization:", error);
-      alert("An error occurred.");
+      console.error("Error updating organization status:", error);
+      alert("An error occurred while updating the organization.");
     }
-
+  
     try {
-      const response = await fetch(
+      // Create official organization profile
+      const profileResponse = await fetch(
         `http://localhost:5001/general/organization-profile`,
         {
           method: "POST",
@@ -65,23 +124,28 @@ const SystemAdminHome = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: updatedOrganizations[index].name,
-            description: updatedOrganizations[index].description,
-            profile_image: updatedOrganizations[index].profile_image,
-            createdAt: Date.now,
+            name: org.name,
+            description: org.description,
+            profile_image: org.profile_image || null, // Ensure profile image is optional
+            createdAt: new Date().toISOString(),
           }),
         }
       );
-      if (response.ok) {
+  
+      if (profileResponse.ok) {
         alert(`${orgName} now has an official organization profile!`);
       } else {
-        alert("Failed to make profile");
+        alert("Failed to create organization profile.");
       }
     } catch (error) {
-      console.error(error);
-      alert("An error occurred.");
+      console.error("Error creating organization profile:", error);
+      alert("An error occurred while creating the organization profile.");
     }
   };
+  
+  
+  
+  
 
   const handleRemoveClick = async (index) => {
     setSelectedOrgIndex(index);
@@ -94,14 +158,8 @@ const SystemAdminHome = () => {
   };
 
   const handleRemoveSubmit = async () => {
-    const updatedOrganizations = [...organizations];
-    setOrganizations(updatedOrganizations);
-    setShowModal(false);
-
-    let orgName = updatedOrganizations[selectedOrgIndex].name;
-
-    alert(orgName);
-
+    const orgName = organizations[selectedOrgIndex].name;
+  
     try {
       const response = await fetch(
         `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(
@@ -118,7 +176,14 @@ const SystemAdminHome = () => {
           }),
         }
       );
+  
       if (response.ok) {
+        // Update the local state immediately
+        setOrganizations((prevOrgs) =>
+          prevOrgs.map((org, i) =>
+            i === selectedOrgIndex ? { ...org, status: "Rejected" } : org
+          )
+        );
         alert(`${orgName} status updated!`);
       } else {
         alert("Failed to update status");
@@ -127,7 +192,11 @@ const SystemAdminHome = () => {
       console.error("No such organization:", error);
       alert("An error occurred.");
     }
+  
+    setShowModal(false);
+    setComment("");
   };
+  
 
   return (
     <div className="system-admin-home">
