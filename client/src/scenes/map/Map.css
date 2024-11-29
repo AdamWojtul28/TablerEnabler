@@ -13,13 +13,10 @@
   height: 100vh;
 }
 
-
-/* sizing of map container */
+/* Sizing of map container */
 .leaflet-container {
   height: calc(100vh - 64px); /* Adjust map to fill the remaining space */
 }
-
-
 
 .cluster-icon {
   background-color: #FA4616 !important;
@@ -34,59 +31,100 @@
   box-shadow: 0 0 0px 5px #0021A5 !important;
 }
 
+.no-events-message {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ff5733; 
+  color: #ffffff; 
+  padding: 5px;
+  border: 2px solid #ff8000;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  z-index: 1000;
+}
 
+.error-message {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border: 1px solid #f5c6cb;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  z-index: 1000;
+}
 
+@media (max-width: 768px) {
   .no-events-message {
     position: fixed;
-    top: 15%;
+    top: 8%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #ff5733; 
     color: #ffffff; 
-    padding: 5px;
+    padding: 3.5px;
     border: 2px solid #ff8000;
-    font-size: 1.1rem;
+    font-size: 0.7rem;
     border-radius: 4px;
     z-index: 1000;
   }
+}
+
+.custom-tooltip {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.custom-tooltip img {
+  display: block;
+  margin-top: 5px;
+}
+
+/* CSS for Popup */
+.popup-content {
+  position: relative;
+  width: 200px; /* Adjust as needed */
+}
+
+.close-popup-button {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-popup-button:hover {
+  color: #333;
+}
 
 
-  
-  .error-message {
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
-    font-size: 1.1rem;
-    border-radius: 4px;
-    z-index: 1000;
-  }
-  
-  
-  
-  
+.popup-content {
+  position: relative;
+  width: 200px; /* Adjust as needed */
+}
 
-  @media (max-width: 768px) {
-    .no-events-message {
-      /* font-size: 0.9rem; 
-      padding: 3px 8px;  */
+.close-popup-button {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #999;
+}
 
-      position: fixed;
-      top: 8%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #ff5733; 
-      color: #ffffff; 
-      padding: 3.5px;
-      border: 2px solid #ff8000;
-      font-size: 0.7rem;
-      border-radius: 4px;
-      z-index: 1000;
-
-    }
-  }
-  
+.close-popup-button:hover {
+  color: #333;
+}
