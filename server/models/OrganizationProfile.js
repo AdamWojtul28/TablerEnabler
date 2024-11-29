@@ -6,7 +6,7 @@ import passwordComplexity from "joi-password-complexity";
 const organizationProfileSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, required: false }, // Optional field
-  profile_image: { type: Buffer, required: false },
+  profile_image: { type: String, required: false }, // File path or URL
   createdAt: { type: Date, default: Date.now },
 });
 

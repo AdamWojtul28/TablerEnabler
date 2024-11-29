@@ -285,7 +285,7 @@ const OrganizationPage = () => {
           </div>
           <div className="right-section">
             <img
-              src={organization.profile_image || defaultImage}
+              src={organization.profile_image ? `http://localhost:5001${organization.profile_image}` : defaultImage}
               alt={organization.name || "Default Organization"}
               className="organization-image"
             />

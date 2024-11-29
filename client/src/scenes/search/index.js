@@ -54,7 +54,7 @@ const Search = () => {
               className="club-card"
             >
               <img
-                src={org.profile_image || defaultImage}
+                src={org.profile_image ? `http://localhost:5001${org.profile_image}` : defaultImage}
                 alt={org.name}
                 className="club-image"
               />

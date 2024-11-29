@@ -5,7 +5,7 @@ import Joi from "joi";
 const pendingOrganizationProfileSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   description: { type: String, required: false }, // Optional field
-  profile_image: { type: Buffer, required: false }, // Optional profile image
+  profile_image: { type: String, required: false }, // File path or URL
   requestedAt: { type: Date, default: Date.now }, // When the request was made
   status: {
     type: String,

@@ -334,13 +334,18 @@ router.post("/pending-organization-profile", upload.single("profile_image"), asy
     console.log("Original officers field:", officersRaw);
     console.log("Parsed officers array:", officersArray);
 
+    
+    let profileImagePath = null;
+
     // Handle the uploaded file
-    const profile_image = req.file ? req.file.buffer : null;
+    if (req.file) {
+      profileImagePath = `/uploads/${req.file.filename}`; // Save the path
+    }
 
     const newOrganizationProfile = new PendingOrganizationProfile({
       name,
       description,
-      profile_image,
+      profile_image: profileImagePath,
       officers: officersArray, // Store officers as an array of strings
     });
 
