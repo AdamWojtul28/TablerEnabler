@@ -176,10 +176,10 @@ const Sidebar = ({
               />
               <SettingsOutlined
                 onClick={() => {
-                  if (isLoggedIn && localStorage.getItem("role") === "organization") {
+                  if (isLoggedIn && localStorage.getItem("role") === "officer") {
                     navigate("/settingsPage");
                   } else {
-                    alert("Settings are only available for logged-in organizations.");
+                    alert("Settings are only available for logged-in officers.");
                   }
                 }}
                 sx={{

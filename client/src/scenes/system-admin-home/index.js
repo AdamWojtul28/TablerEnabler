@@ -43,6 +43,8 @@ const SystemAdminHome = () => {
     const org = organizations[index];
     const orgName = org.name;
   
+    console.log("Approving organization:", org); // Log organization being approved
+  
     try {
       // Update pending organization profile status to "Approved"
       const response = await fetch(
@@ -62,86 +64,57 @@ const SystemAdminHome = () => {
   
       if (response.ok) {
         // Update the local state immediately
+        console.log(`Organization ${orgName} status updated to Approved`);
         setOrganizations((prevOrgs) =>
           prevOrgs.map((o, i) =>
             i === index ? { ...o, status: "Approved" } : o
           )
         );
   
-        alert(`${orgName} status updated!`);
-  
-        // Update officer roles in the database
+        // Log officer updates
         if (Array.isArray(org.officers)) {
           console.log("Officers to update:", org.officers);
-          for (const officerEmail of org.officers) {
-            console.log(`Updating role for officer: ${officerEmail}`);
+          for (const officerEntry of org.officers) {
+            const [email, position] = officerEntry.split(":");
+            console.log(`Updating officer: ${email}, Position: ${position}`);
             try {
-              // Update the officer role in the database
-              const roleResponse = await fetch(
-                `http://localhost:5001/general/student-role`,
+              const officerResponse = await fetch(
+                `http://localhost:5001/general/student-role-officer`,
                 {
-                  method: "PUT",
+                  method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    email: officerEmail, // Email of the officer
-                    role: "officer", // New role for the officer
+                    email,
+                    position,
+                    organization: orgName,
                   }),
                 }
               );
-  
-              if (!roleResponse.ok) {
-                console.error(`Failed to update role for ${officerEmail}`);
-              } else {
-                console.log(`Role updated for ${officerEmail}`);
-              }
+              const officerResult = await officerResponse.json();
+              console.log(
+                `Response for officer ${email}:`,
+                officerResponse.ok ? officerResult : officerResult.error
+              );
             } catch (error) {
-              console.error(`Error updating role for ${officerEmail}:`, error);
+              console.error(`Error updating officer ${email}:`, error);
             }
           }
-        } else {
-          console.warn("No officers provided for this organization.");
         }
   
-        // Refresh organizations to sync data
-        refreshOrganizations();
+        refreshOrganizations(); // Refresh organizations
       } else {
+        console.error("Failed to update organization status:", await response.text());
         alert("Failed to update organization status.");
       }
     } catch (error) {
       console.error("Error updating organization status:", error);
       alert("An error occurred while updating the organization.");
     }
-  
-    try {
-      // Create official organization profile
-      const profileResponse = await fetch(
-        `http://localhost:5001/general/organization-profile`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: org.name,
-            description: org.description,
-            profile_image: org.profile_image || null, // Ensure profile image is optional
-            createdAt: new Date().toISOString(),
-          }),
-        }
-      );
-  
-      if (profileResponse.ok) {
-        alert(`${orgName} now has an official organization profile!`);
-      } else {
-        alert("Failed to create organization profile.");
-      }
-    } catch (error) {
-      console.error("Error creating organization profile:", error);
-      alert("An error occurred while creating the organization profile.");
-    }
   };
+  
+  
   
   
   

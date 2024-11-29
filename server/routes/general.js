@@ -14,6 +14,7 @@ import Officer from '../models/Officer.js';
 
 const router = express.Router();
 
+
 // Configure multer storage for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -544,31 +545,48 @@ router.get("/student-profile", async (req, res) => {
 });
 
 // Create a new student profile
-router.post("/student-profile", async (req, res) => {
+// Create a new student profile 
+router.post("/student-profile", upload.none(), async (req, res) => {
   try {
-    // console.log("Raw Body:", req.body); - can use this line to see if request goes through
-    const {
-      gator_id,
-      first_name,
-      last_name,
-      ufl_email,
-      profile_image,
-      createdAt,
-    } = req.body;
+    console.log("Request Body:", req.body); // Debugging incoming data
+
+    // Extract required fields from the request body
+    const { first_name, last_name, ufl_email, password, role } = req.body;
+
+    console.log("first_name:", first_name);
+    console.log("last_name:", last_name);
+    console.log("ufl_email:", ufl_email);
+    console.log("password:", password);
+
+    // Check if all required fields are provided
+    if (!first_name || !last_name || !ufl_email || !password) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new student profile
     const studentProfile = new StudentProfile({
-      gator_id,
       first_name,
       last_name,
       ufl_email,
-      profile_image: profile_image || null,
-      createdAt: createdAt || undefined,
+      password: hashedPassword,
+      role: role || "student", // Default to 'student' if not provided
+      organizations: [], // Default to an empty array
     });
+
+    // Save the profile to the database
     await studentProfile.save();
+
+    // Respond with the created profile
     res.status(201).json(studentProfile);
   } catch (error) {
+    console.error("Error creating student profile:", error);
     res.status(400).json({ error: error.message });
   }
 });
+
 
 router.put("/student-profile", async (req, res) => {
   try {
@@ -1072,6 +1090,76 @@ router.get("/is-officer", async (req, res) => {
     res.status(500).json({ error: "An error occurred while checking officer status" });
   }
 });
+
+
+router.post("/student-role-officer", async (req, res) => {
+  const { email, first_name, last_name, position, organization } = req.body;
+
+  if (!email || !position || !organization) {
+    return res.status(400).json({ message: "Email, position, and organization are required" });
+  }
+
+  if (typeof position !== 'string' || typeof organization !== 'string') {
+    return res.status(400).json({ message: "Invalid organization or position format." });
+  }
+
+  const trimmedEmail = email.trim();
+  const trimmedPosition = position.trim();
+  const trimmedOrganization = organization.trim();
+
+  try {
+    // Find the student by email
+    const existingStudent = await StudentProfile.findOne({ ufl_email: trimmedEmail });
+
+    if (existingStudent) {
+      existingStudent.role = "officer";
+    
+      // Ensure all existing organizations are well-formed
+      existingStudent.organizations = existingStudent.organizations.filter(
+        (org) => org.name && org.position
+      );
+    
+      const orgIndex = existingStudent.organizations.findIndex(
+        (org) => org.name && org.name.toLowerCase() === trimmedOrganization.toLowerCase()
+      );
+    
+      if (orgIndex !== -1) {
+        // Update position if the organization already exists
+        existingStudent.organizations[orgIndex].position = trimmedPosition;
+      } else {
+        // Add new organization and position
+        existingStudent.organizations.push({ name: trimmedOrganization, position: trimmedPosition });
+      }
+    
+      await existingStudent.save();
+      return res.status(200).json({
+        message: "Student profile updated",
+        student: existingStudent,
+      });
+    } else {
+      // Create a new officer profile with organization and position
+      const newStudent = new StudentProfile({
+        ufl_email: trimmedEmail,
+        first_name: first_name?.trim() || "Unknown",
+        last_name: last_name?.trim() || "Unknown",
+        role: "officer",
+        organizations: [{ name: trimmedOrganization, position: trimmedPosition }],
+        createdAt: new Date(),
+      });
+
+      await newStudent.save();
+      return res.status(201).json({
+        message: "New officer profile created",
+        student: newStudent,
+      });
+    }
+  } catch (error) {
+    console.error("Error updating or creating student profile:", error);
+    res.status(500).json({ error: "An error occurred while processing the request" });
+  }
+});
+
+
 
 
 

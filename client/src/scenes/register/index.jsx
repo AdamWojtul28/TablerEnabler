@@ -35,12 +35,12 @@ export default function Register() {
   };
 
   const handleChange = ({ currentTarget: input }) => {
-    const value = input.type === 'file' ? input.files[0] : input.value;
-    setData((prev) => ({
-      ...prev,
-      [input.name]: value,
-    }));
-  };
+        const value = input.type === 'file' ? input.files[0] : input.value;
+        setData((prev) => ({
+          ...prev,
+          [input.name]: value,
+        }));
+      };
 
   const handleAddEmail = (e) => {
     e.preventDefault();
@@ -77,70 +77,90 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const { ufl_email, password, role, name, description, officers, first_name, last_name, profile_image } = data;
-
-    if (
-      (role === 'student' && (ufl_email === '' || password === '' || first_name === '' || last_name === '')) ||
-      (role === 'organization' && (name === '' || officers.length === 0))
-    ) {
-      setErrorMessage('All fields are required.');
-      return;
-    }
-
+  
+    // Extract data values
+    const { first_name, last_name, ufl_email, password, role, name, description, officers, profile_image } = data;
+  
     const submissionData = new FormData();
+  
     if (role === 'student') {
       submissionData.append('first_name', first_name);
       submissionData.append('last_name', last_name);
       submissionData.append('ufl_email', ufl_email);
       submissionData.append('password', password);
       submissionData.append('role', role);
-    } else {
+  
+    } else if (role === 'organization') {
       submissionData.append('name', name);
       submissionData.append('description', description);
       officers.forEach((officer) => submissionData.append("officers[]", officer));
       if (profile_image) submissionData.append('profile_image', profile_image);
+    } else {
+      setErrorMessage("Please select a role.");
+      return;
     }
-
+  
+    console.log("Data before submission:");
     for (let [key, value] of submissionData.entries()) {
       console.log(`${key}: ${value}`);
     }
-
-    console.log("Officers being submitted:", officers);
-
-
+  
     try {
       const endpoint =
         role === 'student'
-          ? 'http://localhost:5001/students'
+          ? 'http://localhost:5001/general/student-profile'
           : 'http://localhost:5001/general/pending-organization-profile';
-
+  
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         body: submissionData,
       });
+  
+      if (!response.ok) {
+        const errorData = await response.json(); // Read response body ONCE
+        console.error("Error:", errorData.message);
+        setErrorMessage(errorData.message || "An unexpected error occurred.");
+      } else {
+        const successData = await response.json(); // Read response body ONCE
+        console.log("Registration successful:", successData);
 
-      if (response.ok) {
-        if (role === 'student') {
-          localStorage.setItem('token', (await response.json()).data);
-          navigate('/map');
-        } else {
-          setSuccessMessage(
-            'Your application to register an organization has been sent successfully. When it is approved, officers can edit the organization profile and create tabling events. You can log in or create an account with any email provided in the form and start using the app.'
-          );
-          setErrorMessage('');
+         // Save the user token to localStorage to keep the user logged in
+        if (successData.token) {
+          localStorage.setItem("token", successData.token);
         }
 
+        setErrorMessage("");
+        // Show a success message
+        if (role === 'student') {
+          setSuccessMessage(
+            <>
+              Registration successful! Please login now{' '}
+              <Link to="/login" style={{ color: '#007BFF', textDecoration: 'underline' }}>
+                here
+              </Link>
+              !
+            </>
+          );
+          
+        }
+        else {
+          setSuccessMessage('Your application to register an organization has been sent successfully. When it is approved, officers can edit the organization profile and create tabling events. You can log in or create an account with any email provided in the form and start using the app.'
+        );
+        }
+
+
+        setErrorMessage('');
         // Reset form after successful submission
         setData(initialFormState);
-      } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || 'An unexpected error occurred.');
+        
       }
     } catch (error) {
-      setErrorMessage('An error occurred. Please try again.');
+      console.error("Request failed:", error);
+      setErrorMessage("An error occurred. Please try again.");
     }
   };
+  
+  
 
   return (
     <div className="page-container">
@@ -160,7 +180,7 @@ export default function Register() {
                   name="role"
                   value="student"
                   checked={data.role === 'student'}
-                  onChange={handleChange}
+                  onChange={() => setData((prev) => ({ ...prev, role: 'student' }))}
                 />
                 Student
               </label>
@@ -170,7 +190,7 @@ export default function Register() {
                   name="role"
                   value="organization"
                   checked={data.role === 'organization'}
-                  onChange={handleChange}
+                  onChange={() => setData((prev) => ({ ...prev, role: 'organization' }))}
                 />
                 Organization
               </label>
@@ -208,6 +228,17 @@ export default function Register() {
                   value={data.ufl_email}
                   onChange={handleChange}
                   placeholder="Enter your email"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={data.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
                 />
               </div>
             </>

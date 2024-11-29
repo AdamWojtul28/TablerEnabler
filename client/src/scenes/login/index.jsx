@@ -45,14 +45,13 @@ export default function Login({ onLogin }) {
 
 
 
-          // Store organization name in localStorage if role is "organization"
-          if (role === 'organization' && result.user.name) {
-            const orgName = result.user.name; 
-            localStorage.setItem('organizationName', orgName);
-            console.log("Organization name stored in localStorage:", orgName);
-          }
-          else {
-            console.log("Role is not 'organization' or organization name is missing.");
+          // Check if the role is officer and store the organizations list
+          if (role === 'officer' && Array.isArray(result.user.organizations)) {
+            const orgList = result.user.organizations; // Extract the organizations array
+            localStorage.setItem('organizations', JSON.stringify(orgList)); // Save as JSON string
+            console.log("Organizations stored in localStorage:", orgList);
+          } else {
+            console.log("Role is not 'officer' or organizations list is missing.");
           }
           
 
