@@ -20,7 +20,7 @@ import Login from "scenes/login";
 import Register from "scenes/register";
 import AddEvent from "scenes/addEvent";
 import Congrats from "scenes/SignedIn";
-import SettingsPage from "scenes/settingsPage";
+import MyOrgsPage from "scenes/myOrgsPage";
 import Navbar from "components/Navbar";
 import SystemAdminHome from "scenes/system-admin-home";
 
@@ -137,7 +137,7 @@ function App() {
               />
 
               {/* Settings page */}
-              <Route path="/settingsPage" element={<SettingsPage />}></Route>
+              <Route path="/myorgs" element={<MyOrgsPage />}></Route>
               {/* Loading screens */}
               <Route path="/loadingScreen1" element={<LoadingScreen1 />} />
               <Route path="/loadingScreen2" element={<LoadingScreen2 />} />

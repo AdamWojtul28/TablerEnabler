@@ -1,0 +1,79 @@
+/* MyOrgsPage.css */
+.my-orgs-page {
+  padding: 20px;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 20px;
+}
+
+.org-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.org-card {
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  width: 200px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.org-card:hover {
+  transform: scale(1.05);
+  border-color: #007bff;
+}
+
+.org-card.selected {
+  border-color: #007bff;
+  background-color: #f0f8ff;
+}
+
+.org-image {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.action-buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.edit-button,
+.add-event-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #218838;
+}
+
+.add-event-button {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.add-event-button:hover {
+  background-color: #138496;
+}
