@@ -42,41 +42,80 @@ export default function Register() {
         }));
       };
 
+  // const handleAddEmail = (e) => {
+  //   e.preventDefault();
+  //   const email = data.officerEmail.trim();
+  //   const position = data.officerPosition.trim() || 'Board Member';
+
+  //   // Validate email format
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!emailRegex.test(email)) {
+  //     alert('Please enter a valid email address.');
+  //     return;
+  //   }
+
+  //   const officerEntry = `${email}:${position}`;
+
+  //   if (!data.officers.includes(officerEntry)) {
+  //     setData((prev) => ({
+  //       ...prev,
+  //       officerEmail: '',
+  //       officerPosition: 'Board Member',
+  //       officers: [...prev.officers, officerEntry],
+  //     }));
+  //   } else {
+  //     alert('Officer is already added.');
+  //   }
+  // };
+
+
   const handleAddEmail = (e) => {
     e.preventDefault();
     const email = data.officerEmail.trim();
     const position = data.officerPosition.trim() || 'Board Member';
-
+  
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       alert('Please enter a valid email address.');
       return;
     }
-
+  
     const officerEntry = `${email}:${position}`;
-
+  
     if (!data.officers.includes(officerEntry)) {
-      setData((prev) => ({
-        ...prev,
-        officerEmail: '',
-        officerPosition: 'Board Member',
-        officers: [...prev.officers, officerEntry],
-      }));
+      setData((prev) => {
+        const updatedOfficers = [...prev.officers, officerEntry];
+        // console.log("Adding officer:", officerEntry);
+        // console.log("Updated officers array:", updatedOfficers);
+        return {
+          ...prev,
+          officerEmail: '',
+          officerPosition: 'Board Member',
+          officers: updatedOfficers,
+        };
+      });
     } else {
       alert('Officer is already added.');
     }
   };
+  
 
   const handleRemoveEmail = (index) => {
-    setData((prev) => ({
-      ...prev,
-      officers: prev.officers.filter((_, i) => i !== index),
-    }));
+    setData((prev) => {
+      const updatedOfficers = prev.officers.filter((_, i) => i !== index);
+
+      return {
+        ...prev,
+        officers: updatedOfficers,
+      };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+
   
     // Extract data values
     const { first_name, last_name, ufl_email, password, role, name, description, officers, profile_image } = data;
@@ -100,10 +139,10 @@ export default function Register() {
       return;
     }
   
-    console.log("Data before submission:");
-    for (let [key, value] of submissionData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+    // console.log("Data before submission:");
+    // for (let [key, value] of submissionData.entries()) {
+    //   console.log(`${key}: ${value}`);
+    // }
   
     try {
       const endpoint =
@@ -122,7 +161,7 @@ export default function Register() {
         setErrorMessage(errorData.message || "An unexpected error occurred.");
       } else {
         const successData = await response.json(); // Read response body ONCE
-        console.log("Registration successful:", successData);
+        // console.log("Registration successful:", successData);
 
          // Save the user token to localStorage to keep the user logged in
         if (successData.token) {
