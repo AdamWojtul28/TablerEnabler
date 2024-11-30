@@ -42,32 +42,6 @@ export default function Register() {
         }));
       };
 
-  // const handleAddEmail = (e) => {
-  //   e.preventDefault();
-  //   const email = data.officerEmail.trim();
-  //   const position = data.officerPosition.trim() || 'Board Member';
-
-  //   // Validate email format
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   if (!emailRegex.test(email)) {
-  //     alert('Please enter a valid email address.');
-  //     return;
-  //   }
-
-  //   const officerEntry = `${email}:${position}`;
-
-  //   if (!data.officers.includes(officerEntry)) {
-  //     setData((prev) => ({
-  //       ...prev,
-  //       officerEmail: '',
-  //       officerPosition: 'Board Member',
-  //       officers: [...prev.officers, officerEntry],
-  //     }));
-  //   } else {
-  //     alert('Officer is already added.');
-  //   }
-  // };
-
 
   const handleAddEmail = (e) => {
     e.preventDefault();
@@ -125,7 +99,7 @@ export default function Register() {
 
     console.log("Current data.officers before submission:", data.officers);
 
-    
+
     const submissionData = new FormData();
   
     if (role === 'student') {
