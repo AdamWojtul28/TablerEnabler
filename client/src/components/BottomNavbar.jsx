@@ -5,6 +5,7 @@ import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SearchIcon from '@mui/icons-material/Search';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { useNavigate } from 'react-router-dom';
 
 const BottomNavbar = ({ isNonMobile }) => {
@@ -30,11 +31,11 @@ const BottomNavbar = ({ isNonMobile }) => {
   ];
 
   const officerIcons = [
-    { label: 'Home', icon: <HomeIcon />, path: 'addEvent' },
     { label: 'Map', icon: <MapOutlinedIcon />, path: '/map' },
     { label: 'Calendar', icon: <CalendarMonthIcon />, path: '/calendarlist' },
     { label: 'Search', icon: <SearchIcon />, path: '/search' },
     { label: 'Favorites', icon: <FavoriteBorderIcon />, path: '/favorites' },
+    { label: "My orgs", icon: <MilitaryTechIcon />, path: "/myorgs" }
   ];
 
   // Select the icons to display based on role

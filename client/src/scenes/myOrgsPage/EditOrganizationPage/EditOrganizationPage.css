@@ -1,0 +1,283 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-button:hover {
+  color: black;
+}
+
+
+.modal-navigation {
+  border: 5px solid;
+  margin: auto;
+  width: 50%;
+  align-items: center;
+  justify-content: center;
+}
+
+.navigate-button {
+  background-color: #ff9900; /* Orange color */
+  color: #fff;
+  border: none;
+  width: 100px;
+  height: 40px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navigate-button:hover {
+  background-color: #e68a00; /* Darker orange on hover */
+}
+
+
+/* Smooth grey box for organization information */
+.smooth-grey-box {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  width: 90%;
+}
+
+/* Container for organization name and Follow button */
+.organization-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.organization-name {
+  margin: 0;
+  font-size: 32px;
+  text-align: center;
+  align-items: center;
+  margin-right: 50px;
+}
+
+/* Follow button styling */
+.follow-button {
+  background-color: #ff9900; /* Orange color */
+  color: #fff;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 10px; /* Small spacing between name and button */
+  transition: background-color 0.3s ease;
+}
+
+.follow-button:hover {
+  background-color: #e68a00; /* Darker orange on hover */
+}
+
+.parent-div {
+  display: flex; /* Enables flexbox for the container */
+  justify-content: space-between; /* Ensures even spacing between sections */
+}
+
+.left-section {
+  flex: 1; /* Makes both sections take up equal space */
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  margin: 0 10px; /* Optional: Adds spacing between the sections */
+}
+
+.right-section {
+  flex: 1; /* Makes both sections take up equal space */
+  display: flex;
+  justify-content: center; /* Centers content horizontally within each section */
+  align-items: center; /* Centers content vertically within each section */
+  margin: 0 10px; /* Optional: Adds spacing between the sections */
+}
+
+.organization-image {
+  max-width: 80%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Text paragraph styling */
+p {
+  color: black;
+  margin-bottom: 100px;
+}
+
+/* Calendar week day styling */
+.react-calendar__month-view__weekdays {
+  display: flex;
+  justify-content: space-around;
+  color: black; /* Make days of the week black */
+  font-weight: bold;
+  text-align: center;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  display: flex;
+  justify-content: center;
+}
+
+.first-day-of-month {
+  background-color: orange !important;
+  color: white !important;
+  border-radius: 0%; /* Optional: For a rounded effect */
+}
+
+.highlighted-day {
+  background-color: orange !important;
+  color: white !important;
+  border-radius: 0%; /* Optional: For a rounded effect */
+}
+
+.highlighted-month {
+  background-color: orange !important;
+  color: white !important;
+}
+
+.highlighted-year {
+  background-color: orange !important;
+  color: white !important;
+}
+
+
+/* Container to hold the calendar, centered within smooth-grey-box */
+.calendar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Custom styling for the calendar itself */
+.custom-calendar {
+  width: 90%; /* Set calendar width to 90% of its container */
+  height: auto;
+  max-width: 700px; /* Optional max-width for larger screens */
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Ensure calendar days stay centered */
+.custom-calendar .react-calendar__tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Custom navigation button styling */
+.custom-calendar .react-calendar__navigation button {
+  background-color: #007bff; /* Match the Follow button color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 2px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.custom-calendar .react-calendar__navigation button:enabled:hover {
+  background-color: #0056b3;
+}
+
+/* Styling for the calendar navigation buttons */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: center; /* Centers navigation buttons horizontally */
+  margin-bottom: 10px;
+}
+
+.react-calendar__navigation button {
+  background-color: #007bff; /* Match the "Follow" button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 0 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #0056b3; /* Darker shade for hover effect */
+}
+
+/* Optional: Improve appearance of calendar cells */
+.react-calendar__tile {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-calendar__tile--now {
+  background-color: #f0f0f0; /* Gray for the current day */
+}
+
+
+
+/* Social media section styling */
+.social-media-section {
+  margin-top: 20px;
+  text-align: center; /* Center the section */
+}
+
+/* Flex container for social media links with centered icons */
+.social-media-links {
+  display: flex;
+  justify-content: center; /* Centers the icons horizontally */
+  gap: 50px; /* Adds 20px spacing between each icon */
+  flex-wrap: wrap; /* Allows wrapping if there are many icons */
+  margin-bottom: 20px;
+}
+
+/* Styling for each individual social media link */
+.social-media-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+}
+
+/* Styling for the icons */
+.social-media-icon {
+  width: 100px; /* Adjust the size as needed */
+  height: 100px;
+}

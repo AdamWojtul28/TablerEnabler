@@ -28,12 +28,22 @@
 
 .org-card:hover {
   transform: scale(1.05);
-  border-color: #007bff;
+  border-color: #ff8000;
+}
+
+.org-name {
+  color: white; 
+  margin-top: 10px;
 }
 
 .org-card.selected {
-  border-color: #007bff;
+  border-color: #ff8000;
   background-color: #f0f8ff;
+}
+
+.org-card.selected .org-name {
+  color: #00204b; 
+  margin-top: 10px;
 }
 
 .org-image {
@@ -52,6 +62,8 @@
 
 .edit-button,
 .add-event-button {
+  flex: 1 10px;
+  max-width: 200px;
   padding: 10px 20px;
   font-size: 16px;
   border: none;
@@ -70,10 +82,10 @@
 }
 
 .add-event-button {
-  background-color: #17a2b8;
+  background-color: #ff8000;
   color: white;
 }
 
 .add-event-button:hover {
-  background-color: #138496;
+  background-color: #cc6804;
 }

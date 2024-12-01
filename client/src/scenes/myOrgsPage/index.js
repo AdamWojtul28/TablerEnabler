@@ -22,26 +22,6 @@ const MyOrgsPage = () => {
         } else {
           setOrganizations([]);
         }
-
-        // Option 2: Fetch from API (Uncomment if you have an endpoint)
-        /*
-        const token = localStorage.getItem('token'); // Assuming you use token-based auth
-        const response = await fetch(`${BACKEND_URL}/officer/my-organizations`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setOrganizations(data.organizations);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || 'Failed to fetch your organizations');
-        }
-        */
       } catch (err) {
         console.error("Error fetching your organizations:", err);
         setError('An error occurred while fetching your organizations.');
@@ -51,19 +31,30 @@ const MyOrgsPage = () => {
     fetchMyOrganizations();
   }, []);
 
+  const updateLocalStorage = (updatedOrg) => {
+    const orgs = JSON.parse(localStorage.getItem('organizations')) || [];
+    const updatedOrgs = orgs.map(org => org._id === updatedOrg._id ? updatedOrg : org);
+    localStorage.setItem('organizations', JSON.stringify(updatedOrgs));
+  };
+
+  
   const handleOrgClick = (org) => {
     setSelectedOrg(org);
+    updateLocalStorage(org)
+    console.log('This is the org details:', org)
+    console.log('This is the selectedOrg details:', selectedOrg)
+    console.log('This is the organizations details:', organizations)
   };
 
   const handleEdit = () => {
     if (selectedOrg) {
-      navigate(`/edit-organization/${selectedOrg._id}`); // Ensure this route exists
+      navigate(`/edit-organization-profile/`, { state: { orgName: selectedOrg.name, orgId: selectedOrg._id } });  // Pass orgName and _id as state
     }
   };
 
   const handleAddEvent = () => {
     if (selectedOrg) {
-      navigate(`/addevent/`, { state: { orgName: selectedOrg.name } }); // Pass orgName as state
+      navigate(`/addevent/`, { state: { orgName: selectedOrg.name} }); // Pass orgName as state
     }
   };
 
@@ -82,11 +73,11 @@ const MyOrgsPage = () => {
               onClick={() => handleOrgClick(org)}
             >
               <img
-                src={org.profile_image ? `${BACKEND_URL}${org.profile_image}` : defaultImage}
+                src={org.profile_image ? `http://localhost:5001${org.profile_image}` : defaultImage}
                 alt={org.name}
                 className="org-image"
               />
-              <h2>{org.name}</h2>
+              <h2 className="org-name">{org.name}</h2>
               <p>{org.description}</p>
             </div>
           ))}

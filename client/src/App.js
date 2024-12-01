@@ -21,6 +21,7 @@ import Register from "scenes/register";
 import AddEvent from "scenes/addEvent";
 import Congrats from "scenes/SignedIn";
 import MyOrgsPage from "scenes/myOrgsPage";
+import EditOrganizationPage from "scenes/myOrgsPage/EditOrganizationPage";
 import Navbar from "components/Navbar";
 import SystemAdminHome from "scenes/system-admin-home";
 
@@ -86,6 +87,10 @@ function App() {
               <Route
                 path="/organization-profile"
                 element={<OrganizationPage />}
+              />
+              <Route
+                path="/edit-organization-profile"
+                element={<EditOrganizationPage />}
               />
               <Route path="/congrats" element={<Congrats />} />
 
