@@ -38,6 +38,7 @@ router.post("/", async (req, res) => {
       name: user.first_name || user.name, // Use `first_name` for students, `name` for organizations
       email: user.ufl_email || user.email, // Use `ufl_email` for students, `email` for organizations
       role: user.role, // Use the actual `role` field from the user object
+      organizations: user.organizations || [],
     };
 
     res.status(200).send({ data: token, user: userData, message: "Logged in successfully" });

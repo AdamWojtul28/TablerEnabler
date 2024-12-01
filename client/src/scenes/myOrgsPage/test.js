@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import "./settingsPage.css";
+import "./MyOrgsPage.css";
 
-const SettingsPage = () => {
+const MyOrgsPage = () => {
   const [organization, setOrganization] = useState({});
   const [socialMedia, setSocialMedia] = useState([]);
   const [reservations, setReservations] = useState([]);
@@ -422,7 +422,7 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default MyOrgsPage;
 
 
 // Update Profile: Allow organizations to update their name, description, or contact details.

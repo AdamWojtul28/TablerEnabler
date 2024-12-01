@@ -7,11 +7,20 @@ const studentProfileSchema = new mongoose.Schema({
   first_name: { type: String, required: true },
   last_name: { type: String, required: true },
   ufl_email: { type: String, required: true, unique: true },
-  profile_image: { type: Buffer, default: null },
   password: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  role: { type: String, enum: ['student'], default: 'student' }
+  role: { type: String, enum: ['student', 'officer'], default: 'student' },
+  organizations: {
+    type: [
+      {
+        name: { type: String }, // Organization name
+        position: { type: String }, // Position within the organization
+      },
+    ],
+    default: [], // Default value to initialize as an empty array
+  },
 });
+
 
 // Define password complexity options
 const complexityOptions = {

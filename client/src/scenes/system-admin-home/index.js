@@ -14,50 +14,56 @@ const SystemAdminHome = () => {
           "http://localhost:5001/general/pending-organization-profiles"
         );
         const data = await response.json();
+        console.log("Fetched organizations:", data); // Debug fetched data
         setOrganizations(data);
       } catch (error) {
         console.error("Error fetching organizations:", error);
       }
     };
-
+  
     fetchOrganizations();
-  }, organizations);
+  }, []);
+  
+
+
+  const refreshOrganizations = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5001/general/pending-organization-profiles"
+      );
+      const data = await response.json();
+      setOrganizations(data); // Ensure this updates with the latest data
+    } catch (error) {
+      console.error("Error refreshing organizations:", error);
+    }
+  };
+  
 
   const approveOrganization = async (index) => {
-    const updatedOrganizations = [...organizations];
-    updatedOrganizations[index].status = "Approved";
-    alert(JSON.stringify(updatedOrganizations[index]));
-    setOrganizations(updatedOrganizations);
-
-    let orgName = updatedOrganizations[index].name;
-
+    const org = organizations[index]; // Get the organization details from the state
+    const orgName = org.name;
+  
     try {
-      const response = await fetch(
-        `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(
-          orgName
-        )}`,
+      // Step 1: Update status to "Approved" in pending profiles
+      const updateResponse = await fetch(
+        `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(orgName)}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: "Approved",
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "Approved" }),
         }
       );
-      if (response.ok) {
-        alert(`${orgName} status updated!`);
-      } else {
-        alert("Failed to update status");
+  
+      if (!updateResponse.ok) {
+        console.error("Failed to update organization status:", await updateResponse.text());
+        alert("Failed to update organization status.");
+        return;
       }
-    } catch (error) {
-      console.error("No such organization:", error);
-      alert("An error occurred.");
-    }
-
-    try {
-      const response = await fetch(
+  
+      console.log(`${orgName} status updated to Approved!`);
+  
+      // Step 2: Create an actual organization profile
+      const createProfileResponse = await fetch(
         `http://localhost:5001/general/organization-profile`,
         {
           method: "POST",
@@ -65,23 +71,67 @@ const SystemAdminHome = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: updatedOrganizations[index].name,
-            description: updatedOrganizations[index].description,
-            profile_image: updatedOrganizations[index].profile_image,
-            createdAt: Date.now,
+            name: org.name,
+            description: org.description || "",
+            profile_image: org.profile_image || null, // Handle optional profile image
+            createdAt: new Date().toISOString(), // Ensure the correct format
           }),
         }
       );
-      if (response.ok) {
-        alert(`${orgName} now has an official organization profile!`);
-      } else {
-        alert("Failed to make profile");
+  
+      if (!createProfileResponse.ok) {
+        console.error("Failed to create organization profile:", await createProfileResponse.text());
+        alert("Failed to create organization profile.");
+        return;
       }
+  
+      console.log(`${orgName} now has an official organization profile!`);
+      alert(`${orgName} approved and organization profile created!`);
+  
+      // Step 3: Update officers if provided
+      if (Array.isArray(org.officers)) {
+        for (const officerEntry of org.officers) {
+          const [email, position] = officerEntry.split(":");
+          try {
+            const officerResponse = await fetch(
+              `http://localhost:5001/general/student-role-officer`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  email,
+                  position,
+                  organization: orgName,
+                }),
+              }
+            );
+  
+            if (!officerResponse.ok) {
+              console.error(`Failed to update officer ${email}:`, await officerResponse.text());
+            } else {
+              console.log(`Officer ${email} updated successfully.`);
+            }
+          } catch (error) {
+            console.error(`Error updating officer ${email}:`, error);
+          }
+        }
+      }
+  
+      // Refresh the organization list after approval
+      refreshOrganizations();
     } catch (error) {
-      console.error(error);
-      alert("An error occurred.");
+      console.error("Error during approval process:", error);
+      alert("An error occurred while approving the organization.");
     }
   };
+  
+  
+  
+  
+  
+  
 
   const handleRemoveClick = async (index) => {
     setSelectedOrgIndex(index);
@@ -94,14 +144,8 @@ const SystemAdminHome = () => {
   };
 
   const handleRemoveSubmit = async () => {
-    const updatedOrganizations = [...organizations];
-    setOrganizations(updatedOrganizations);
-    setShowModal(false);
-
-    let orgName = updatedOrganizations[selectedOrgIndex].name;
-
-    alert(orgName);
-
+    const orgName = organizations[selectedOrgIndex].name;
+  
     try {
       const response = await fetch(
         `http://localhost:5001/general/pending-organization-profile?name=${encodeURIComponent(
@@ -118,7 +162,14 @@ const SystemAdminHome = () => {
           }),
         }
       );
+  
       if (response.ok) {
+        // Update the local state immediately
+        setOrganizations((prevOrgs) =>
+          prevOrgs.map((org, i) =>
+            i === selectedOrgIndex ? { ...org, status: "Rejected" } : org
+          )
+        );
         alert(`${orgName} status updated!`);
       } else {
         alert("Failed to update status");
@@ -127,7 +178,11 @@ const SystemAdminHome = () => {
       console.error("No such organization:", error);
       alert("An error occurred.");
     }
+  
+    setShowModal(false);
+    setComment("");
   };
+  
 
   return (
     <div className="system-admin-home">

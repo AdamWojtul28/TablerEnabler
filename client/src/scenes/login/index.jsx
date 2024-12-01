@@ -28,7 +28,6 @@ export default function Login({ onLogin }) {
 
       if (response.ok) {
         const result = await response.json();
-        console.log("Parsed result:", result);
 
         // Check if token and user data are present
         if (result.data && result.user) {
@@ -38,21 +37,17 @@ export default function Login({ onLogin }) {
           // Pull the role from the user data provided by the backend
           const role = result.user.role; 
           localStorage.setItem('role', role); // Save the role for future use
-          console.log("Role stored in localStorage:", role);
+          
+          
 
           // Set the current user to the right information for proper extraction of favorites
           localStorage.setItem('email', result.user.email);
 
 
 
-          // Store organization name in localStorage if role is "organization"
-          if (role === 'organization' && result.user.name) {
-            const orgName = result.user.name; 
-            localStorage.setItem('organizationName', orgName);
-            console.log("Organization name stored in localStorage:", orgName);
-          }
-          else {
-            console.log("Role is not 'organization' or organization name is missing.");
+          // Store organizations if role is 'officer'
+          if (result.user.role === 'officer' && Array.isArray(result.user.organizations)) {
+            localStorage.setItem('organizations', JSON.stringify(result.user.organizations));
           }
           
 

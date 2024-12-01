@@ -1,29 +1,39 @@
-import { useState, useEffect } from "react";
+// AddEvent.js
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import './AddEvent.css';
-import MapModal from './MapModal'; // Import the map modal component
+import MapModal from './MapModal'; // Ensure this component exists
+
+const BACKEND_URL = 'http://localhost:5001'; // Update if necessary
 
 export default function AddEvent() {
-  const [orgName, setOrgName] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Destructure orgName from location state
+  const { orgName } = location.state || {}; // Destructure safely
+
   const [eventDate, setEventDate] = useState(""); 
   const [startTime, setStartTime] = useState(""); 
   const [endTime, setEndTime] = useState(""); 
-  const [location, setLocation] = useState("");
+  const [locationInput, setLocationInput] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showMapModal, setShowMapModal] = useState(false); // To toggle the map modal
 
   useEffect(() => {
-    const storedOrgName = localStorage.getItem("organizationName");
-    if (storedOrgName) {
-      setOrgName(storedOrgName);
-    } else {
-      setError("Organization name not found. Please log in again.");
+    if (!orgName) {
+      setError("Organization name not found. Please select an organization first.");
+      // Optionally, redirect back to MyOrgsPage
+      setTimeout(() => {
+        navigate('/myorgs');
+      }, 3000); // Redirect after 3 seconds
     }
-  }, []);
+  }, [orgName, navigate]);
 
   const handleMapClick = (coords) => {
-    setLocation(`${coords.lat}, ${coords.lng}`); // Set location from map click
+    setLocationInput(`${coords.lat}, ${coords.lng}`); // Set location from map click
     setShowMapModal(false); // Close modal after selection
   };
 
@@ -38,15 +48,16 @@ export default function AddEvent() {
       org_name: orgName,
       start_time: startDateTime,
       end_time: endDateTime,
-      location,
+      location: locationInput,
       description,
     };
 
     try {
-      const response = await fetch("http://localhost:5001/general/tabling-reservation", {
+      const response = await fetch(`${BACKEND_URL}/general/tabling-reservation`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Include authorization headers if required
         },
         body: JSON.stringify(eventDetails),
       });
@@ -59,7 +70,7 @@ export default function AddEvent() {
         setEventDate("");
         setStartTime("");
         setEndTime("");
-        setLocation("");
+        setLocationInput("");
         setDescription("");
       } else {
         setError(data.error || "Failed to add event.");
@@ -83,7 +94,7 @@ export default function AddEvent() {
             <input
               type="text"
               id="orgName"
-              value={orgName}
+              value={orgName || ""}
               readOnly
             />
           </div>
@@ -126,8 +137,8 @@ export default function AddEvent() {
             <input
               type="text"
               id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
               placeholder="e.g., 29.648996, -82.343920"
               required
             />

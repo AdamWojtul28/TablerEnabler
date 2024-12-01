@@ -21,6 +21,7 @@ import {
   FavoriteBorderOutlined,
   CalendarMonthOutlined,
 } from "@mui/icons-material";
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
 import profileImage from "../assets/gator_profile_image.png"; 
@@ -40,10 +41,11 @@ const navItems = {
     { text: "Favorites", icon: <FavoriteBorderOutlined />, path: "/favorites" },
   ],
   officer: [
-    { text: "Home", icon: <HomeOutlined />, path: "/system-admin-home" },
     { text: "Map", icon: <HomeOutlined />, path: "/map" },
     { text: "Calendar List", icon: <CalendarMonthOutlined />, path: "/calendarlist" },
     { text: "Search", icon: <SearchOutlined />, path: "/search" },
+    { text: "Favorites", icon: <FavoriteBorderOutlined />, path: "/favorites" },
+    { text: "My orgs", icon: <MilitaryTechIcon />, path: "/myorgs" },
   ],
 };
 
@@ -176,10 +178,10 @@ const Sidebar = ({
               />
               <SettingsOutlined
                 onClick={() => {
-                  if (isLoggedIn && localStorage.getItem("role") === "organization") {
+                  if (isLoggedIn && localStorage.getItem("role") === "officer") {
                     navigate("/settingsPage");
                   } else {
-                    alert("Settings are only available for logged-in organizations.");
+                    alert("Settings are only available for logged-in officers.");
                   }
                 }}
                 sx={{
