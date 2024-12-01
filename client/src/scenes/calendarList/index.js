@@ -68,11 +68,13 @@ const CalendarComponent = () => {
     return () => observer.disconnect();
   }, [theme]);
 
+
   return (
     <FullCalendar
       ref={calendarRef} // Attach the reference here
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
       initialView="timeGridDay"
+      slotEventOverlap={false} // Prevents overlapping of events
       headerToolbar={
         isMobile
           ? {
@@ -101,7 +103,6 @@ const CalendarComponent = () => {
           },
         },
       }}
-      
       nowIndicator={true}
       editable={false}
       selectable={true}
