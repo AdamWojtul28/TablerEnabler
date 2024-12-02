@@ -161,7 +161,7 @@
   margin: 0 auto;
   margin-top: 20px;
   margin-bottom: 20px;
-  table-layout: auto; /* Enables autofit based on content */
+  table-layout: fixed; /* Enables autofit based on content */
   background-color: #fff; /* Matches background */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -199,12 +199,68 @@
   width: 10%; /* Make the first column smaller for typical numbers */
 }
 
+/* Style individual buttons */
 .system-admin-home button {
-  padding: 7.5px 15px;
-  font-size: 1rem;
+  padding: 8px 12px;
+  font-size: 0.9rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   background-color: #365798;
   color: white;
+  flex: 1 1 auto; /* Allow buttons to grow and shrink */
+  min-width: 100px; /* Ensure buttons don't get too small */
+}
+
+.system-admin-home button:hover {
+  background-color: #2a447a;
+}
+
+
+/* Container for vertical button layout */
+.button-vertical-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Space between buttons */
+}
+
+/* Style individual buttons */
+.button-vertical-container button {
+  width: 100%; /* Make buttons take full width of the container */
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #365798;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover effect for buttons */
+.button-vertical-container button:hover {
+  background-color: #2a447a;
+}
+
+/* Responsive Adjustments (Optional) */
+@media (max-width: 768px) {
+  .button-vertical-container {
+    gap: 6px;
+  }
+
+  .button-vertical-container button {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .button-vertical-container {
+    gap: 4px;
+  }
+
+  .button-vertical-container button {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
 }

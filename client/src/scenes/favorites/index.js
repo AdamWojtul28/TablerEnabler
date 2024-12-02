@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Favorites.css"; // Assuming you already have CSS for styling
+import defaultImage from "../../assets/organization-default.png"; // Import the default image
 
 const Favorites = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -19,14 +20,22 @@ const Favorites = () => {
             email
           )}`
         );
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const favoritesData = await response.json();
         setFavorites(favoritesData);
       } catch (error) {
         console.error("Error fetching favorites:", error);
+        setFavorites([]); // Optionally reset favorites on error
       }
     };
 
-    fetchFavorites();
+    if (email) {
+      fetchFavorites();
+    } else {
+      console.error("No email found in localStorage.");
+    }
   }, [email]);
 
   // Fetch organizations and reservations based on favorites
@@ -42,10 +51,21 @@ const Favorites = () => {
               orgNames
             )}`
           );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
           const data = await response.json();
-          setOrganizations(data); // Set the organizations data
+
+          // Validate data structure
+          if (Array.isArray(data)) {
+            setOrganizations(data);
+          } else {
+            console.error("Invalid data format: expected an array.");
+            setOrganizations([]);
+          }
         } catch (error) {
           console.error("Error fetching organizations:", error);
+          setOrganizations([]); // Optionally reset organizations on error
         }
       };
 
@@ -56,6 +76,9 @@ const Favorites = () => {
               orgNames
             )}`
           );
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
           const data = await response.json();
           // Filter reservations to include only future tabling events
           const currentDateTime = new Date();
@@ -66,23 +89,51 @@ const Favorites = () => {
           setReservations(upcomingReservations); // Set the reservations data
         } catch (error) {
           console.error("Error fetching reservations:", error);
+          setReservations([]); // Optionally reset reservations on error
         }
       };
 
       fetchOrganizations();
       fetchReservations();
+    } else {
+      // If no favorites, reset organizations and reservations
+      setOrganizations([]);
+      setReservations([]);
     }
   }, [favorites]);
 
+  // Convert searchTerm to lower case once to optimize performance
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
   // Filter organizations based on the search term
-  const filteredOrganizations = organizations.filter(
-    (org) =>
-      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredOrganizations = organizations.filter((org) => {
+    const name = org.name ? org.name.toLowerCase() : "";
+    const description = org.description ? org.description.toLowerCase() : "";
+    return (
+      name.includes(lowerCaseSearchTerm) ||
+      description.includes(lowerCaseSearchTerm)
+    );
+  });
+
+  // Function to construct image URLs
+  const getImageUrl = (profileImage) => {
+    if (profileImage) {
+      // Ensure the profileImage starts with a slash
+      const normalizedPath = profileImage.startsWith("/")
+        ? profileImage
+        : `/${profileImage}`;
+      return `http://localhost:5001${normalizedPath}`;
+    }
+    return defaultImage;
+  };
+
+  // Optional: Handle image loading errors by setting the src to defaultImage
+  const handleImageError = (e) => {
+    e.target.src = defaultImage;
+  };
 
   return (
-    <div className="search-page">
+    <div className="favorites-page">
       <h1>Favorite Organizations</h1>
 
       {/* Search bar */}
@@ -104,12 +155,13 @@ const Favorites = () => {
               className="club-card"
             >
               <img
-                src={org.profile_image || "default-image-url.jpg"}
-                alt={org.name}
+                src={getImageUrl(org.profile_image)}
+                alt={org.name || "Organization"}
                 className="club-image"
+                onError={handleImageError} // Fallback to default image on error
               />
-              <h2>{org.name}</h2>
-              <p>{org.description}</p>
+              <h2>{org.name || "No Name Provided"}</h2>
+              <p>{org.description || "No Description Available"}</p>
             </Link>
           ))
         ) : (
@@ -130,9 +182,10 @@ const Favorites = () => {
                 {/* Left image container */}
                 <div className="banner-image-container">
                   <img
-                    src={organization?.profile_image || "default-image-url.jpg"}
-                    alt={reservation.org_name}
+                    src={getImageUrl(organization?.profile_image)}
+                    alt={reservation.org_name || "Organization"}
                     className="banner-image"
+                    onError={handleImageError} // Fallback to default image on error
                   />
                 </div>
 
@@ -158,7 +211,7 @@ const Favorites = () => {
                   </p>
                   <p>
                     <strong>Description: </strong>
-                    {reservation.description}
+                    {reservation.description || "No Description Available"}
                   </p>
                 </div>
               </div>

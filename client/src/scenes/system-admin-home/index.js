@@ -191,44 +191,43 @@ const SystemAdminHome = () => {
       {/* Approve Organizations Section */}
       <div className="manage-section">
         <h2>Approve Organizations</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Officers</th>
-              <th>Approved</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {organizations.map((org, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{org.name}</td>
-                <td>{org.description}</td>
-                <td>{org.officer?.join(", ") || "N/A"}</td>
-                <td>{org.status}</td>
-                <td>
-                  {org.status === "Pending" && (
-                    <>
-                      <button
-                        style={{ marginRight: "10px" }}
-                        onClick={() => approveOrganization(index)}
-                      >
-                        Approve
-                      </button>
-                      <button onClick={() => handleRemoveClick(index)}>
-                        Remove
-                      </button>
-                    </>
-                  )}
-                </td>
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Officers</th>
+                <th>Approved</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {organizations.map((org, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{org.name}</td>
+                  <td>{org.description}</td>
+                  <td>{org.officers?.join(", ") || "N/A"}</td>
+                  <td>{org.status}</td>
+                  <td>
+                    {org.status === "Pending" && (
+                      <div className="button-vertical-container">
+                        <button onClick={() => approveOrganization(index)}>
+                          Approve
+                        </button>
+                        <button onClick={() => handleRemoveClick(index)}>
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Modal */}

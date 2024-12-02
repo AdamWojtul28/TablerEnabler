@@ -1,7 +1,7 @@
 // MyOrgsPage.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./MyOrgsPage.css"; // Create this CSS file for styling
+import "./MyOrgsPage.css"; // Ensure this CSS file exists and is correctly styled
 import defaultImage from "../../assets/organization-default.png";
 
 const BACKEND_URL = 'http://localhost:5001'; // Update if necessary
@@ -12,49 +12,74 @@ const MyOrgsPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const getStoredOrganizations = () => {
+    try {
+      const storedOrgs = JSON.parse(localStorage.getItem('organizations')) || [];
+      return storedOrgs;
+    } catch (err) {
+      console.error("Error parsing organizations from localStorage:", err);
+      return [];
+    }
+  };
+
   useEffect(() => {
-    const fetchMyOrganizations = async () => {
+    const fetchOrganizations = async () => {
       try {
-        // Option 1: Fetch from localStorage
-        const orgs = JSON.parse(localStorage.getItem('organizations'));
-        if (orgs && Array.isArray(orgs)) {
-          setOrganizations(orgs);
-        } else {
+        const storedOrgs = getStoredOrganizations();
+        if (storedOrgs.length === 0) {
           setOrganizations([]);
+          return;
         }
-      } catch (err) {
-        console.error("Error fetching your organizations:", err);
-        setError('An error occurred while fetching your organizations.');
+
+        // Choose to filter by name or _id
+        const orgNames = storedOrgs.map(org => org.name); // or use org._id
+        const orgNamesQuery = encodeURIComponent(JSON.stringify(orgNames));
+
+        const response = await fetch(
+          `${BACKEND_URL}/general/organization-profiles?orgNames=${orgNamesQuery}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setOrganizations(data);
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+        setError('Failed to fetch organizations. Please try again later.');
       }
     };
-
-    fetchMyOrganizations();
+    fetchOrganizations();
   }, []);
 
   const updateLocalStorage = (updatedOrg) => {
-    const orgs = JSON.parse(localStorage.getItem('organizations')) || [];
-    const updatedOrgs = orgs.map(org => org._id === updatedOrg._id ? updatedOrg : org);
-    localStorage.setItem('organizations', JSON.stringify(updatedOrgs));
+    try {
+      const orgs = JSON.parse(localStorage.getItem('organizations')) || [];
+      const updatedOrgs = orgs.map(org => org._id === updatedOrg._id ? updatedOrg : org);
+      localStorage.setItem('organizations', JSON.stringify(updatedOrgs));
+    } catch (err) {
+      console.error("Error updating localStorage:", err);
+    }
   };
 
-  
   const handleOrgClick = (org) => {
     setSelectedOrg(org);
-    updateLocalStorage(org)
-    console.log('This is the org details:', org)
-    console.log('This is the selectedOrg details:', selectedOrg)
-    console.log('This is the organizations details:', organizations)
+    updateLocalStorage(org);
+    console.log('Selected Organization:', org);
+    // Note: setSelectedOrg is asynchronous. If you need to act upon selectedOrg after setting it,
+    // consider using useEffect to watch for changes in selectedOrg.
   };
 
   const handleEdit = () => {
     if (selectedOrg) {
-      navigate(`/edit-organization-profile/`, { state: { orgName: selectedOrg.name, orgId: selectedOrg._id } });  // Pass orgName and _id as state
+      navigate(`/edit-organization-profile/`, { state: { orgName: selectedOrg.name, orgId: selectedOrg._id } });
     }
   };
 
   const handleAddEvent = () => {
     if (selectedOrg) {
-      navigate(`/addevent/`, { state: { orgName: selectedOrg.name} }); // Pass orgName as state
+      navigate(`/addevent/`, { state: { orgName: selectedOrg.name } });
     }
   };
 
@@ -71,14 +96,25 @@ const MyOrgsPage = () => {
               key={org._id}
               className={`org-card ${selectedOrg && selectedOrg._id === org._id ? 'selected' : ''}`}
               onClick={() => handleOrgClick(org)}
+              role="button" // Makes the div accessible as a button
+              tabIndex={0} // Allows keyboard navigation
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleOrgClick(org);
+                }
+              }}
             >
               <img
-                src={org.profile_image ? `http://localhost:5001${org.profile_image}` : defaultImage}
-                alt={org.name}
+                src={org.profile_image ? `${BACKEND_URL}${org.profile_image}` : defaultImage}
+                alt={org.name || "Organization"}
                 className="org-image"
+                onError={(e) => { e.target.src = defaultImage; }}
               />
               <h2 className="org-name">{org.name}</h2>
-              <p>{org.description}</p>
+              {/* Conditional Rendering of Description */}
+              {org.description && (
+                <p className="org-description">{org.description}</p>
+              )}
             </div>
           ))}
         </div>

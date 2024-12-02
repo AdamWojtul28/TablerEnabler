@@ -281,3 +281,25 @@ p {
   width: 100px; /* Adjust the size as needed */
   height: 100px;
 }
+
+
+/* Style for the navigate map button */
+.navigate-map-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+.navigate-map-button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for clickable location text */
+.clickable-location:hover {
+  color: #0056b3;
+}

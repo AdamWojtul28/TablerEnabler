@@ -11,11 +11,6 @@ import Favorites from "scenes/favorites";
 import Search from "scenes/search";
 import OrganizationPage from "scenes/organizationPage";
 import LoadingScreen from "scenes/loadingScreen";
-import LoadingScreen1 from "scenes/loadingScreen1";
-import LoadingScreen2 from "scenes/loadingScreen2";
-import LoadingScreen3 from "scenes/loadingScreen3";
-import LoadingScreen4 from "scenes/loadingScreen4";
-import LoadingScreen5 from "scenes/loadingScreen5";
 import Login from "scenes/login";
 import Register from "scenes/register";
 import AddEvent from "scenes/addEvent";
@@ -143,12 +138,6 @@ function App() {
 
               {/* Settings page */}
               <Route path="/myorgs" element={<MyOrgsPage />}></Route>
-              {/* Loading screens */}
-              <Route path="/loadingScreen1" element={<LoadingScreen1 />} />
-              <Route path="/loadingScreen2" element={<LoadingScreen2 />} />
-              <Route path="/loadingScreen3" element={<LoadingScreen3 />} />
-              <Route path="/loadingScreen4" element={<LoadingScreen4 />} />
-              <Route path="/loadingScreen5" element={<LoadingScreen5 />} />
             </Route>
           </Routes>
         </ThemeProvider>

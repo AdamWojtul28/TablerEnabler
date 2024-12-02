@@ -24,6 +24,7 @@
   width: 200px;
   cursor: pointer;
   transition: transform 0.2s, border-color 0.2s;
+  background-color: #f0f8ff;
 }
 
 .org-card:hover {
@@ -32,13 +33,31 @@
 }
 
 .org-name {
-  color: white; 
+  color: rgb(0, 0, 0); 
   margin-top: 10px;
+  font-size: 1rem; /* Adjust font size responsively */
+  word-wrap: break-word; /* Allow words to break to fit the container */
+  text-align: center; /* Center-align text within the card */
+  white-space: nowrap; /* Prevent long words from overflowing */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis if text is too long */
 }
+/* Make font size responsive for smaller screens */
+@media (max-width: 768px) {
+  .org-name {
+    font-size: 0.9rem; /* Slightly smaller font for smaller screens */
+  }
+}
+@media (max-width: 480px) {
+  .org-name {
+    font-size: 0.8rem; /* Further reduce font size for very small screens */
+  }
+}
+
 
 .org-card.selected {
   border-color: #ff8000;
-  background-color: #f0f8ff;
+  background-color: #ff8000;
 }
 
 .org-card.selected .org-name {
@@ -89,3 +108,19 @@
 .add-event-button:hover {
   background-color: #cc6804;
 }
+
+
+
+.org-description {
+  background-color: #f0f8ff; /* Alice blue background for description */
+  padding: 10px;
+  border-radius: 6px;
+  color: #555555; /* Medium gray text */
+  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: auto; /* Push description to the bottom */
+}
+
+

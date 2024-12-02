@@ -45,7 +45,7 @@ const navItems = {
     { text: "Calendar List", icon: <CalendarMonthOutlined />, path: "/calendarlist" },
     { text: "Search", icon: <SearchOutlined />, path: "/search" },
     { text: "Favorites", icon: <FavoriteBorderOutlined />, path: "/favorites" },
-    { text: "My orgs", icon: <MilitaryTechIcon />, path: "/myorgs" },
+    { text: "My Organizations", icon: <MilitaryTechIcon />, path: "/myorgs" },
   ],
 };
 

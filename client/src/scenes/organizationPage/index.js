@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./OrganizationPage.css";
 import defaultImage from "../../assets/organization-default.png";
 import { format } from "date-fns";
+
+
 
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
@@ -126,6 +128,22 @@ const OrganizationPage = () => {
         reservation.start_time.startsWith(formattedDate)
     );
   };
+
+  const navigate = useNavigate();
+
+  const navigateToMap = () => {
+    if (modalData && modalData.location) {
+      const params = new URLSearchParams({
+        name: organization.name,
+        startTime: modalData.startTime,
+        endTime: modalData.endTime,
+        location: modalData.location,
+        description: modalData.description,
+      });
+      navigate(`/map?${params.toString()}`);
+    }
+  };
+  
 
   const handleClickDay = (date) => {
     const formattedDate = date.toISOString().split("T")[0];
@@ -281,7 +299,7 @@ const OrganizationPage = () => {
         <div className="parent-div">
           <div className="left-section">
             <h2>Organization Purpose:</h2>
-            <p>{organization.description}</p>
+            <p style={{ paddingTop: '8px' }}>{organization.description}</p>
           </div>
           <div className="right-section">
             <img
@@ -341,7 +359,10 @@ const OrganizationPage = () => {
             </button>
             <h2>{modalData.title}</h2>
             <p>
-              <strong>Location:</strong> {modalData.location}
+              <strong>Location:</strong> 
+              <button className="navigate-map-button" onClick={navigateToMap}>
+                View on Map
+              </button>
             </p>
             <p>
               <strong>Start Time:</strong> {modalData.startTime}

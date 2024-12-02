@@ -15,24 +15,24 @@ import Officer from '../models/Officer.js';
 const router = express.Router();
 
 
-const multer = require("multer");
-const path = require("path");
+// const multer = require("multer");
+// const path = require("path");
 
 // Configure multer for file uploads
-const upload = multer({
-  dest: "uploads/", // Specify your upload folder
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limit files to 5MB
-  fileFilter: (req, file, cb) => {
-    const fileTypes = /jpeg|jpg|png/;
-    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = fileTypes.test(file.mimetype);
-    if (extname && mimeType) {
-      return cb(null, true);
-    } else {
-      cb("Images only (jpeg, jpg, png)!");
-    }
-  },
-});
+// const upload = multer({
+//   dest: "uploads/", // Specify your upload folder
+//   limits: { fileSize: 5 * 1024 * 1024 }, // Limit files to 5MB
+//   fileFilter: (req, file, cb) => {
+//     const fileTypes = /jpeg|jpg|png/;
+//     const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+//     const mimeType = fileTypes.test(file.mimetype);
+//     if (extname && mimeType) {
+//       return cb(null, true);
+//     } else {
+//       cb("Images only (jpeg, jpg, png)!");
+//     }
+//   },
+// });
 
 // Configure multer storage for file uploads
 const storage = multer.diskStorage({
@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
   },
 });
 
-//const upload = multer({ storage });
+const upload = multer({ storage });
 
 // ********************************** FAVORITE-ORGS ROUTES **********************************
 // get specific student based on the gator_id passed in the request query parameter
