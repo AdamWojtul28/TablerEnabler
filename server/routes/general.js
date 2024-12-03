@@ -11,28 +11,11 @@ import bcrypt from "bcrypt";
 import PendingOrganizationProfile from "../models/PendingOrganizationProfile.js";
 import multer from 'multer';
 import Officer from '../models/Officer.js';
+import path from 'path';
+import mongoose from "mongoose";
 
 const router = express.Router();
 
-
-// const multer = require("multer");
-// const path = require("path");
-
-// Configure multer for file uploads
-// const upload = multer({
-//   dest: "uploads/", // Specify your upload folder
-//   limits: { fileSize: 5 * 1024 * 1024 }, // Limit files to 5MB
-//   fileFilter: (req, file, cb) => {
-//     const fileTypes = /jpeg|jpg|png/;
-//     const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
-//     const mimeType = fileTypes.test(file.mimetype);
-//     if (extname && mimeType) {
-//       return cb(null, true);
-//     } else {
-//       cb("Images only (jpeg, jpg, png)!");
-//     }
-//   },
-// });
 
 // Configure multer storage for file uploads
 const storage = multer.diskStorage({
@@ -44,7 +27,23 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+// const upload = multer({ storage }); can we keep this uplaod for editing or create another var?
+
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images are allowed (jpeg, jpg, png, gif).'));
+  }
+});
 
 // ********************************** FAVORITE-ORGS ROUTES **********************************
 // get specific student based on the gator_id passed in the request query parameter
@@ -280,177 +279,78 @@ router.post("/organization-profile", async (req, res) => {
   }
 });
 
-router.put("/organization-profile", async (req, res) => {
+// PUT Route to Update Organization Profile
+router.put("/organization-profile", upload.single("profile_image"), async (req, res) => {
   try {
-    const { org } = req.query;
-    const { name, description, profile_image, createdAt } = req.body;
+    const { orgId } = req.query; // Old organization ID
+    const { name, description, createdAt } = req.body; // New organization name
 
-    // Check if name is provided in the query
-    if (!org) {
-      return res
-        .status(400)
-        .json({ error: "Email query parameter is required" });
+    if (!orgId) {
+      return res.status(400).json({ error: "Organization ID is required" });
+    }
+
+    // Prepare the update data
+    const updateData = {
+      name,
+      description,
+      createdAt: createdAt || undefined,
+    };
+
+    if (req.file) {
+      updateData.profile_image = `/uploads/${req.file.filename}`;
     }
 
     // Update the organization profile
-    const updatedOrganizationProfile =
-      await OrganizationProfile.findOneAndUpdate(
-        { name: org }, // Match based on org name
-        {
-          name,
-          description,
-          profile_image: profile_image || null,
-          createdAt: createdAt || undefined,
-        },
-        { new: true, runValidators: true } // Return updated document & enforce schema validation
-      );
+    const updatedOrganizationProfile = await OrganizationProfile.findByIdAndUpdate(
+      orgId, // Use orgId to find the document
+      updateData,
+      { new: true, runValidators: true }
+    );
 
-    // If no document found with the given email
     if (!updatedOrganizationProfile) {
       return res.status(404).json({ error: "Organization profile not found" });
     }
 
+    // If the name has changed, update references
+    if (orgId && (name !== updatedOrganizationProfile.name)) {
+      // Update references using orgId
+      await StudentProfile.updateMany(
+        { 'organizations.orgId': orgId },
+        { $set: { 'organizations.$[elem].name': name } },
+        { arrayFilters: [{ 'elem.orgId': orgId }] }
+      );
+
+      await FavoriteOrg.updateMany(
+        { orgId: orgId },
+        { $set: { org_name: name } }
+      );
+
+      await OrgSocial.updateMany(
+        { orgId: orgId },
+        { $set: { org_name: name } }
+      );
+
+      await TablingReservation.updateMany(
+        { orgId: orgId },
+        { $set: { org_name: name } }
+      );
+
+      // Add similar updates for any other collections referencing orgId
+    }
+
     res.status(200).json(updatedOrganizationProfile);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    if (error instanceof multer.MulterError) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error("Error in PUT /organization-profile:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
 
-//DID NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!
-
-// router.put('/organization-profile', upload.single('profile_image'), async (req, res) => {
-//   try {
-//     const { org } = req.query;
-//     const { name, description, createdAt } = req.body;
-//     let profile_image = req.body.profile_image; // If no new image, retain existing
-
-//     if (!org) {
-//       return res.status(400).json({ error: 'Organization ID (org) is required.' });
-//     }
-
-//     // Find the organization by ID
-//     const organization = await OrganizationProfile.findById(_id);
-//     if (!organization) {
-//       return res.status(404).json({ error: 'Organization not found.' });
-//     }
-
-//     // Update fields
-//     organization.name = name || organization.name;
-//     organization.description = description || organization.description;
-//     organization.createdAt = createdAt || organization.createdAt;
-    
-//     //Handle profile image if a new one is uploaded
-//     if (req.file) {
-//       profile_image = `${req.file.filename}`;
-//       organization.profile_image = profile_image;
-//     }
-
-//     // Save the updated organization
-//     await organization.save();
-
-//     res.status(200).json(organization);
-//   } catch (error) {
-//     console.error('Error updating organization profile:', error);
-//     res.status(500).json({ error: 'Internal server error.' });
-//   }
-// });
-
-//!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-
-// router.put("/update-organization-name", async (req, res) => {
-//   const { currentName, newName } = req.body;
-
-//   if (!currentName || !newName) {
-//     return res.status(400).json({ error: "Both currentName and newName are required." });
-//   }
-
-//   try {
-//     const updatedOrg = await OrganizationProfile.findOneAndUpdate(
-//       { name: currentName },
-//       { name: newName },
-//       { new: true, runValidators: true } // Return updated document & enforce schema validation
-//     );
-
-//     if (!updatedOrg) {
-//       return res.status(404).json({ error: "Organization not found." });
-//     }
-
-//     res.status(200).json({
-//       message: "Organization name updated successfully.",
-//       organization: updatedOrg,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-
-
-// router.put("/update-organization-description", async (req, res) => {
-//   const { name, description } = req.body;
-
-//   if (!name || !description) {
-//     return res.status(400).json({ error: "Both name and description are required." });
-//   }
-
-//   try {
-//     const updatedOrg = await OrganizationProfile.findOneAndUpdate(
-//       { name },
-//       { description },
-//       { new: true, runValidators: true } // Return updated document & enforce schema validation
-//     );
-
-//     if (!updatedOrg) {
-//       return res.status(404).json({ error: "Organization not found." });
-//     }
-
-//     res.status(200).json({
-//       message: "Organization description updated successfully.",
-//       organization: updatedOrg,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-
-// router.put(
-//   "/update-organization-image",
-//   upload.single("profile_image"),
-//   async (req, res) => {
-//     const { name } = req.body;
-
-//     if (!name) {
-//       return res.status(400).json({ error: "Organization name is required." });
-//     }
-
-//     if (!req.file) {
-//       return res.status(400).json({ error: "Profile image is required." });
-//     }
-
-//     try {
-//       const updatedOrg = await OrganizationProfile.findOneAndUpdate(
-//         { name },
-//         { profile_image: `/uploads/${req.file.filename}` }, // Adjust path as necessary
-//         { new: true, runValidators: true }
-//       );
-
-//       if (!updatedOrg) {
-//         return res.status(404).json({ error: "Organization not found." });
-//       }
-
-//       res.status(200).json({
-//         message: "Organization image updated successfully.",
-//         organization: updatedOrg,
-//       });
-//     } catch (error) {
-//       res.status(500).json({ error: error.message });
-//     }
-//   }
-// );
 
 // ********************************** PENDING-ORG-Profile ROUTES **********************************
 router.get("/pending-organization-profiles", async (req, res) => {

@@ -281,3 +281,81 @@ p {
   width: 100px; /* Adjust the size as needed */
   height: 100px;
 }
+
+
+
+.save-button {
+  background-color: #ff8000; /* Green color for save */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: bold; /* Emphasize the button text */
+}
+
+.save-button:hover {
+  background-color: #ffb366; /* Darker green on hover */
+}
+
+
+
+
+.edit-button {
+  background-color: #ff8000; /* Green color for save */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: bold; /* Emphasize the button text */
+}
+
+.edit-button:hover {
+  background-color: #ffb366; /* Darker green on hover */
+}
+
+
+
+.cancel-button {
+  background-color: #dc3545; /* Red color for cancel */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 10px; /* Add space between Cancel and Save */
+}
+
+.cancel-button:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+/* Save button already defined earlier */
+
+/* File input styling */
+.image-upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.custom-file-label {
+  background-color: #007bff; /* Blue background */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.custom-file-label:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}

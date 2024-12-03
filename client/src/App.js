@@ -20,6 +20,7 @@ import EditOrganizationPage from "scenes/myOrgsPage/EditOrganizationPage";
 import Navbar from "components/Navbar";
 import SystemAdminHome from "scenes/system-admin-home";
 
+
 function App() {
   const mode = useSelector((state) => state.global.mode);
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);

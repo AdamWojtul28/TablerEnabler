@@ -1,5 +1,7 @@
+// EditOrganizationPage.jsx
+
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./EditOrganizationPage.css";
@@ -14,15 +16,19 @@ const EditOrganizationPage = () => {
   const [isFavorite, setIsFavorite] = useState("Follow");
   const [modalData, setModalData] = useState(null); // Current modal data
   const [modalIndex, setModalIndex] = useState(0); // Current reservation index for the modal
-  const [modalArrayLength, setModalArrayLength] = useState(1); // Current reservation index for the modal
+  const [modalArrayLength, setModalArrayLength] = useState(1); // Total reservations for the day
   const [dayReservations, setDayReservations] = useState([]); // Reservations for the selected day
   const [next, setNext] = useState(false); // Reservations for the selected day
   const [previous, setPrevious] = useState(false); // Reservations for the selected day
   const [updateModalTitle, setUpdateModalTitle] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate(); // Initialize navigate
   const queryParams = new URLSearchParams(location.search);
-  // Destructure orgName from location state
-  const { orgName } = location.state || {}; // Destructure safely
+  
+  // Define orgName and originalOrgName as state variables
+  const [orgName, setOrgName] = useState(location.state?.orgName || '');
+  const [originalOrgName, setOriginalOrgName] = useState(location.state?.orgName || '');
+  const [orgId, setOrgId] = useState(null); // Initialize orgId
   const email = localStorage.getItem("email");
 
   // States for editing
@@ -31,6 +37,34 @@ const EditOrganizationPage = () => {
   const [editDescription, setEditDescription] = useState("");
   const [editImage, setEditImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+
+  useEffect(() => {
+    // Function to initialize orgName from localStorage if not provided via location.state
+    const initializeOrgName = () => {
+      if (!orgName) {
+        const storedOrgName = localStorage.getItem('orgName');
+        if (storedOrgName) {
+          try {
+            const parsedName = JSON.parse(storedOrgName);
+            if (typeof parsedName === 'string') {
+              setOrgName(parsedName);
+              setOriginalOrgName(parsedName);
+            } else if (parsedName.name) {
+              setOrgName(parsedName.name);
+              setOriginalOrgName(parsedName.name);
+              localStorage.setItem('orgName', parsedName.name);
+            }
+          } catch (e) {
+            // If parsing fails, assume it's a string
+            setOrgName(storedOrgName);
+            setOriginalOrgName(storedOrgName);
+          }
+        }
+      }
+    };
+
+    initializeOrgName();
+  }, [orgName]);
 
   useEffect(() => {
     const fetchOrganization = async () => {
@@ -48,6 +82,7 @@ const EditOrganizationPage = () => {
         setEditName(data.name);
         setEditDescription(data.description);
         setImagePreview(data.profile_image ? `http://localhost:5001${data.profile_image}` : defaultImage);
+        setOrgId(data._id); // Store the organization's ID
       } catch (error) {
         console.error("Error fetching organization:", error);
       }
@@ -104,10 +139,12 @@ const EditOrganizationPage = () => {
       }
     };
 
-    fetchOrganization();
-    fetchSocialMedia();
-    fetchFavorites();
-    fetchReservations();
+    if (orgName) {
+      fetchOrganization();
+      fetchSocialMedia();
+      fetchFavorites();
+      fetchReservations();
+    }
   }, [orgName, email]);
 
   // Update isFavorite based on fetched favorites
@@ -132,7 +169,7 @@ const EditOrganizationPage = () => {
   useEffect(() => {
     if (dayReservations.length > 0) {
       setModalArrayLength(dayReservations.length); // Set total count of reservations for the day
-      setModalIndex(0); // Reset modal index to the first reservation
+      setModalIndex(0); // Reset modal index
     }
   }, [dayReservations]);
 
@@ -153,20 +190,20 @@ const EditOrganizationPage = () => {
     );
 
     if (matchingReservations.length > 0) {
-      setPrevious(true);
       setDayReservations(matchingReservations); // Store reservations for the day
       setModalArrayLength(matchingReservations.length); // Set total count
       setModalIndex(0); // Reset modal index
-      setModalData(formatReservationData(matchingReservations[0])); // Initialize modal data with index 0
+      setModalData(formatReservationData(matchingReservations[0], 0)); // Initialize modal data with index 0
+    } else {
+      handleModalClose(); // Close modal if no reservations
     }
-    setPrevious(false);
   };
 
   const handleNext = () => {
     if (modalIndex < dayReservations.length - 1) {
       const nextIndex = modalIndex + 1;
       setModalIndex(nextIndex); // Update modal index
-      setModalData(formatReservationData(dayReservations[nextIndex])); // Update modal content
+      setModalData(formatReservationData(dayReservations[nextIndex], nextIndex)); // Update modal content
     }
   };
 
@@ -174,14 +211,14 @@ const EditOrganizationPage = () => {
     if (modalIndex > 0) {
       const prevIndex = modalIndex - 1;
       setModalIndex(prevIndex); // Update modal index
-      setModalData(formatReservationData(dayReservations[prevIndex])); // Update modal content
+      setModalData(formatReservationData(dayReservations[prevIndex], prevIndex)); // Update modal content
     }
   };
 
-  const formatReservationData = (reservation) => ({
+  const formatReservationData = (reservation, index) => ({
     title: `${organization?.name || "Organization"} ${
       reservation.start_time.split("T")[0]
-    } Tabling Session ${modalIndex + 1} / ${dayReservations.length}`,
+    } Tabling Session ${index + 1} / ${dayReservations.length}`,
     location: reservation.location,
     startTime: new Date(reservation.start_time).toLocaleTimeString("en-US", {
       timeZone: "UTC",
@@ -293,6 +330,20 @@ const EditOrganizationPage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type
+      const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validImageTypes.includes(file.type)) {
+        alert("Please select a valid image file (jpeg, png, gif).");
+        return;
+      }
+
+      // Validate file size (e.g., max 5MB)
+      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSizeInBytes) {
+        alert("Image size should be less than 5MB.");
+        return;
+      }
+
       setEditImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -304,50 +355,46 @@ const EditOrganizationPage = () => {
 
   const handleSave = async () => {
     try {
-      // Create form data to handle image upload if necessary
-      // const formData = new FormData();
-      // formData.append("name", editName);
-      // formData.append("description", editDescription);
-      // if (editImage) {
-      //   formData.append("profile_image", editImage);
-      // }
-      // if (organization.createdAt) {
-      //   formData.append("createdAt", organization.createdAt);
-      // }
-
+      const formData = new FormData();
+      formData.append("name", editName);
+      formData.append("description", editDescription);
       if (editImage) {
-        console.log("Selected Image Name:", editImage.name);
-      } else {
-        console.log("No image selected.");
+        formData.append("profile_image", editImage);
       }
-      
+      if (organization.createdAt) {
+        formData.append("createdAt", organization.createdAt);
+      }
+
+      console.log("Sending PUT request with orgId:", orgId);
+      console.log("New organization name:", editName);
+
       const response = await fetch(
-        `http://localhost:5001/general/organization-profile?org=${encodeURIComponent(
-          orgName
-        )}`,
+        `http://localhost:5001/general/organization-profile?orgId=${encodeURIComponent(orgId)}`,
         {
           method: "PUT",
-          // If sending as JSON:
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: editName,
-            description: editDescription,
-            profile_image: editImage ? `/uploads/${editImage.name}` : null,
-            createdAt: organization.createdAt,
-          }),
-          // // If using FormData for file upload:
-          // body: formData,
+          body: formData,
         }
-        
       );
 
       if (response.ok) {
         const updatedOrg = await response.json();
+        console.log("Received updated organization:", updatedOrg);
         setOrganization(updatedOrg);
+        setEditName(updatedOrg.name);
+        setEditDescription(updatedOrg.description);
+        setImagePreview(updatedOrg.profile_image ? `http://localhost:5001${updatedOrg.profile_image}` : defaultImage);
         setIsEditing(false);
+        setEditImage(null);
         alert("Organization profile updated successfully!");
+
+        // Update local storage if orgName is stored there
+        localStorage.setItem('orgName', updatedOrg.name);
+
+        // Update orgName in state
+        setOrgName(updatedOrg.name);
+
+        // Update originalOrgName for future edits
+        setOriginalOrgName(updatedOrg.name);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to update organization profile");
@@ -365,7 +412,7 @@ const EditOrganizationPage = () => {
   return (
     <div className="organization-page">
       <div className="organization-header">
-        {/* {isEditing ? (
+        {isEditing ? (
           <input
             type="text"
             value={editName}
@@ -374,9 +421,7 @@ const EditOrganizationPage = () => {
           />
         ) : (
           <h1 className="organization-name">{organization.name}</h1>
-        )} */}
-        
-        <h1  value={editName} className="organization-name">{organization.name}</h1>
+        )}
 
         <button className="edit-button" onClick={handleEditToggle}>
           {isEditing ? "Cancel" : "Edit"}
@@ -408,9 +453,18 @@ const EditOrganizationPage = () => {
               className="organization-image"
             />
             {isEditing && (
-              <div className="image-upload-section">
-                <input type="file" accept="image/*" onChange={handleImageChange} />
-              </div>
+             <div className="image-upload-section">
+                <label htmlFor="file-upload" className="custom-file-label">
+                  {editImage ? "File Selected" : "Choose a file"}
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
+                />
+           </div>
             )}
           </div>
         </div>
