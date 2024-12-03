@@ -5,150 +5,186 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { Icon, divIcon, point } from "leaflet";
 import MarkerClusterGroup from 'react-leaflet-cluster'; // Ensure correct import
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+
 
 // Define the backend URL
 const BACKEND_URL = 'http://localhost:5001'; // Update if necessary
 
 // Custom component to handle map centering
-function SetMapCenter({ userLocation }) {
+function SetMapCenter({ locationToCenter }) {
   const map = useMap();
 
-  // If userLocation is available, update the center of the map
+  // If locationToCenter is available, update the center of the map
   useEffect(() => {
-    if (userLocation) {
-      map.setView([userLocation.latitude, userLocation.longitude], 17);
+    if (locationToCenter) {
+      map.setView(locationToCenter, 17);
     }
-  }, [userLocation, map]);
+  }, [locationToCenter, map]);
 
   return null;
 }
 
 export default function Map() {
+  const location = useLocation();
   const [userLocation, setUserLocation] = useState(null);
   const [events, setEvents] = useState([]);  // Store live events
   const [orgProfiles, setOrgProfiles] = useState({}); // Store organization profiles
   const [error, setError] = useState(null);
   const [noEventsMessage, setNoEventsMessage] = useState(''); // Message if no events
-  const defaultLocation = [29.64929896217566, -82.34410532210882]; // Default location
+  const [defaultLocation, setDefaultLocation] = useState([29.64929896217566, -82.34410532210882]); // Message if no events
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [locationToCenter, setLocationToCenter] = useState(null); // Location to center the map around
+  const [relevantEventId, setRelevantEventId] = useState(null);
+
 
   // Create custom icons
+
   const customIcon = new Icon({
     iconUrl: "/icons/side-table.png",
-    iconSize: [35, 35] // size of the icon
+    iconSize: [35, 35],
+  });
+
+  const pinIcon = new Icon({
+    iconUrl: "/icons/pin.png",
+    iconSize: [45, 45],
   });
 
   const userIcon = new Icon({
     iconUrl: "/icons/user.png",
-    iconSize: [35, 35] // size of the icon
+    iconSize: [35, 35],
   });
 
-  const createClusterCustomIcon = (cluster) => {
-    return new divIcon({
-      html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
-      iconSize: point(40, 40, true),
-    });
-  };
+  const createClusterCustomIcon = (cluster) => new divIcon({
+    html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
+    iconSize: point(40, 40, true),
+  });
 
-  // Refs to manage markers
   const markersRef = useRef({});
-  const popupOpenedRef = useRef({}); // Track which popups have been opened
-
-  // Reference to the MarkerClusterGroup
+  const popupOpenedRef = useRef({});
   const clusterGroupRef = useRef();
 
-  // Fetch user location when component mounts
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        (error) => {
-          setError(error.message);
-        }
-      );
+    // Parse query parameters from the URL
+    const params = new URLSearchParams(location.search);
+  
+    const extractedStartTime = params.get('startTime');
+    const extractedEndTime = params.get('endTime');
+  
+    if (extractedStartTime && extractedEndTime) {
+      setStartTime(extractedStartTime);
+      setEndTime(extractedEndTime);
     } else {
-      setError('Geolocation is not supported by this browser.');
+      console.error("Missing startTime or endTime in URL parameters.");
+      setNoEventsMessage("Please provide valid start and end times in the URL.");
     }
-  }, []);
-
-  // Fetch live tabling events from the backend
+  }, [location.search]);
+  
   useEffect(() => {
-    const fetchLiveEvents = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/general/live-tabling-events`);
-        const data = await response.json();
-
-        if (response.ok) {
-          if (data.events.length === 0) {
-            setNoEventsMessage('No live events happening right now');
+    // Fetch live events only when startTime and endTime are both set
+    if (startTime && endTime) {
+      const fetchLiveEvents = async () => {
+        try {
+          console.log(`Fetching events for startTime: ${startTime}, endTime: ${endTime}`);
+          const response = await fetch(
+            `${BACKEND_URL}/general/tabling-reservations-specific?start_time=${encodeURIComponent(
+              startTime
+            )}&end_time=${encodeURIComponent(endTime)}`
+          );
+  
+          const data = await response.json();
+          console.log("Fetched live events:", data);
+  
+          if (data.length > 0) {
+            setEvents(data);
+            setNoEventsMessage(''); // Clear previous message
           } else {
-            setEvents(data.events);
+            setEvents([]); // Ensure no stale data
+            setNoEventsMessage('No events during this time period found.');
           }
-        } else {
-          setError(data.error || 'Failed to fetch live events');
+        } catch (err) {
+          console.error("Error fetching events:", err);
+          setError('Failed to fetch events.');
         }
-      } catch (err) {
-        setError('Failed to fetch live events');
-      }
-    };
-
-    fetchLiveEvents();
-  }, []);
-
-  // Fetch organization profiles based on events
+      };
+  
+      fetchLiveEvents();
+    }
+  }, [startTime, endTime]);
+  
   useEffect(() => {
+    // Fetch organization profiles only when events are available
     const fetchOrganizationProfiles = async () => {
       try {
-        // Extract unique organization names from events
         const orgNamesSet = new Set(events.map(event => event.org_name));
         const orgNamesArray = Array.from(orgNamesSet);
-
-        // If no organizations, skip fetching
-        if (orgNamesArray.length === 0) {
-          setOrgProfiles({});
-          return;
-        }
-
-        // Prepare query parameter
-        const orgNamesParam = JSON.stringify(orgNamesArray);
-
-        const response = await fetch(`${BACKEND_URL}/general/organization-profiles?orgNames=${encodeURIComponent(orgNamesParam)}`);
-        const data = await response.json();
-
-        if (response.ok) {
-          // Create a mapping from org_name to profile
-          const orgProfileMap = {};
-          data.forEach(org => {
-            orgProfileMap[org.name] = org;
-          });
-          setOrgProfiles(orgProfileMap);
-        } else {
-          console.error(data.error || 'Failed to fetch organization profiles');
+  
+        if (orgNamesArray.length > 0) {
+          const response = await fetch(
+            `${BACKEND_URL}/general/organization-profiles?orgNames=${encodeURIComponent(
+              JSON.stringify(orgNamesArray)
+            )}`
+          );
+          const data = await response.json();
+  
+          console.log("Fetched organization profiles:", data);
+  
+          if (response.ok) {
+            const orgProfileMap = {};
+            data.forEach(org => {
+              orgProfileMap[org.name] = org;
+            });
+            setOrgProfiles(orgProfileMap);
+          } else {
+            console.error(data.error || 'Failed to fetch organization profiles');
+          }
         }
       } catch (err) {
         console.error('Failed to fetch organization profiles', err);
       }
     };
-
+  
     if (events.length > 0) {
       fetchOrganizationProfiles();
     }
   }, [events]);
 
-  // Open all popups by default after events are loaded
   useEffect(() => {
+    // Center the map around the event that matches the URL parameters
+    if (startTime && endTime && events.length > 0) {
+      const matchedEvent = events.find(event => {
+        return (
+          event.start_time === startTime &&
+          event.end_time === endTime &&
+          event.org_name === new URLSearchParams(location.search).get('name') &&
+          event.location === new URLSearchParams(location.search).get('location') &&
+          event.description === new URLSearchParams(location.search).get('description')
+        );
+      });
+
+      if (matchedEvent) {
+        const [lat, lng] = matchedEvent.location.split(',').map(Number);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          setLocationToCenter([lat, lng]);
+          setRelevantEventId(matchedEvent._id);
+        }
+      }
+    }
+  }, [startTime, endTime, events, location.search]);
+  
+  useEffect(() => {
+    // Open all popups by default after events are loaded
     events.forEach(event => {
       const marker = markersRef.current[event._id];
       if (marker) {
+        console.log(`Opening popup for event ${event._id}`);
         marker.openPopup();
         popupOpenedRef.current[event._id] = true; // Mark as opened
       }
     });
-  }, [events]);
+  }, [events]);  // Triggered when events are loaded
+  
 
   // Handler to open a popup
   const handleOpenPopup = (id) => {
@@ -158,6 +194,27 @@ export default function Map() {
       popupOpenedRef.current[id] = true; // Mark as opened
     }
   };
+
+  // Center the map and open the popup for the relevant event
+  useEffect(() => {
+    if (events.length > 0 && locationToCenter) {
+      const matchedEvent = events.find(event => {
+        const [lat, lng] = event.location.split(',').map(Number);
+        return lat === locationToCenter[0] && lng === locationToCenter[1];
+      });
+
+      if (matchedEvent) {
+        // Ensure marker is rendered before opening popup
+        const marker = markersRef.current[matchedEvent._id];
+        if (marker && !popupOpenedRef.current[matchedEvent._id]) {
+          setTimeout(() => {
+            marker.openPopup(); // Open popup only for this event
+            popupOpenedRef.current[matchedEvent._id] = true;
+          }, 1000); // Adjust delay if needed
+        }
+      }
+    }
+  }, [events, locationToCenter]); // Depend on events and locationToCenter to trigger
 
   // Handler for cluster clicks
   const handleClusterClick = (cluster) => {
@@ -198,15 +255,17 @@ export default function Map() {
     };
   }, [clusterGroupRef, events]);
 
-  // Handler for map zoom end to open popups for markers that are now visible individually
   const handleMapZoomEnd = () => {
     events.forEach(event => {
       const marker = markersRef.current[event._id];
       if (marker) {
-        // Check if the marker is currently on the map (i.e., not clustered)
-        if (marker._map && !popupOpenedRef.current[event._id]) {
-          marker.openPopup();
-          popupOpenedRef.current[event._id] = true; // Mark as opened
+        // Check if marker is within bounds
+        if (marker.getBounds().contains(marker.getLatLng())) {
+          // Open the popup if it isn't already opened
+          if (!popupOpenedRef.current[event._id]) {
+            marker.openPopup();
+            popupOpenedRef.current[event._id] = true;
+          }
         }
       }
     });
@@ -260,10 +319,15 @@ export default function Map() {
               ref={(el) => { markersRef.current[event._id] = el; }}
               eventHandlers={{
                 add: () => {
-                  // This event is triggered when the marker is added to the map
-                  // Only open the popup if it hasn't been opened yet
-                  if (!popupOpenedRef.current[event._id]) {
-                    handleOpenPopup(event._id);
+                  if (locationToCenter) {
+                    // Check if this event is the one to center and open popup
+                    if (event.location === locationToCenter.join(',')) {
+                      const marker = markersRef.current[event._id];
+                      if (marker && !popupOpenedRef.current[event._id]) {
+                        marker.openPopup();
+                        popupOpenedRef.current[event._id] = true;
+                      }
+                    }
                   }
                 },
                 click: () => handleOpenPopup(event._id),
@@ -294,19 +358,7 @@ export default function Map() {
         })}
       </MarkerClusterGroup>
 
-      {/* Show user location marker if location is available */}
-      {userLocation && (
-        <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
-          <Popup
-            autoClose={false}
-            closeOnClick={false}
-          >
-            You are here
-          </Popup>
-        </Marker>
-      )}
-
-      <SetMapCenter userLocation={userLocation} />
+      <SetMapCenter locationToCenter={locationToCenter} />
 
       {/* Show message if there are no live events */}
       {noEventsMessage && (

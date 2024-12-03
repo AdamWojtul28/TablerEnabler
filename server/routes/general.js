@@ -9,18 +9,17 @@ import FixedTablingLocs from "../models/FixedTablingLocations.js";
 import TablingReservationRequest from "../models/TablingReservation.js";
 import bcrypt from "bcrypt";
 import PendingOrganizationProfile from "../models/PendingOrganizationProfile.js";
-import multer from 'multer';
-import Officer from '../models/Officer.js';
-import path from 'path';
+import multer from "multer";
+import Officer from "../models/Officer.js";
+import path from "path";
 import mongoose from "mongoose";
 
 const router = express.Router();
 
-
 // Configure multer storage for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Save files in the 'uploads' directory
+    cb(null, "uploads/"); // Save files in the 'uploads' directory
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -29,20 +28,21 @@ const storage = multer.diskStorage({
 
 // const upload = multer({ storage }); can we keep this uplaod for editing or create another var?
 
-
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png|gif/;
     const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
 
     if (mimetype && extname) {
       return cb(null, true);
     }
-    cb(new Error('Only images are allowed (jpeg, jpg, png, gif).'));
-  }
+    cb(new Error("Only images are allowed (jpeg, jpg, png, gif)."));
+  },
 });
 
 // ********************************** FAVORITE-ORGS ROUTES **********************************
@@ -206,7 +206,6 @@ router.get("/organization-profile", async (req, res) => {
   }
 });
 
-
 // Route to delete a regular organization
 router.delete("/organization-profile", async (req, res) => {
   const { name } = req.query;
@@ -230,8 +229,6 @@ router.delete("/organization-profile", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-
 
 // extract all of the profile informations for organizations that a student (gator_id passed in as query parameter) has marked as favorite
 router.get("/favorite-organization-profiles", async (req, res) => {
@@ -280,77 +277,80 @@ router.post("/organization-profile", async (req, res) => {
 });
 
 // PUT Route to Update Organization Profile
-router.put("/organization-profile", upload.single("profile_image"), async (req, res) => {
-  try {
-    const { orgId } = req.query; // Old organization ID
-    const { name, description, createdAt } = req.body; // New organization name
+router.put(
+  "/organization-profile",
+  upload.single("profile_image"),
+  async (req, res) => {
+    try {
+      const { orgId } = req.query; // Old organization ID
+      const { name, description, createdAt } = req.body; // New organization name
 
-    if (!orgId) {
-      return res.status(400).json({ error: "Organization ID is required" });
+      if (!orgId) {
+        return res.status(400).json({ error: "Organization ID is required" });
+      }
+
+      // Prepare the update data
+      const updateData = {
+        name,
+        description,
+        createdAt: createdAt || undefined,
+      };
+
+      if (req.file) {
+        updateData.profile_image = `/uploads/${req.file.filename}`;
+      }
+
+      // Update the organization profile
+      const updatedOrganizationProfile =
+        await OrganizationProfile.findByIdAndUpdate(
+          orgId, // Use orgId to find the document
+          updateData,
+          { new: true, runValidators: true }
+        );
+
+      if (!updatedOrganizationProfile) {
+        return res
+          .status(404)
+          .json({ error: "Organization profile not found" });
+      }
+
+      // If the name has changed, update references
+      if (orgId && name !== updatedOrganizationProfile.name) {
+        // Update references using orgId
+        await StudentProfile.updateMany(
+          { "organizations.orgId": orgId },
+          { $set: { "organizations.$[elem].name": name } },
+          { arrayFilters: [{ "elem.orgId": orgId }] }
+        );
+
+        await FavoriteOrg.updateMany(
+          { orgId: orgId },
+          { $set: { org_name: name } }
+        );
+
+        await OrgSocial.updateMany(
+          { orgId: orgId },
+          { $set: { org_name: name } }
+        );
+
+        await TablingReservation.updateMany(
+          { orgId: orgId },
+          { $set: { org_name: name } }
+        );
+
+        // Add similar updates for any other collections referencing orgId
+      }
+
+      res.status(200).json(updatedOrganizationProfile);
+    } catch (error) {
+      if (error instanceof multer.MulterError) {
+        return res.status(400).json({ error: error.message });
+      }
+      console.error("Error in PUT /organization-profile:", error);
+      res.status(500).json({ error: error.message });
     }
-
-    // Prepare the update data
-    const updateData = {
-      name,
-      description,
-      createdAt: createdAt || undefined,
-    };
-
-    if (req.file) {
-      updateData.profile_image = `/uploads/${req.file.filename}`;
-    }
-
-    // Update the organization profile
-    const updatedOrganizationProfile = await OrganizationProfile.findByIdAndUpdate(
-      orgId, // Use orgId to find the document
-      updateData,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedOrganizationProfile) {
-      return res.status(404).json({ error: "Organization profile not found" });
-    }
-
-    // If the name has changed, update references
-    if (orgId && (name !== updatedOrganizationProfile.name)) {
-      // Update references using orgId
-      await StudentProfile.updateMany(
-        { 'organizations.orgId': orgId },
-        { $set: { 'organizations.$[elem].name': name } },
-        { arrayFilters: [{ 'elem.orgId': orgId }] }
-      );
-
-      await FavoriteOrg.updateMany(
-        { orgId: orgId },
-        { $set: { org_name: name } }
-      );
-
-      await OrgSocial.updateMany(
-        { orgId: orgId },
-        { $set: { org_name: name } }
-      );
-
-      await TablingReservation.updateMany(
-        { orgId: orgId },
-        { $set: { org_name: name } }
-      );
-
-      // Add similar updates for any other collections referencing orgId
-    }
-
-    res.status(200).json(updatedOrganizationProfile);
-  } catch (error) {
-    if (error instanceof multer.MulterError) {
-      return res.status(400).json({ error: error.message });
-    }
-    console.error("Error in PUT /organization-profile:", error);
-    res.status(500).json({ error: error.message });
   }
-});
-
-
-
-
+);
 
 // ********************************** PENDING-ORG-Profile ROUTES **********************************
 router.get("/pending-organization-profiles", async (req, res) => {
@@ -375,56 +375,60 @@ router.get("/pending-organization-profiles", async (req, res) => {
   }
 });
 
-router.post("/pending-organization-profile", upload.single("profile_image"), async (req, res) => {
-  try {
-    console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file);
+router.post(
+  "/pending-organization-profile",
+  upload.single("profile_image"),
+  async (req, res) => {
+    try {
+      console.log("Request body:", req.body);
+      console.log("Uploaded file:", req.file);
 
-    const { name, description } = req.body;
+      const { name, description } = req.body;
 
-    // Handle officers array
-    const officersRaw = req.body["officers[]"] || req.body["officers"] || [];
-    const officersArray = Array.isArray(officersRaw) ? officersRaw : [officersRaw].filter(Boolean);
+      // Handle officers array
+      const officersRaw = req.body["officers[]"] || req.body["officers"] || [];
+      const officersArray = Array.isArray(officersRaw)
+        ? officersRaw
+        : [officersRaw].filter(Boolean);
 
-    console.log("Original officers field:", officersRaw);
-    console.log("Parsed officers array:", officersArray);
+      console.log("Original officers field:", officersRaw);
+      console.log("Parsed officers array:", officersArray);
 
-    
-    let profileImagePath = null;
+      let profileImagePath = null;
 
-    // Handle the uploaded file
-    if (req.file) {
-      profileImagePath = `/uploads/${req.file.filename}`; // Save the path
+      // Handle the uploaded file
+      if (req.file) {
+        profileImagePath = `/uploads/${req.file.filename}`; // Save the path
+      }
+
+      const newOrganizationProfile = new PendingOrganizationProfile({
+        name,
+        description,
+        profile_image: profileImagePath,
+        officers: officersArray, // Store officers as an array of strings
+      });
+
+      await newOrganizationProfile.save();
+
+      res.status(201).json(newOrganizationProfile);
+    } catch (err) {
+      console.error("Error occurred:", err);
+      res.status(400).json({ error: err.message });
     }
-
-    const newOrganizationProfile = new PendingOrganizationProfile({
-      name,
-      description,
-      profile_image: profileImagePath,
-      officers: officersArray, // Store officers as an array of strings
-    });
-
-    await newOrganizationProfile.save();
-
-    res.status(201).json(newOrganizationProfile);
-  } catch (err) {
-    console.error("Error occurred:", err);
-    res.status(400).json({ error: err.message });
   }
-});
-
-
+);
 
 router.put("/pending-organization-profile", async (req, res) => {
   const { name } = req.query;
   const { status, adminComments } = req.body;
 
   try {
-    const updatedOrganization = await PendingOrganizationProfile.findOneAndUpdate(
-      { name },
-      { status, adminComments },
-      { new: true } // Return the updated document
-    );
+    const updatedOrganization =
+      await PendingOrganizationProfile.findOneAndUpdate(
+        { name },
+        { status, adminComments },
+        { new: true } // Return the updated document
+      );
 
     if (!updatedOrganization) {
       return res.status(404).json({ error: "Organization not found" });
@@ -436,7 +440,6 @@ router.put("/pending-organization-profile", async (req, res) => {
   }
 });
 
-
 // Route to delete a pending organization
 router.delete("/pending-organization-profile", async (req, res) => {
   try {
@@ -446,10 +449,14 @@ router.delete("/pending-organization-profile", async (req, res) => {
       return res.status(400).json({ message: "Organization name is required" });
     }
 
-    const deletedPendingOrg = await PendingOrganizationProfile.findOneAndDelete({ name });
+    const deletedPendingOrg = await PendingOrganizationProfile.findOneAndDelete(
+      { name }
+    );
 
     if (!deletedPendingOrg) {
-      return res.status(404).json({ message: "Pending organization not found" });
+      return res
+        .status(404)
+        .json({ message: "Pending organization not found" });
     }
 
     res.status(200).json({
@@ -460,8 +467,6 @@ router.delete("/pending-organization-profile", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-
 
 // ********************************** ORG-SOCIAL ROUTES **********************************
 
@@ -605,7 +610,7 @@ router.get("/student-profile", async (req, res) => {
 });
 
 // Create a new student profile
-// Create a new student profile 
+// Create a new student profile
 router.post("/student-profile", upload.none(), async (req, res) => {
   try {
     console.log("Request Body:", req.body); // Debugging incoming data
@@ -646,7 +651,6 @@ router.post("/student-profile", upload.none(), async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
-
 
 router.put("/student-profile", async (req, res) => {
   try {
@@ -808,6 +812,38 @@ router.get("/live-tabling-events", async (req, res) => {
     res.status(200).json({ events: liveEvents });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch live tabling events" });
+  }
+});
+
+// Fetch all tabling reservations taking place today
+router.get("/tabling-reservations-specific", async (req, res) => {
+  try {
+    const { start_time, end_time } = req.query;
+
+    // Parse start_time and end_time from query parameters
+    const start = new Date(start_time);
+    const end = new Date(end_time);
+
+    // Validate the parsed dates
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ error: "Invalid start_time or end_time" });
+    }
+
+    // Query to find events that overlap with the given interval
+    const overlappingEvents = await TablingReservation.find({
+      $or: [
+        // Event starts within the specified range
+        { start_time: { $gte: start, $lte: end } },
+        // Event ends within the specified range
+        { end_time: { $gte: start, $lte: end } },
+        // Event spans the entire range
+        { start_time: { $lte: start }, end_time: { $gte: end } },
+      ],
+    });
+
+    res.status(200).json(overlappingEvents);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1093,8 +1129,6 @@ router.post("/admin", async (req, res) => {
   }
 });
 
-
-
 router.put("/student-role", async (req, res) => {
   const { email, role } = req.body;
 
@@ -1119,8 +1153,6 @@ router.put("/student-role", async (req, res) => {
     res.status(500).json({ error: "An error occurred while updating role" });
   }
 });
-
-
 
 router.get("/is-officer", async (req, res) => {
   const { ufl_email } = req.query;
@@ -1147,20 +1179,25 @@ router.get("/is-officer", async (req, res) => {
     }
   } catch (error) {
     console.error("Error checking officer status:", error.message, error.stack);
-    res.status(500).json({ error: "An error occurred while checking officer status" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while checking officer status" });
   }
 });
-
 
 router.post("/student-role-officer", async (req, res) => {
   const { email, first_name, last_name, position, organization } = req.body;
 
   if (!email || !position || !organization) {
-    return res.status(400).json({ message: "Email, position, and organization are required" });
+    return res
+      .status(400)
+      .json({ message: "Email, position, and organization are required" });
   }
 
-  if (typeof position !== 'string' || typeof organization !== 'string') {
-    return res.status(400).json({ message: "Invalid organization or position format." });
+  if (typeof position !== "string" || typeof organization !== "string") {
+    return res
+      .status(400)
+      .json({ message: "Invalid organization or position format." });
   }
 
   const trimmedEmail = email.trim();
@@ -1169,28 +1206,35 @@ router.post("/student-role-officer", async (req, res) => {
 
   try {
     // Find the student by email
-    const existingStudent = await StudentProfile.findOne({ ufl_email: trimmedEmail });
+    const existingStudent = await StudentProfile.findOne({
+      ufl_email: trimmedEmail,
+    });
 
     if (existingStudent) {
       existingStudent.role = "officer";
-    
+
       // Ensure all existing organizations are well-formed
       existingStudent.organizations = existingStudent.organizations.filter(
         (org) => org.name && org.position
       );
-    
+
       const orgIndex = existingStudent.organizations.findIndex(
-        (org) => org.name && org.name.toLowerCase() === trimmedOrganization.toLowerCase()
+        (org) =>
+          org.name &&
+          org.name.toLowerCase() === trimmedOrganization.toLowerCase()
       );
-    
+
       if (orgIndex !== -1) {
         // Update position if the organization already exists
         existingStudent.organizations[orgIndex].position = trimmedPosition;
       } else {
         // Add new organization and position
-        existingStudent.organizations.push({ name: trimmedOrganization, position: trimmedPosition });
+        existingStudent.organizations.push({
+          name: trimmedOrganization,
+          position: trimmedPosition,
+        });
       }
-    
+
       await existingStudent.save();
       return res.status(200).json({
         message: "Student profile updated",
@@ -1203,7 +1247,9 @@ router.post("/student-role-officer", async (req, res) => {
         first_name: first_name?.trim() || "Unknown",
         last_name: last_name?.trim() || "Unknown",
         role: "officer",
-        organizations: [{ name: trimmedOrganization, position: trimmedPosition }],
+        organizations: [
+          { name: trimmedOrganization, position: trimmedPosition },
+        ],
         createdAt: new Date(),
       });
 
@@ -1215,12 +1261,10 @@ router.post("/student-role-officer", async (req, res) => {
     }
   } catch (error) {
     console.error("Error updating or creating student profile:", error);
-    res.status(500).json({ error: "An error occurred while processing the request" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing the request" });
   }
 });
-
-
-
-
 
 export default router;

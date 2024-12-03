@@ -18,20 +18,20 @@ const BottomNavbar = ({ isNonMobile }) => {
   // Conditional icons based on user role (admin or student)
   const adminIcons = [
     { label: 'Home', icon: <HomeIcon />, path: '/system-admin-home' },
-    { label: 'Map', icon: <MapOutlinedIcon />, path: '/map' },
+    { label: 'Map', icon: <MapOutlinedIcon />, path: '/live-map' },
     { label: 'Calendar', icon: <CalendarMonthIcon />, path: '/calendarlist' },
     { label: 'Search', icon: <SearchIcon />, path: '/search' },
   ];
 
   const studentIcons = [
-    { label: 'Map', icon: <MapOutlinedIcon />, path: '/map' },
+    { label: 'Map', icon: <MapOutlinedIcon />, path: '/live-map' },
     { label: 'Calendar', icon: <CalendarMonthIcon />, path: '/calendarlist' },
     { label: 'Search', icon: <SearchIcon />, path: '/search' },
     { label: 'Favorites', icon: <FavoriteBorderIcon />, path: '/favorites' },
   ];
 
   const officerIcons = [
-    { label: 'Map', icon: <MapOutlinedIcon />, path: '/map' },
+    { label: 'Map', icon: <MapOutlinedIcon />, path: '/live-map' },
     { label: 'Calendar', icon: <CalendarMonthIcon />, path: '/calendarlist' },
     { label: 'Search', icon: <SearchIcon />, path: '/search' },
     { label: 'Favorites', icon: <FavoriteBorderIcon />, path: '/favorites' },

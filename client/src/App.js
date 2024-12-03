@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { themeSettings } from "theme";
 import Layout from "scenes/layout";
+import LiveMap from "scenes/live-map";
 import Map from "scenes/map";
 import CalendarList from "scenes/calendarList";
 import Favorites from "scenes/favorites";
@@ -73,10 +74,11 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               {/* Redirect to map by default */}
-              <Route path="/" element={<Navigate to="/map" replace />} />
+              <Route path="/" element={<Navigate to="/live-map" replace />} />
 
               {/* Public routes accessible to everyone */}
               <Route path="/loadingScreen" element={<LoadingScreen />} />
+              <Route path="/live-map" element={<LiveMap />} />
               <Route path="/map" element={<Map />} />
               <Route path="/calendarlist" element={<CalendarList />} />
               <Route path="/search" element={<Search />} />
@@ -103,7 +105,7 @@ function App() {
                     isLoggedIn={isLoggedIn}
                     role={role}
                     requiredRole="admin"
-                    redirectPath="/map"
+                    redirectPath="/live-map"
                     alertMessage="You do not have privileges to access this page."
                   >
                     <SystemAdminHome />
@@ -116,7 +118,7 @@ function App() {
                 path="/login"
                 element={
                   isLoggedIn ? (
-                    <Navigate to="/map" replace />
+                    <Navigate to="/live-map" replace />
                   ) : (
                     <Login onLogin={() => setIsLoggedIn(true)} />
                   )
@@ -125,7 +127,11 @@ function App() {
               <Route
                 path="/register"
                 element={
-                  isLoggedIn ? <Navigate to="/map" replace /> : <Register />
+                  isLoggedIn ? (
+                    <Navigate to="/live-map" replace />
+                  ) : (
+                    <Register />
+                  )
                 }
               />
 

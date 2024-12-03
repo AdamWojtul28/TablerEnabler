@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Favorites.css"; // Assuming you already have CSS for styling
 import defaultImage from "../../assets/organization-default.png"; // Import the default image
 
@@ -8,6 +8,7 @@ const Favorites = () => {
   const [reservations, setReservations] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [favorites, setFavorites] = useState([]);
+  const navigate = useNavigate();
 
   const email = localStorage.getItem("email");
 
@@ -132,6 +133,23 @@ const Favorites = () => {
     e.target.src = defaultImage;
   };
 
+  // Adjusted navigateToMap function to pass relevant params
+  const navigateToMap = (reservation) => {
+    const organization = organizations.find(
+      (org) => org.name === reservation.org_name
+    );
+    if (organization && reservation) {
+      const params = new URLSearchParams({
+        name: organization.name,
+        startTime: reservation.start_time, // Send full start time (date and time)
+        endTime: reservation.end_time, // Send full end time (date and time)
+        location: reservation.location,
+        description: reservation.description,
+      });
+      navigate(`/map?${params.toString()}`);
+    }
+  };
+
   return (
     <div className="favorites-page">
       <h1>Favorite Organizations</h1>
@@ -207,7 +225,12 @@ const Favorites = () => {
                       hour12: true,
                     })}
                     {" | "} <strong>Location: </strong>
-                    {reservation.location}
+                    <button
+                      className="navigate-map-button"
+                      onClick={() => navigateToMap(reservation)}
+                    >
+                      View on Map
+                    </button>
                   </p>
                   <p>
                     <strong>Description: </strong>

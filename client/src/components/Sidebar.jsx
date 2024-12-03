@@ -30,18 +30,18 @@ import loginImage from "../assets/user_default.png";
 const navItems = {
   admin: [
     { text: "Home", icon: <HomeOutlined />, path: "/system-admin-home" },
-    { text: "Map", icon: <HomeOutlined />, path: "/map" },
+    { text: "Map", icon: <HomeOutlined />, path: "/live-map" },
     { text: "Calendar List", icon: <CalendarMonthOutlined />, path: "/calendarlist" },
     { text: "Search", icon: <SearchOutlined />, path: "/search" },
   ],
   student: [
-    { text: "Map", icon: <HomeOutlined />, path: "/map" },
+    { text: "Map", icon: <HomeOutlined />, path: "/live-map" },
     { text: "Calendar List", icon: <CalendarMonthOutlined />, path: "/calendarlist" },
     { text: "Search", icon: <SearchOutlined />, path: "/search" },
     { text: "Favorites", icon: <FavoriteBorderOutlined />, path: "/favorites" },
   ],
   officer: [
-    { text: "Map", icon: <HomeOutlined />, path: "/map" },
+    { text: "Map", icon: <HomeOutlined />, path: "/live-map" },
     { text: "Calendar List", icon: <CalendarMonthOutlined />, path: "/calendarlist" },
     { text: "Search", icon: <SearchOutlined />, path: "/search" },
     { text: "Favorites", icon: <FavoriteBorderOutlined />, path: "/favorites" },

@@ -6,8 +6,6 @@ import "./OrganizationPage.css";
 import defaultImage from "../../assets/organization-default.png";
 import { format } from "date-fns";
 
-
-
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState(null);
   const [socialMedia, setSocialMedia] = useState([]);
@@ -135,15 +133,14 @@ const OrganizationPage = () => {
     if (modalData && modalData.location) {
       const params = new URLSearchParams({
         name: organization.name,
-        startTime: modalData.startTime,
-        endTime: modalData.endTime,
+        startTime: dayReservations[modalIndex]?.start_time, // Send full start time (date and time)
+        endTime: dayReservations[modalIndex]?.end_time, // Send full end time (date and time)
         location: modalData.location,
         description: modalData.description,
       });
       navigate(`/map?${params.toString()}`);
     }
   };
-  
 
   const handleClickDay = (date) => {
     const formattedDate = date.toISOString().split("T")[0];
@@ -299,11 +296,15 @@ const OrganizationPage = () => {
         <div className="parent-div">
           <div className="left-section">
             <h2>Organization Purpose:</h2>
-            <p style={{ paddingTop: '8px' }}>{organization.description}</p>
+            <p style={{ paddingTop: "8px" }}>{organization.description}</p>
           </div>
           <div className="right-section">
             <img
-              src={organization.profile_image ? `http://localhost:5001${organization.profile_image}` : defaultImage}
+              src={
+                organization.profile_image
+                  ? `http://localhost:5001${organization.profile_image}`
+                  : defaultImage
+              }
               alt={organization.name || "Default Organization"}
               className="organization-image"
             />
@@ -359,7 +360,7 @@ const OrganizationPage = () => {
             </button>
             <h2>{modalData.title}</h2>
             <p>
-              <strong>Location:</strong> 
+              <strong>Location:</strong>
               <button className="navigate-map-button" onClick={navigateToMap}>
                 View on Map
               </button>
