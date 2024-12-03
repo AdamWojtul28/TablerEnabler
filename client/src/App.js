@@ -74,7 +74,8 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               {/* Redirect to map by default */}
-              <Route path="/" element={<Navigate to="/live-map" replace />} />
+              <Route path="/" element={<Navigate to="/loadingscreen
+              " replace />} />
 
               {/* Public routes accessible to everyone */}
               <Route path="/loadingScreen" element={<LoadingScreen />} />
